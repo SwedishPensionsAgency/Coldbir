@@ -1,0 +1,9 @@
+Package: coldbir
+Type: Package
+Title: Column Database in R
+Version: 1.0
+Date: 2012-10-27
+Author: Danne Mikula [aut, cre], Thomas Reinholdsson [aut]
+Maintainer: Danne Mikula
+Description: A (keep it simple stupid) column database in R
+License: GPL (>= 2)
