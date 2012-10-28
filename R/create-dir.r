@@ -5,7 +5,7 @@
 #' @param name Variable name
 #' @param path Path
 #'
-create_file_dir <- function(name, path) {
+create_dir <- function(name, path) {
   
   folder_path <- file.path(path, name)
   

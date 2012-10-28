@@ -5,7 +5,7 @@
 #' @param name Variable name
 #' @param dims Vector specifying the dimensions
 #' 
-create_file_name <- function(name, dims = NULL) {
+create_name <- function(name, dims = NULL) {
 
   brackets <- c("[", "]")
 
