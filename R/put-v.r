@@ -53,9 +53,9 @@ put_v <- function(x, name, path = getwd(), dims = NULL, compress = 5) {
   }
 
   # Construct file path
-  file_name <- create_name(name, dims)
-  file_dir <- create_dir(name, path)
-  file_path <- file.path(file_dir, file_name)
+  v_name <- file_name(name, dims)
+  v_dir <- file_dir(name, path, create_dir = TRUE)
+  file_path <- file.path(v_dir, v_name)
   
   # Create file and add file extension
   if (compress > 0) {
@@ -106,6 +106,6 @@ put_v <- function(x, name, path = getwd(), dims = NULL, compress = 5) {
 
   close(bin_file)
 
-  cat(file_name, "successfully written to disk.\n")
+  cat(v_name, "successfully written to disk.\n")
 	return(TRUE)
 }

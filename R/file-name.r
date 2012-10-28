@@ -1,11 +1,11 @@
-#' Create file name
+#' Generate coldbir file name
 #' 
 #' ...
 #' 
 #' @param name Variable name
 #' @param dims Vector specifying the dimensions
 #' 
-create_name <- function(name, dims = NULL) {
+file_name <- function(name, dims = NULL) {
 
   brackets <- c("[", "]")
 
@@ -13,7 +13,7 @@ create_name <- function(name, dims = NULL) {
      paste(brackets[1], dims, brackets[2], sep="", collapse="")
   } else ""
  
-  file_name <- paste(name, label, sep="")	
+  v_name <- paste(name, label, sep="")	
 
-  return(file_name)
+  return(v_name)
 }
