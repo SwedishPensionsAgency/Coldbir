@@ -11,7 +11,8 @@ Depends:
     RJSONIO
 Collate:
     'check-repr.r'
-    'create-dir.r'
-    'create-name.r'
     'find-exp.r'
     'put-v.r'
+    'file-name.r'
+    'file-path.r'
+    'get-v.r'
