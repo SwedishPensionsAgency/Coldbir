@@ -7,3 +7,5 @@ Author: Danne Mikula [aut, cre], Thomas Reinholdsson [aut]
 Maintainer: Danne Mikula
 Description: A (keep it simple stupid) column database in R
 License: GPL (>= 2)
+Depends:
+    RJSONIO
