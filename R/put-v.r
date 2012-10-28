@@ -52,16 +52,16 @@ put_v <- function(x, name, path = getwd(), dims = NULL, compress = 5) {
     stop("Wrong data type; only allows integer, double, factor or logical")
   }
 
+  ext <- if (compress > 0) "cdb.gz" else "cdb"
+  
   # Construct file path
-  v_name <- file_name(name, dims)
-  v_dir <- file_dir(name, path, create_dir = TRUE)
-  file_path <- file.path(v_dir, v_name)
+  cdb <- file_path(name, path, dims, ext, create_dir = TRUE)
   
   # Create file and add file extension
   if (compress > 0) {
-    bin_file <- gzfile(paste(file_path, ".cdb.gz", sep=""), open = "wb", compression = compress)
+    bin_file <- gzfile(cdb, open = "wb", compression = compress)
   } else {
-    bin_file <- file(paste(file_path, ".cdb", sep=""), "wb")
+    bin_file <- file(cdb, "wb")
   }
 
   # File header
@@ -106,6 +106,6 @@ put_v <- function(x, name, path = getwd(), dims = NULL, compress = 5) {
 
   close(bin_file)
 
-  cat(v_name, "successfully written to disk.\n")
+  cat("File was successfully written to disk.\n")
 	return(TRUE)
 }

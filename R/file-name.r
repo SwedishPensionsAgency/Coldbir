@@ -4,8 +4,9 @@
 #' 
 #' @param name Variable name
 #' @param dims Vector specifying the dimensions
+#' @param ext File extension
 #' 
-file_name <- function(name, dims = NULL) {
+file_name <- function(name, dims = NULL, ext) {
 
   brackets <- c("[", "]")
 
@@ -13,7 +14,7 @@ file_name <- function(name, dims = NULL) {
      paste(brackets[1], dims, brackets[2], sep="", collapse="")
   } else ""
  
-  v_name <- paste(name, label, sep="")	
+  file_name <- paste(name, label, ".", ext, sep="")	
 
-  return(v_name)
+  return(file_name)
 }
