@@ -102,9 +102,9 @@ put_v <- function(x, name, path = getwd(), dims = NULL, compress = 5) {
   writeBin(levels_raw, bin_file)
   
   writeBin(vector_len, bin_file, size = 8)
-	writeBin(x, bin_file, size = bytes) # write each vector element to bin_file
+  writeBin(x, bin_file, size = bytes) # write each vector element to bin_file
 
-	close(bin_file)
+  close(bin_file)
 
   cat(file_name, "successfully written to disk.\n")
 	return(TRUE)
