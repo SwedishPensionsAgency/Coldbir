@@ -70,7 +70,7 @@ put_v <- function(x, name, path = getwd(), dims = NULL, compress = 5) {
   
   attr_raw <- charToRaw(
     if (!is.null(attributes(x))) {
-      RJSONIO:::toJSON(attributes(x))
+      RJSONIO:::toJSON(attributes(x), digits = 50)
     } else ""
   )
   attr_len <- length(attr_raw)

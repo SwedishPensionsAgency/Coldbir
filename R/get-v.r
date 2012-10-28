@@ -51,6 +51,7 @@ get_v <- function(name, path = getwd(), dims = NULL, na = NA) {
 
   close(bin_file)
   
+  # Prepare data depending on vector type
   if (type == "i") {
     if(!is.na(na)) x[is.na(x)] <- as.integer(na)
   } else if (type == "d") {
@@ -60,6 +61,11 @@ get_v <- function(name, path = getwd(), dims = NULL, na = NA) {
     x <- (x > 0L)
     if(!is.na(na)) x[is.na(x)] <- as.logical(na)
   }
+  
+  # Add attributes to vector
+  attributes(x) <- if (attr_str != "") {
+      RJSONIO:::fromJSON(attr_str)
+    } else NULL
   
   return(x)
 }
