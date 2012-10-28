@@ -4,7 +4,7 @@ Title: Column Database in R
 Version: 1.0
 Date: 2012-10-27
 Author: Danne Mikula [aut, cre], Thomas Reinholdsson [aut]
-Maintainer: Danne Mikula
+Maintainer: Danne Mikula <yourfault@somewhere.net>
 Description: A (keep it simple stupid) column database in R
 License: GPL (>= 2)
 Depends:
