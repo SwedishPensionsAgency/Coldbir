@@ -6,11 +6,12 @@
 #' @param path Directory of where the file are to be created
 #' @param name Variable name
 #' @param dims A numeric or character vector specifying the dimension of the data (e.g. year and month)
+#' @param attrib List of vector attributes
 #' @param compress Degree of compression in .gz file (size/speed - trade off). Zero compression gives most speed.
 #' 
 #' @export
 #' 
-put_v <- function(x, name, path = getwd(), dims = NULL, compress = 5) {
+put_v <- function(x, name, path = getwd(), dims = NULL, attrib = attributes(x), compress = 5) {
   
   # Errors and warnings
   if (is.null(x)) stop("Vector is NULL")
@@ -69,8 +70,8 @@ put_v <- function(x, name, path = getwd(), dims = NULL, compress = 5) {
   version_len <- length(version_raw)
   
   attr_raw <- charToRaw(
-    if (!is.null(attributes(x))) {
-      RJSONIO:::toJSON(attributes(x), digits = 50)
+    if (!is.null(attrib)) {
+      RJSONIO:::toJSON(attrib, digits = 50)
     } else ""
   )
   attr_len <- length(attr_raw)

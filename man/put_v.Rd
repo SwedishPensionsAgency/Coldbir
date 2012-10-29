@@ -2,7 +2,8 @@
 \alias{put_v}
 \title{Save vector to disk}
 \usage{
-  put_v(x, name, path = getwd(), dims = NULL, compress = 5)
+  put_v(x, name, path = getwd(), dims = NULL,
+    attrib = attributes(x), compress = 5)
 }
 \arguments{
   \item{x}{A factor or numeric vector, NOT a character
@@ -15,6 +16,8 @@
 
   \item{dims}{A numeric or character vector specifying the
   dimension of the data (e.g. year and month)}
+
+  \item{attrib}{List of vector attributes}
 
   \item{compress}{Degree of compression in .gz file
   (size/speed - trade off). Zero compression gives most

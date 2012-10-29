@@ -2,7 +2,7 @@
 \alias{get_v}
 \title{Read vector from disk}
 \usage{
-  get_v(name, path = getwd(), dims = NULL)
+  get_v(name, path = getwd(), dims = NULL, na = NA)
 }
 \arguments{
   \item{name}{Variable name}
