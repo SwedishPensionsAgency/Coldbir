@@ -66,7 +66,7 @@ put_v <- function(x, name, path = getwd(), dims = NULL, attrib = attributes(x), 
   }
 
   # File header
-  version_raw <- charToRaw("1.0")  # packageDescription("coldbir")["Version"]
+  version_raw <- charToRaw("1.0") #charToRaw(packageDescription("coldbir")["Version"])
   version_len <- length(version_raw)
   
   attr_raw <- charToRaw(

@@ -64,7 +64,7 @@ get_v <- function(name, path = getwd(), dims = NULL, na = NA) {
   
   # Add attributes to vector
   attributes(x) <- if (attr_str != "") {
-      RJSONIO:::fromJSON(attr_str)
+      as.list(RJSONIO:::fromJSON(attr_str))
     } else NULL
   
   return(x)
