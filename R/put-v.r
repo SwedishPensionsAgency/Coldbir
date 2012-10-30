@@ -11,7 +11,7 @@
 #' 
 #' @export
 #' 
-put_v <- function(x, name, path = getwd(), dims = NULL, attrib = attributes(x), compress = 5) {
+put_v <- function(x, name, path = getwd(), dims = NULL, attrib = NULL, compress = 5) {
   
   # Errors and warnings
   if (is.null(x)) stop("Vector is NULL")
