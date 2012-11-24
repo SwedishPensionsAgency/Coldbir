@@ -107,6 +107,6 @@ put_v <- function(x, name, path = getwd(), dims = NULL, attrib = NULL, compress 
 
   close(bin_file)
 
-  cat("File was successfully written to disk.\n")
+  message("File was successfully written to disk")
 	return(TRUE)
 }
