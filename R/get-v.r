@@ -22,8 +22,7 @@ get_v <- function(name, path = getwd(), dims = NULL, na = NA) {
     bin_file <- file(cdb[2], "rb")
 
   } else {
-    cat("File does not exist\n")
-    return(NULL)
+    stop("File does not exist")
   }
   
   type <- rawToChar(readBin(bin_file, raw(), n = 1, size = 1, signed = FALSE))
@@ -34,10 +33,7 @@ get_v <- function(name, path = getwd(), dims = NULL, na = NA) {
   version_str <- rawToChar(readBin(bin_file, raw(), n = version_len))
 
   attr_len <- readBin(bin_file, integer(), n = 1, size = 8)
-  attr_str <- rawToChar(readBin(bin_file, raw(), n = attr_len))  
-
-  levels_len <- readBin(bin_file, integer(), n = 1, size = 8)
-  levels_str <- rawToChar(readBin(bin_file, raw(), n = levels_len))  
+  attr_str <- rawToChar(readBin(bin_file, raw(), n = attr_len))
 
   vector_len <- readBin(bin_file, integer(), n = 1, size = 8) 
   
@@ -61,7 +57,7 @@ get_v <- function(name, path = getwd(), dims = NULL, na = NA) {
     x <- (x > 0L)
     if(!is.na(na)) x[is.na(x)] <- as.logical(na)
   }
-  
+
   # Add attributes to vector
   attributes(x) <- if (attr_str != "") {
       as.list(RJSONIO:::fromJSON(attr_str))
