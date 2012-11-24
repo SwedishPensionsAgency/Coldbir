@@ -3,8 +3,8 @@
 #' Takes a numeric vector and saves its content to a file in the correct cdb.gz-format.
 #' 
 #' @param x A factor or numeric vector, NOT a character vector
-#' @param path Directory of where the file are to be created
 #' @param name Variable name
+#' @param path Directory of where the file are to be created
 #' @param dims A numeric or character vector specifying the dimension of the data (e.g. year and month)
 #' @param attrib List of vector attributes
 #' @param compress Degree of compression in .gz file (size/speed - trade off). Zero compression gives most speed.
@@ -75,10 +75,7 @@ put_v <- function(x, name, path = getwd(), dims = NULL, attrib = NULL, compress 
     } else ""
   )
   attr_len <- length(attr_raw)
-  
-  levels_raw <- charToRaw("")  # TODO
-  levels_len <- length(levels_raw)  # TODO
- 
+
   vector_len <- length(x)
   
   # Removes attributes from vector
@@ -98,10 +95,7 @@ put_v <- function(x, name, path = getwd(), dims = NULL, attrib = NULL, compress 
   
   writeBin(attr_len, bin_file, size = 8)
   writeBin(attr_raw, bin_file)
-  
-  writeBin(levels_len, bin_file, size = 8)
-  writeBin(levels_raw, bin_file)
-  
+
   writeBin(vector_len, bin_file, size = 8)
   writeBin(x, bin_file, size = bytes) # write each vector element to bin_file
 
