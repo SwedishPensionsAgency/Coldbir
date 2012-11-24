@@ -16,3 +16,4 @@ Collate:
     'file-name.r'
     'file-path.r'
     'get-v.r'
+    'put-ht.r'

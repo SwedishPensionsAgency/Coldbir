@@ -3,7 +3,7 @@
 \title{Generate coldbir file path}
 \usage{
   file_path(name, path, dims = NULL, ext,
-    create_dir = FALSE)
+    create_dir = FALSE, file_name = TRUE)
 }
 \arguments{
   \item{name}{Variable name}

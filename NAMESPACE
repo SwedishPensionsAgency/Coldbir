@@ -1,2 +1,3 @@
 export(get_v)
+export(put_ht)
 export(put_v)

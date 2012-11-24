@@ -3,16 +3,16 @@
 \title{Save vector to disk}
 \usage{
   put_v(x, name, path = getwd(), dims = NULL,
-    attrib = attributes(x), compress = 5)
+    attrib = NULL, compress = 5)
 }
 \arguments{
   \item{x}{A factor or numeric vector, NOT a character
   vector}
 
+  \item{name}{Variable name}
+
   \item{path}{Directory of where the file are to be
   created}
-
-  \item{name}{Variable name}
 
   \item{dims}{A numeric or character vector specifying the
   dimension of the data (e.g. year and month)}
