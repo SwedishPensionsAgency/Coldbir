@@ -18,6 +18,7 @@ file_path <- function(name, path, dims = NULL, ext, create_dir = FALSE, file_nam
     } else {
       stop("Variable folder does not exist")
     }
+  }
   
   
   if (file_name) {
