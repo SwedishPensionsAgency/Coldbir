@@ -1,8 +1,8 @@
 \name{put_ht}
 \alias{put_ht}
-\title{Save hash table to disk}
+\title{Write hash table to disk}
 \usage{
-  put_ht(name, path = getwd(), key, value,
+  put_ht(key, value, name, path = getwd(),
     create_dir = TRUE)
 }
 \arguments{
@@ -16,7 +16,7 @@
   \item{value}{Value vector}
 }
 \description{
-  Used to save a hash table (dictionary) that represents
-  variable data to disk.
+  Write a hash table (dictionary) that represents variable
+  data to disk.
 }
 
