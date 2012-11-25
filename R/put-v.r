@@ -69,8 +69,7 @@ put_v <- function(x, name, path = getwd(), dims = NULL, attrib = NULL, compress 
     }
     
     # File header
-    version_raw <- charToRaw(packageDescription("coldbir")$Version)
-    version_len <- length(version_raw)
+    db_ver <- get_db_ver()
     
     attr_raw <- charToRaw(if (!is.null(attrib)) {
         RJSONIO:::toJSON(attrib, digits = 50)
@@ -90,9 +89,7 @@ put_v <- function(x, name, path = getwd(), dims = NULL, attrib = NULL, compress 
     writeBin(type, bin_file, size = 1)
     writeBin(as.raw(bytes), bin_file, size = 1)
     writeBin(as.raw(exponent), bin_file, size = 1)
-    
-    writeBin(version_len, bin_file, size = 8)
-    writeBin(version_raw, bin_file)
+    writeBin(db_ver, bin_file, size = 8)
     
     writeBin(attr_len, bin_file, size = 8)
     writeBin(attr_raw, bin_file)

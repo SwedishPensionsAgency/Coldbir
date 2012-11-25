@@ -28,9 +28,7 @@ get_v <- function(name, path = getwd(), dims = NULL, na = NA) {
     type <- rawToChar(readBin(bin_file, raw(), n = 1, size = 1, signed = FALSE))
     bytes <- readBin(bin_file, integer(), n = 1, size = 1, signed = FALSE)
     exponent <- readBin(bin_file, integer(), n = 1, size = 1, signed = FALSE)
-    
-    version_len <- readBin(bin_file, integer(), n = 1, size = 8)
-    version_str <- rawToChar(readBin(bin_file, raw(), n = version_len))
+    db_ver <- readBin(bin_file, integer(), n = 1, size = 8)
     
     attr_len <- readBin(bin_file, integer(), n = 1, size = 8)
     attr_str <- rawToChar(readBin(bin_file, raw(), n = attr_len))
@@ -39,13 +37,16 @@ get_v <- function(name, path = getwd(), dims = NULL, na = NA) {
     
     if (bytes <= 4) {
         x <- readBin(bin_file, integer(), n = vector_len, size = bytes)
-        # if (H_itemSize == 1) data[data == -128] <- as.integer(NA) if (H_itemSize == 2) data[data == -32768] <-
-        # as.integer(NA)
+        # if (H_itemSize == 1) data[data == -128] <- as.integer(NA) if (H_itemSize == 2) data[data == -32768] <- as.integer(NA)
     } else {
         x <- readBin(bin_file, double(), n = vector_len)
     }
     
     close(bin_file)
+    
+    # Check if using an old version of colbir
+    if (db_ver != get_db_ver()) 
+        stop("Version of coldbir package and file format does not match")
     
     # Prepare data depending on vector type
     if (type == "i") {

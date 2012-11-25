@@ -9,6 +9,6 @@
 #'
 get_ht <- function(name, path = getwd()) {
     folder_path <- file_path(name, path, create_dir = FALSE, file_name = FALSE)
-    df <- read.table(file = file.path(folder_path, "dictionary.tsv"), header = TRUE, quote = "", sep = "\t")
+    df <- read.table(file = file.path(folder_path, "dict.txt"), header = TRUE, quote = "", sep = "\t")
     return(df)
 } 

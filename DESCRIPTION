@@ -1,10 +1,10 @@
 Package: coldbir
 Type: Package
 Title: Column Database in R
-Version: 1.0
-Date: 2012-10-27
-Author: Danne Mikula [aut, cre], Thomas Reinholdsson [aut]
-Maintainer: Danne Mikula <yourfault@somewhere.net>
+Version: 0.0.1
+Date: 2012-11-25
+Author: Danne Mikula, Thomas Reinholdsson
+Maintainer: Thomas Reinholdsson <reinholdsson@gmail.com>
 Description: A (keep it simple stupid) column database in R
 License: GPL (>= 2)
 Depends:
@@ -18,3 +18,6 @@ Collate:
     'get-v.r'
     'put-ht.r'
     'get-ht.r'
+    'key-to-value.r'
+    'list-to-md.r'
+    'get-db-ver.r'

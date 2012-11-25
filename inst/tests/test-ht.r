@@ -1,10 +1,10 @@
 context("Hash table tests")
 
-df <- data.frame(key = c(1, 2, 3), value = c("a", "b", "c"))
+ht <- data.frame(key = c(1, 2, 3), value = c("a", "b", "c"))
 
 test_that("Write hash table", {
-  expect_error(put_ht(df$key, df$value))
-  expect_true(put_ht(df$key, df$value, "test_variable"))
+  expect_error(put_ht(ht))
+  expect_true(put_ht(ht, "test_variable"))
 })
 
 test_that("Read vector", {
