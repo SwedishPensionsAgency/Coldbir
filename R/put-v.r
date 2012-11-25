@@ -54,7 +54,7 @@ put_v <- function(x, name, path = getwd(), dims = NULL, attrib = NULL, compress 
         exponent <- 0L
         
     } else {
-        stop("Wrong data type; only allows integer, double, factor or logical")
+        stop("Data type is not supported")
     }
     
     ext <- if (compress > 0) 
