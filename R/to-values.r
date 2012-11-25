@@ -13,7 +13,7 @@ to_values <- function(v, df, factors = FALSE) {
     if (!is.data.frame(df) || ncol(df) != 2) 
         stop("Input must be a two-column data frame")
     
-    v <- ht[[2]][match(v, ht[[1]])]
+    v <- df[[2]][match(v, df[[1]])]
     if (!factors) 
         v <- as.character(v)
     return(v)
