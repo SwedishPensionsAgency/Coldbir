@@ -4,6 +4,10 @@
 require("roxygen2")
 roxygenize("../coldbir")
 
+# RUN FORMATR
+require("formatR")
+suppressMessages(tidy.dir("R"))
+
 # RUN TESTS
 sourceDir <- function(path, trace = TRUE, ...) {
   for (nm in list.files(path, pattern = "\\.[RrSsQq]$")) {         
