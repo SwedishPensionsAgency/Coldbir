@@ -19,6 +19,6 @@ put_dict <- function(df, name, path = getwd(), create_dir = TRUE) {
     colnames(df) <- c("key", "value")
     write.table(df, file = file.path(folder_path, "dictionary.txt"), quote = FALSE, row.names = FALSE, sep = "\t")
     
-    message("Keys were successfully written to disk")
+    message("Dictionary was successfully written to disk")
     return(TRUE)
 } 
