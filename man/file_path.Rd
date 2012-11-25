@@ -14,7 +14,11 @@
 
   \item{ext}{File extension}
 
-  \item{create_dir}{}
+  \item{create_dir}{If folder should be created when
+  missing}
+
+  \item{file_name}{If file name should be included in
+  return path}
 }
 \description{
   ...

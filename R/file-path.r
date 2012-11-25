@@ -6,7 +6,8 @@
 #' @param path Variable path
 #' @param dims Vector specifying the dimensions
 #' @param ext File extension
-#' @param create_dir
+#' @param create_dir If folder should be created when missing
+#' @param file_name If file name should be included in return path
 #'
 file_path <- function(name, path, dims = NULL, ext, create_dir = FALSE, file_name = TRUE) {
     

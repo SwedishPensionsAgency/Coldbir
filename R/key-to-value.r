@@ -2,9 +2,9 @@
 #'
 #' Function to replace keys with values in a variable vector
 #'
-#' @param v vector
-#' @param ht hash table
-#' @param factors if vector should be returned as factors, default is FALSE.
+#' @param v Vector
+#' @param ht Hash table
+#' @param factors If vector should be returned as factors, default is FALSE.
 #'
 #' @export
 #'

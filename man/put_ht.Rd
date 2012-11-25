@@ -12,6 +12,9 @@
 
   \item{path}{Directory of where the file are to be
   created}
+
+  \item{create_dir}{If folder should be created when
+  missing}
 }
 \description{
   Write a hash table (dictionary) that represents variable

@@ -1,20 +1,9 @@
-# BUILD SCRIPT - run before pushing to github
+# Run before pushing to github
 
-# RUN ROXYGEN
-require("roxygen2")
-roxygenize("../coldbir")
-
-# RUN FORMATR
 require("formatR")
-suppressMessages(tidy.dir("R"))
+tidy.dir("R")  # Fix code formatting
 
-# RUN TESTS
-sourceDir <- function(path, trace = TRUE, ...) {
-  for (nm in list.files(path, pattern = "\\.[RrSsQq]$")) {         
-    source(file.path(path, nm), ...)
-  }
-}
-sourceDir("R")
-
-require("testthat")
-test_dir("inst/tests")
+require("devtools")
+document()  # Fix documentation with roxygen
+check_doc()  # Check documentation
+test()  # Run tests

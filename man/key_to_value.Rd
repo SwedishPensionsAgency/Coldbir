@@ -5,11 +5,11 @@
   key_to_value(v, ht, factors = FALSE)
 }
 \arguments{
-  \item{v}{vector}
+  \item{v}{Vector}
 
-  \item{ht}{hash table}
+  \item{ht}{Hash table}
 
-  \item{factors}{if vector should be returned as factors,
+  \item{factors}{If vector should be returned as factors,
   default is FALSE.}
 }
 \description{

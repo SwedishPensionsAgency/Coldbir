@@ -8,7 +8,9 @@ Maintainer: Thomas Reinholdsson <reinholdsson@gmail.com>
 Description: A (keep it simple stupid) column database in R
 License: GPL (>= 2)
 Depends:
-    RJSONIO
+    RJSONIO,
+    devtools,
+    formatR
 Collate:
     'check-repr.r'
     'find-exp.r'
