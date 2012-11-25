@@ -20,6 +20,6 @@ Collate:
     'get-v.r'
     'list-to-md.r'
     'get-db-ver.r'
-    'get-keys.r'
-    'put-keys.r'
     'to-values.r'
+    'get-dict.r'
+    'put-dict.r'

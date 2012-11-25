@@ -1,0 +1,21 @@
+\name{put_dict}
+\alias{put_dict}
+\title{Write dictionary to disk}
+\usage{
+  put_dict(df, name, path = getwd(), create_dir = TRUE)
+}
+\arguments{
+  \item{df}{Two-column data frame with keys and values}
+
+  \item{name}{Variable name}
+
+  \item{path}{Directory of where the file are to be
+  created}
+
+  \item{create_dir}{If folder should be created when
+  missing}
+}
+\description{
+  Write dictionary that represents variable data to disk.
+}
+
