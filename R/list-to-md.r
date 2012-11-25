@@ -16,4 +16,3 @@ list_to_md <- function(lst) {
     # 
     # # a2 additional text
 }
- 

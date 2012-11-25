@@ -8,7 +8,5 @@ coldbir
 Use `devtools` for easy installation
 
     # install.packages("devtools")
-    library(devtools)
-
-    install_github('coldbir', 'mikula')
+    devtools:::install_github('coldbir', 'mikula')
     library(coldbir)
