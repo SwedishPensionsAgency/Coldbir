@@ -10,7 +10,7 @@
 #'
 to_values <- function(v, ..., factors = FALSE) {
     
-    df <- get_keys(...)
+    df <- get_dict(...)
     
     v <- df[[2]][match(v, df[[1]])]
     if (!factors) 
