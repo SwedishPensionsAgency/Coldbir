@@ -1,13 +1,13 @@
-#' Read hash table from disk
+#' Read keys from disk
 #'
-#' Read a hash table (dictionary) that represents variable data to disk.
+#' Read keys that represents variable data from disk.
 #'
 #' @param name Variable name
 #' @param path Directory of where the file is located
 #'
 #' @export
 #'
-get_ht <- function(name, path = getwd()) {
+get_keys <- function(name, path = getwd()) {
     folder_path <- file_path(name, path, create_dir = FALSE, file_name = FALSE)
     df <- read.table(file = file.path(folder_path, "keys.txt"), header = TRUE, quote = "", sep = "\t")
     return(df)
