@@ -1,13 +1,13 @@
-\name{key_to_value}
-\alias{key_to_value}
+\name{to_values}
+\alias{to_values}
 \title{Replace keys with values in vector}
 \usage{
-  key_to_value(v, ht, factors = FALSE)
+  to_values(v, df, factors = FALSE)
 }
 \arguments{
   \item{v}{Vector}
 
-  \item{ht}{Hash table}
+  \item{df}{Two-column data frame with keys and values}
 
   \item{factors}{If vector should be returned as factors,
   default is FALSE.}
