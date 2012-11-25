@@ -17,7 +17,7 @@ put_ht <- function(ht, name, path = getwd(), create_dir = TRUE) {
     folder_path <- file_path(name, path, create_dir = create_dir, file_name = FALSE)
     
     colnames(ht) <- c("key", "value")
-    write.table(ht, file = file.path(folder_path, "dict.txt"), quote = FALSE, row.names = FALSE, 
+    write.table(ht, file = file.path(folder_path, "keys.txt"), quote = FALSE, row.names = FALSE, 
         sep = "\t")
     
     message("Hash table was successfully written to disk")
