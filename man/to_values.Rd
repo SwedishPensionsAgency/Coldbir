@@ -2,12 +2,12 @@
 \alias{to_values}
 \title{Replace keys with values in vector}
 \usage{
-  to_values(v, df, factors = FALSE)
+  to_values(v, ..., factors = FALSE)
 }
 \arguments{
   \item{v}{Vector}
 
-  \item{df}{Two-column data frame with keys and values}
+  \item{...}{See get_keys().}
 
   \item{factors}{If vector should be returned as factors,
   default is FALSE.}
