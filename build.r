@@ -17,4 +17,4 @@ sourceDir <- function(path, trace = TRUE, ...) {
 sourceDir("R")
 
 require("testthat")
-test_file("inst/tests/1.r")
+test_dir("inst/tests")
