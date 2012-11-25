@@ -7,7 +7,7 @@
 \arguments{
   \item{v}{Vector}
 
-  \item{...}{See get_keys().}
+  \item{...}{See get_dict().}
 
   \item{factors}{If vector should be returned as factors,
   default is FALSE.}
