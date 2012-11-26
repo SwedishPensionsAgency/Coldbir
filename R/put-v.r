@@ -47,8 +47,11 @@ put_v <- function(x, name, path = getwd(), dims = NULL, attrib = NULL, compress 
         exponent <- 0L
         
     } else if (is.factor(x) || is.character(x)) {
-        if (is.character(x)) 
+        if (is.character(x)) {
             x <- as.factor(x)
+            warning("Character converted to factor")
+        }
+        
         type <- charToRaw("f")
         bytes <- 4L
         exponent <- 0L
