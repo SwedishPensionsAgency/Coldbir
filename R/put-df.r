@@ -4,15 +4,28 @@
 #'
 #' @param df Data frame
 #' @param path Database path
+#' @param dicts If dictionaries should be created
 #'
 #' @export
 #'
-put_df <- function(df, path = getwd()) {
+put_df <- function(df, path = getwd(), dicts = TRUE) {
+    
+    add_dict <- function(v, name) {
+        if (is.character(v)) v <- as.factor(v)
+        if (is.factor(v)) {
+            values <- levels(v)
+            dict <- data.frame(key = 1:length(values), value = values)
+            put_dict(dict, name = name, path = path)
+        }
+    }
     
     suppressMessages(
         sapply(
             names(df), 
-            function(x) put_v(x = df[[x]], name = x, path = path)
+            function(x) {
+                put_v(x = df[[x]], name = x, path = path)  # write vector
+                if (dicts) add_dict(df[[x]], x)  # write dictionary
+            }
         )
     )
     
