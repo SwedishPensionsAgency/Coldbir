@@ -2,7 +2,7 @@
 #'
 #' ...
 #'
-#' @param path Database path
+#' @param path Database (absolute) path
 #'
 #' @export
 #'
