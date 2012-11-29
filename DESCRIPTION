@@ -24,3 +24,5 @@ Collate:
     'get-dict.r'
     'put-dict.r'
     'put-df.r'
+    'get-db.r'
+    'is-v.r'
