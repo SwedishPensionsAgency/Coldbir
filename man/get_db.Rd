@@ -5,7 +5,7 @@
   get_db(path = getwd())
 }
 \arguments{
-  \item{path}{Database path}
+  \item{path}{Database (absolute) path}
 }
 \description{
   ...
