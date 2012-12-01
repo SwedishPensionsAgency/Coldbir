@@ -8,7 +8,7 @@
 #'
 #' @export
 #'
-put_df <- function(df, path = getwd(), dicts = TRUE) {
+put_db <- function(df, path = getwd(), dicts = TRUE) {
     
     add_dict <- function(v, name) {
         if (is.character(v)) 

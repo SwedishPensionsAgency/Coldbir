@@ -9,7 +9,9 @@ test_that("Write vector", {
 
 test_that("Read vector", {
   expect_error(get_v("wrong_dir"))
-  expect_identical(v, get_v("test_variable"))
+  w <- get_v("test_variable")
+  attributes(w) <- NULL
+  expect_identical(v, w)
 })
 
 system("rm -r test_variable")

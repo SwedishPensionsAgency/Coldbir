@@ -23,6 +23,6 @@ Collate:
     'to-values.r'
     'get-dict.r'
     'put-dict.r'
-    'put-df.r'
     'get-db.r'
     'is-v.r'
+    'put-db.r'

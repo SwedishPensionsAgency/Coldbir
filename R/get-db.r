@@ -17,23 +17,23 @@ get_db <- function(path = getwd()) {
                   na, name, path)
             }
             
-            assign_fun <- function(f_name, fun) {
-                assign(f_name, eval(parse(text = fun)), db)
-                class(db[[f_name]]) <- "cdb_variable"
+            assign_fun <- function(name, fun) {
+                assign(name, eval(parse(text = fun)), db)
+                class(db[[name]]) <- "coldbir_v"
             }
             
             assign_fun(name, fun())
             assign_fun(sprintf("%s.0", name), fun(na = 0))
         }
     }
-    class(db) <- "cdb_database"
+    class(db) <- "coldbir_db"
     return(db)
 }
 
-print.cdb_database <- function(object) {
+print.coldbir_db <- function(object) {
     cat("This is a coldbir database object (perhaps list all available variables?)")
 }
 
-print.cdb_variable <- function(object) {
+print.coldbir_v <- function(object) {
     cat("This is a brief documentation of the variable (it reads from markdown file)")
 } 

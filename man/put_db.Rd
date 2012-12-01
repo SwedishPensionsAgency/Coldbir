@@ -1,8 +1,8 @@
-\name{put_df}
-\alias{put_df}
+\name{put_db}
+\alias{put_db}
 \title{Write data frame columns to disk}
 \usage{
-  put_df(df, path = getwd(), dicts = TRUE)
+  put_db(df, path = getwd(), dicts = TRUE)
 }
 \arguments{
   \item{df}{Data frame}

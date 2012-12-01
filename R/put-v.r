@@ -45,6 +45,7 @@ put_v <- function(x, name, path = getwd(), dims = NULL, attrib = NULL, compress 
         type <- charToRaw("l")
         bytes <- 1L
         exponent <- 0L
+        warning("Logical vector; NA is converted to FALSE")
         
     } else if (is.factor(x) || is.character(x)) {
         if (is.character(x)) {
@@ -76,9 +77,12 @@ put_v <- function(x, name, path = getwd(), dims = NULL, attrib = NULL, compress 
     # File header
     db_ver <- get_db_ver()
     
-    attr_raw <- charToRaw(if (!is.null(attrib)) {
-        RJSONIO:::toJSON(attrib, digits = 50)
-    } else "")
+    # Add default attributes
+    if (is.null(attrib)) 
+        attrib <- list()
+    attrib$cdb_name <- name
+    attrib$cdb_dims <- dims
+    attr_raw <- charToRaw(RJSONIO:::toJSON(attrib, digits = 50))
     attr_len <- length(attr_raw)
     
     vector_len <- length(x)
