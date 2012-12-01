@@ -10,7 +10,7 @@ get_db <- function(path = getwd()) {
     db <- new.env(parent = parent.frame())
     vars <- list.files(path)
     for (name in vars) {
-        if (is.coldbir_v(name)) {
+        if (is.v(name)) {
             
             fun <- function(na = NA) {
                 sprintf("function(dims = NULL, na = %s) get_v(name = '%s', path = '%s', dims = dims, na = na)", 
