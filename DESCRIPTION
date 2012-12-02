@@ -25,3 +25,5 @@ Collate:
     'is-v.r'
     'put-db.r'
     'put_readme.r'
+    'print_coldbir_db.r'
+    'print_coldbir_v.r'

@@ -13,8 +13,8 @@ get_db <- function(path = getwd()) {
         if (is.v(name)) {
             
             fun <- function(na = NA) {
-                sprintf("function(dims = NULL, na = %s) get_v(name = '%s', path = '%s', dims = dims, na = na)", 
-                  na, name, path)
+                sprintf("function(dims = NULL, na = %s) get_v(name = '%s', path = '%s', dims = dims, na = na)", na, 
+                  name, path)
             }
             
             assign_fun <- function(name, fun) {
@@ -32,6 +32,7 @@ get_db <- function(path = getwd()) {
 
 print.coldbir_db <- function(object) {
     cat("This is a coldbir database object (perhaps list all available variables?)")
+    cat(lsf.str(object))
 }
 
 print.coldbir_v <- function(object) {
