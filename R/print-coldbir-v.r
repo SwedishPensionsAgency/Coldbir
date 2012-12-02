@@ -8,5 +8,5 @@
 #'
 #'
 print.coldbir_v <- function(object) {
-    cat("This is a brief documentation of the variable (it reads from markdown file)")
+    cat("This is a brief documentation of the variable (it reads from markdown file)\n")
 } 

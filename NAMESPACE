@@ -1,6 +1,7 @@
 export(get_db)
 export(get_db_ver)
 export(get_dict)
+export(get_readme)
 export(get_v)
 export(is.v)
 export(list_to_md)

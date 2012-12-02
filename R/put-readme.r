@@ -15,7 +15,7 @@ put_readme <- function(name, path = getwd(), create_dir = TRUE, ...) {
     
     md <- list_to_md(...)
     
-    sink(file.path(folder_path, "readme.txt"))
+    sink(file.path(folder_path, "README.md"))
     cat(md)
     sink()
     

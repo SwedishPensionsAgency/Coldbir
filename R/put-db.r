@@ -4,26 +4,14 @@
 #'
 #' @param df Data frame
 #' @param path Database path
-#' @param dicts If dictionaries should be created
+#' @param lookup If lookup should be created
 #'
 #' @export
 #'
-put_db <- function(df, path = getwd(), dicts = TRUE) {
-    
-    add_dict <- function(v, name) {
-        if (is.character(v)) 
-            v <- as.factor(v)
-        if (is.factor(v)) {
-            values <- levels(v)
-            dict <- data.frame(key = 1:length(values), value = values)
-            put_dict(dict, name = name, path = path)
-        }
-    }
+put_db <- function(df, path = getwd(), lookup = TRUE) {
     
     suppressMessages(sapply(names(df), function(x) {
-        put_v(x = df[[x]], name = x, path = path)  # write vector
-        if (dicts) 
-            add_dict(df[[x]], x)  # write dictionary
+        put_v(x = df[[x]], name = x, path = path, lookup = lookup)  # write vector
     }))
     
     message("Files were successfully written to disk")

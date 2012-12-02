@@ -8,10 +8,11 @@
 #' @param dims A numeric or character vector specifying the dimension of the data (e.g. year and month)
 #' @param attrib List of vector attributes
 #' @param compress Degree of compression in .gz file (size/speed - trade off). Zero compression gives most speed.
+#' @param lookup If lookup table should be added
 #'
 #' @export
 #'
-put_v <- function(x, name, path = getwd(), dims = NULL, attrib = NULL, compress = 5) {
+put_v <- function(x, name, path = getwd(), dims = NULL, attrib = NULL, lookup = TRUE, compress = 5) {
     
     # Errors and warnings
     if (is.null(x)) 
@@ -51,6 +52,12 @@ put_v <- function(x, name, path = getwd(), dims = NULL, attrib = NULL, compress 
         if (is.character(x)) {
             x <- as.factor(x)
             warning("Character converted to factor")
+        }
+        
+        if (lookup) {
+            values <- levels(x)
+            dict <- data.frame(key = 1:length(values), value = values)
+            put_dict(dict, name = name, path = path)
         }
         
         type <- charToRaw("f")

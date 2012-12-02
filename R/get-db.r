@@ -17,24 +17,22 @@ get_db <- function(path = getwd()) {
                   name, path)
             }
             
-            assign_fun <- function(name, fun) {
+            assign_fun <- function(name, fun, cl = TRUE) {
                 assign(name, eval(parse(text = fun)), db)
-                class(db[[name]]) <- "coldbir_v"
+                if (cl) 
+                  class(db[[name]]) <- "coldbir_v"
             }
             
             assign_fun(name, fun())
             assign_fun(sprintf("%s.0", name), fun(na = 0))
+            assign_fun(sprintf("%s.r", name), sprintf("function()\nget_readme(name = '%s', path = '%s', console = TRUE)", 
+                name, path), cl = FALSE)
+            assign_fun(sprintf("%s.l", name), sprintf("function()\nget_dict(name = '%s', path = '%s')", name, path), 
+                cl = FALSE)
+            # assign(sprintf('print.%s', name), eval(parse(text = sprintf( 'function(object) get_readme(name = '%s', path =
+            # '%s', console = TRUE)' , name, path))), envir = .GlobalEnv)
         }
     }
     class(db) <- "coldbir_db"
     return(db)
-}
-
-print.coldbir_db <- function(object) {
-    cat("This is a coldbir database object (perhaps list all available variables?)")
-    cat(lsf.str(object))
-}
-
-print.coldbir_v <- function(object) {
-    cat("This is a brief documentation of the variable (it reads from markdown file)")
 } 
