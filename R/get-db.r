@@ -25,9 +25,9 @@ get_db <- function(path = getwd()) {
             
             assign_fun(name, fun())
             assign_fun(sprintf("%s.0", name), fun(na = 0))
-            assign_fun(sprintf("%s.r", name), sprintf("function()\nget_readme(name = '%s', path = '%s', console = TRUE)", 
+            assign_fun(sprintf("%s.r", name), sprintf("function() get_readme(name = '%s', path = '%s', console = TRUE)", 
                 name, path), cl = FALSE)
-            assign_fun(sprintf("%s.l", name), sprintf("function()\nget_dict(name = '%s', path = '%s')", name, path), 
+            assign_fun(sprintf("%s.l", name), sprintf("function() get_dict(name = '%s', path = '%s')", name, path), 
                 cl = FALSE)
             # assign(sprintf('print.%s', name), eval(parse(text = sprintf( 'function(object) get_readme(name = '%s', path =
             # '%s', console = TRUE)' , name, path))), envir = .GlobalEnv)
