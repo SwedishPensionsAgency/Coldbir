@@ -3,7 +3,8 @@
 \title{Generate coldbir file path}
 \usage{
   file_path(name, path, dims = NULL, ext,
-    create_dir = FALSE, file_name = TRUE)
+    create_dir = FALSE, file_name = TRUE,
+    data_folder = TRUE)
 }
 \arguments{
   \item{name}{Variable name}
@@ -19,6 +20,8 @@
 
   \item{file_name}{If file name should be included in
   return path}
+
+  \item{data_folder}{If data folder should be added}
 }
 \description{
   ...

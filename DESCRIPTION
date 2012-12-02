@@ -24,3 +24,4 @@ Collate:
     'get-db.r'
     'is-v.r'
     'put-db.r'
+    'put_readme.r'
