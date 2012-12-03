@@ -9,5 +9,5 @@
 
 print.coldbir_db <- function(object) {
     cat("Variables (and their functions):\n")
-    print(lsf.str(a))
+    print(lsf.str(object))
 } 
