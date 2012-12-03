@@ -14,7 +14,7 @@ file_name <- function(name, dims = NULL, ext) {
         paste(brackets[1], dims, brackets[2], sep = "", collapse = "")
     } else ""
     
-    file_name <- paste(name, label, ".", ext, sep = "")
+    file_name <- paste("d", label, ".", ext, sep = "")
     
     return(file_name)
 } 

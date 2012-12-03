@@ -8,9 +8,7 @@ Maintainer: Thomas Reinholdsson <reinholdsson@gmail.com>
 Description: A (keep it simple stupid) column database in R
 License: GPL (>= 2)
 Depends:
-    RJSONIO,
-    devtools,
-    formatR
+    RJSONIO
 Collate:
     'check-repr.r'
     'find-exp.r'
@@ -23,4 +21,10 @@ Collate:
     'to-values.r'
     'get-dict.r'
     'put-dict.r'
-    'put-df.r'
+    'get-db.r'
+    'is-v.r'
+    'put-db.r'
+    'get-readme.r'
+    'print-coldbir-db.r'
+    'print-coldbir-v.r'
+    'put-readme.r'

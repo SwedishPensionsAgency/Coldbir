@@ -8,10 +8,11 @@
 #' @param dims A numeric or character vector specifying the dimension of the data (e.g. year and month)
 #' @param attrib List of vector attributes
 #' @param compress Degree of compression in .gz file (size/speed - trade off). Zero compression gives most speed.
+#' @param lookup If lookup table should be added
 #'
 #' @export
 #'
-put_v <- function(x, name, path = getwd(), dims = NULL, attrib = NULL, compress = 5) {
+put_v <- function(x, name, path = getwd(), dims = NULL, attrib = NULL, lookup = TRUE, compress = 5) {
     
     # Errors and warnings
     if (is.null(x)) 
@@ -45,11 +46,18 @@ put_v <- function(x, name, path = getwd(), dims = NULL, attrib = NULL, compress 
         type <- charToRaw("l")
         bytes <- 1L
         exponent <- 0L
+        warning("Logical vector; NA is converted to FALSE")
         
     } else if (is.factor(x) || is.character(x)) {
         if (is.character(x)) {
             x <- as.factor(x)
             warning("Character converted to factor")
+        }
+        
+        if (lookup) {
+            values <- levels(x)
+            dict <- data.frame(key = 1:length(values), value = values)
+            put_dict(dict, name = name, path = path)
         }
         
         type <- charToRaw("f")
@@ -76,9 +84,12 @@ put_v <- function(x, name, path = getwd(), dims = NULL, attrib = NULL, compress 
     # File header
     db_ver <- get_db_ver()
     
-    attr_raw <- charToRaw(if (!is.null(attrib)) {
-        RJSONIO:::toJSON(attrib, digits = 50)
-    } else "")
+    # Add default attributes
+    if (is.null(attrib)) 
+        attrib <- list()
+    attrib$cdb_name <- name
+    attrib$cdb_dims <- dims
+    attr_raw <- charToRaw(RJSONIO:::toJSON(attrib, digits = 50))
     attr_len <- length(attr_raw)
     
     vector_len <- length(x)
