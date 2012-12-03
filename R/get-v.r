@@ -50,7 +50,7 @@ get_v <- function(name, path = getwd(), dims = NULL, na = NA) {
         stop("Version of coldbir package and file format does not match")
     
     # Prepare data depending on vector type
-    if (type == "i") {
+    if (type %in% c("i", "f")) {
         if (!is.na(na)) 
             x[is.na(x)] <- as.integer(na)
     } else if (type == "d") {

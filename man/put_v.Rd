@@ -3,7 +3,7 @@
 \title{Save vector to disk}
 \usage{
   put_v(x, name, path = getwd(), dims = NULL,
-    attrib = NULL, compress = 5)
+    attrib = NULL, lookup = TRUE, compress = 5)
 }
 \arguments{
   \item{x}{A factor or numeric vector, NOT a character
@@ -22,6 +22,8 @@
   \item{compress}{Degree of compression in .gz file
   (size/speed - trade off). Zero compression gives most
   speed.}
+
+  \item{lookup}{If lookup table should be added}
 }
 \description{
   Takes a numeric vector and saves its content to a file in
