@@ -13,8 +13,8 @@ get_db <- function(path = getwd()) {
         if (is.v(name)) {
             
             fun <- function(na = NA) {
-                sprintf("function(dims = NULL, na = %s) get_v(name = '%s', path = '%s', dims = dims, na = na)", na, 
-                  name, path)
+                sprintf("function(dims = NULL, na = %s) get_v(name = '%s', path = '%s', dims = dims, na = na)", 
+                  na, name, path)
             }
             
             assign_fun <- function(name, fun, cl = TRUE) {
@@ -29,8 +29,8 @@ get_db <- function(path = getwd()) {
                 name, path), cl = FALSE)
             assign_fun(sprintf("%s.l", name), sprintf("function() get_dict(name = '%s', path = '%s')", name, path), 
                 cl = FALSE)
-            # assign(sprintf('print.%s', name), eval(parse(text = sprintf( 'function(object) get_readme(name = '%s', path =
-            # '%s', console = TRUE)' , name, path))), envir = .GlobalEnv)
+            # assign(sprintf('print.%s', name), eval(parse(text = sprintf( 'function(object) get_readme(name = '%s', path
+            # = '%s', console = TRUE)' , name, path))), envir = .GlobalEnv)
         }
     }
     
