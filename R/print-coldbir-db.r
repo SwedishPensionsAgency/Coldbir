@@ -8,6 +8,6 @@
 #'
 
 print.coldbir_db <- function(object) {
-    cat("Variables (and their functions):\n")
-    print(lsf.str(object))
-} 
+    vars <- attr(object, "variables")
+    cat("Variables:\n", paste(b, collapse = ", "))
+}
