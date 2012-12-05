@@ -33,6 +33,9 @@ get_db <- function(path = getwd()) {
             # '%s', console = TRUE)' , name, path))), envir = .GlobalEnv)
         }
     }
+    
+    attr(db, "variables") <- vars
     class(db) <- "coldbir_db"
+    
     return(db)
 } 
