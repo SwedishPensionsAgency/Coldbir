@@ -38,7 +38,35 @@ library(coldbir)
 
 <h2>Introduction</h2>
 
-<h3>Database</h3>
+<p>Below is an introduction on how to simply use coldbir.</p>
+
+<h3>Variables</h3>
+
+<p>Write a variable to disk:</p>
+
+<div class="highlight"><pre>x <span class="o">&lt;-</span> <span class="m">1</span>:<span class="m">10</span>  <span class="c1"># example vector</span>
+put_v<span class="p">(</span>x<span class="p">,</span> <span class="s">"variable-name"</span><span class="p">)</span>
+</pre></div>
+
+<p>Read a variable from disk:</p>
+
+<div class="highlight"><pre>x <span class="o">&lt;-</span> get_v<span class="p">(</span><span class="s">"variable-name"</span><span class="p">)</span>
+</pre></div>
+
+<h3>Databases</h3>
+
+<p>Write a database to disk:</p>
+
+<div class="highlight"><pre>x <span class="o">&lt;-</span> MASS<span class="p">::</span>survey  <span class="c1"># example data frame</span>
+put_db<span class="p">(</span>x<span class="p">,</span> <span class="s">"db-name"</span><span class="p">)</span>
+</pre></div>
+
+<p>Read a database from disk:</p>
+
+<div class="highlight"><pre>get_db<span class="p">(</span><span class="s">"db-name"</span><span class="p">)</span>
+</pre></div>
+
+<h3>File structure</h3>
 
 <p>The coldbir database consists of folders where each folder represent a variable. Each variable may have several dimensions, e.g. months and years. The data is stored as a <a href="http://en.wikipedia.org/wiki/Column-oriented_DBMS">column-oriented DBMS</a>. Below is an example of a database, named <em>mydb</em>, with a couple of variables:</p>
 
@@ -56,47 +84,6 @@ library(coldbir)
     LOOKUP.txt
     README.md
 </code></pre>
-
-<h2>Examples</h2>
-
-<p>To simplify the explanation we will introduce with another example. We will use the <em>survey</em> dataset from the <code>MASS</code> package. First, load the necessary packages</p>
-
-<div class="highlight"><pre>library<span class="p">(</span>coldbir<span class="p">)</span>
-library<span class="p">(</span>MASS<span class="p">)</span>
-</pre></div>
-
-<p>Then, we could simply write one specific variable to cdb file format with <code>put_v(survey$Exer, "exercise", "survey")</code>, but we will instead convert the whole dataset at once:</p>
-
-<div class="highlight"><pre>put_db<span class="p">(</span>survey<span class="p">,</span> <span class="s">"survey"</span><span class="p">)</span>
-<span class="c1"># Files were successfully written to disk</span>
-<span class="c1"># [1] TRUE</span>
-</pre></div>
-
-<p>To read a variable from disk, one simply type <code>variable &lt;- get_v("m.i", "survey")</code>, or</p>
-
-<div class="highlight"><pre>setwd<span class="p">(</span><span class="s">"survey"</span><span class="p">)</span>
-head<span class="p">(</span>get_v<span class="p">(</span><span class="s">"m.i"</span><span class="p">))</span>
-<span class="c1"># [1]  2  1 NA  2  2  1</span>
-</pre></div>
-
-<p>where we now changed our working directory to our <em>survey</em> database path. It is also possible to save a dictionary explaining what the keys in the data represents, for example:</p>
-
-<div class="highlight"><pre>df <span class="o">&lt;-</span> data.frame<span class="p">(</span>key <span class="o">=</span> c<span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="m">2</span><span class="p">),</span> value <span class="o">=</span> c<span class="p">(</span><span class="s">"Imperial"</span><span class="p">,</span> <span class="s">"Metric"</span><span class="p">))</span>
-
-put_dict<span class="p">(</span>df<span class="p">,</span> <span class="s">"m.i"</span><span class="p">)</span>
-<span class="c1"># Dictionary was successfully written to disk</span>
-<span class="c1"># [1] TRUE</span>
-
-get_dict<span class="p">(</span><span class="s">"m.i"</span><span class="p">)</span>
-<span class="c1">#   key    value</span>
-<span class="c1"># 1   1 Imperial</span>
-<span class="c1"># 2   2   Metric</span>
-
-v <span class="o">&lt;-</span> get_v<span class="p">(</span><span class="s">"m.i"</span><span class="p">)</span>
-v <span class="o">&lt;-</span> to_values<span class="p">(</span>v<span class="p">,</span> <span class="s">"m.i"</span><span class="p">)</span>
-head<span class="p">(</span>v<span class="p">)</span>
-<span class="c1"># [1] "Metric"   "Imperial" NA         "Metric"   "Metric"   "Imperial"</span>
-</pre></div>
       </section>
     </div>
     <footer>
