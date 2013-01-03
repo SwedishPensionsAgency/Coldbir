@@ -13,4 +13,4 @@ Use `devtools` for easy installation
 
 ## How to use
 
-See [https://github.com/SthlmR/coldbir/wiki](https://github.com/SthlmR/coldbir/wiki)
+See [http://sthlmr.github.com/coldbir](http://sthlmr.github.com/coldbir)
