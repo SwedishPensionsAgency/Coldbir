@@ -27,7 +27,9 @@
         </ul>
       </header>
       <section>
-        <h2>Installation</h2>
+        <h1>coldbir</h1>
+
+<h2>Installation</h2>
 
 <p>Use <code>devtools</code> for easy installation</p>
 
@@ -44,27 +46,27 @@ library(coldbir)
 
 <p>Write a variable to disk:</p>
 
-<div class="highlight"><pre><span class="nv">x</span> <span class="nt">&lt;- 1:10  # example vector</span>
-<span class="nv">put_v</span><span class="gs">(</span><span class="nv">x,</span> <span class="s">"variable-name"</span><span class="gs">)</span>
-</pre></div>
+<pre><code>x &lt;- 1:10  # example vector
+put_v(x, "variable-name")
+</code></pre>
 
 <p>Read a variable from disk:</p>
 
-<div class="highlight"><pre><span class="nv">x</span> <span class="nt">&lt;- get_v</span><span class="err">(</span><span class="nt">"variable-name"</span><span class="err">)</span>
-</pre></div>
+<pre><code>x &lt;- get_v("variable-name")
+</code></pre>
 
 <h3>Databases</h3>
 
 <p>Write a database to disk:</p>
 
-<div class="highlight"><pre><span class="nv">x</span> <span class="nt">&lt;- MASS::survey  # example data frame</span>
-<span class="nv">put_db</span><span class="gs">(</span><span class="nv">x,</span> <span class="s">"db-name"</span><span class="gs">)</span>
-</pre></div>
+<pre><code>x &lt;- MASS::survey  # example data frame
+put_db(x, "db-name")
+</code></pre>
 
 <p>Read a database from disk:</p>
 
-<div class="highlight"><pre><span class="nv">get_db</span><span class="gs">(</span><span class="s">"db-name"</span><span class="gs">)</span>
-</pre></div>
+<pre><code>get_db("db-name")
+</code></pre>
 
 <h3>File structure</h3>
 
