@@ -1,5 +1,3 @@
-(Keep it simple stupid) column database in R
-
 ## Installation
 
 Use `devtools` for easy installation
@@ -33,15 +31,14 @@ mydb/
 
 To simplify the explanation we will introduce with another example. We will use the *survey* dataset from the `MASS` package. First, load the necessary packages
 
-```r
+```{r}
 library(coldbir)
 library(MASS)
-
 ```
 
 Then, we could simply write one specific variable to cdb file format with `put_v(survey$Exer, "exercise", "survey")`, but we will instead convert the whole dataset at once:
 
-```r
+```{r}
 put_db(survey, "survey")
 # Files were successfully written to disk
 # [1] TRUE
@@ -49,7 +46,7 @@ put_db(survey, "survey")
 
 To read a variable from disk, one simply type `variable <- get_v("m.i", "survey")`, or
 
-```r
+```{r}
 setwd("survey")
 head(get_v("m.i"))
 # [1]  2  1 NA  2  2  1
@@ -57,7 +54,7 @@ head(get_v("m.i"))
 
 where we now changed our working directory to our *survey* database path. It is also possible to save a dictionary explaining what the keys in the data represents, for example:
 
-```r
+```{r}
 df <- data.frame(key = c(1, 2), value = c("Imperial", "Metric"))
 
 put_dict(df, "m.i")
