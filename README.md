@@ -1,7 +1,5 @@
 # coldbir
 
-Maintained by Thomas Reinholdsson (<reinholdsson@gmail.com>).
-
 ## Installation
 
 Use `devtools` for easy installation
@@ -62,3 +60,7 @@ mydb/
     LOOKUP.txt
     README.md
 ```
+
+## Contact
+
+The project is currently maintained by Thomas Reinholdsson (<reinholdsson@gmail.com>).
