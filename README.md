@@ -1,3 +1,7 @@
+# coldbir
+
+A column database in R
+
 ## Installation
 
 Use `devtools` for easy installation
