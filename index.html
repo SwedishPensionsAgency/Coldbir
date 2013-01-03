@@ -44,26 +44,26 @@ library(coldbir)
 
 <p>Write a variable to disk:</p>
 
-<div class="highlight"><pre>x <span class="o">&lt;-</span> <span class="m">1</span>:<span class="m">10</span>  <span class="c1"># example vector</span>
-put_v<span class="p">(</span>x<span class="p">,</span> <span class="s">"variable-name"</span><span class="p">)</span>
+<div class="highlight"><pre><span class="nv">x</span> <span class="nt">&lt;- 1:10  # example vector</span>
+<span class="nv">put_v</span><span class="gs">(</span><span class="nv">x,</span> <span class="s">"variable-name"</span><span class="gs">)</span>
 </pre></div>
 
 <p>Read a variable from disk:</p>
 
-<div class="highlight"><pre>x <span class="o">&lt;-</span> get_v<span class="p">(</span><span class="s">"variable-name"</span><span class="p">)</span>
+<div class="highlight"><pre><span class="nv">x</span> <span class="nt">&lt;- get_v</span><span class="err">(</span><span class="nt">"variable-name"</span><span class="err">)</span>
 </pre></div>
 
 <h3>Databases</h3>
 
 <p>Write a database to disk:</p>
 
-<div class="highlight"><pre>x <span class="o">&lt;-</span> MASS<span class="p">::</span>survey  <span class="c1"># example data frame</span>
-put_db<span class="p">(</span>x<span class="p">,</span> <span class="s">"db-name"</span><span class="p">)</span>
+<div class="highlight"><pre><span class="nv">x</span> <span class="nt">&lt;- MASS::survey  # example data frame</span>
+<span class="nv">put_db</span><span class="gs">(</span><span class="nv">x,</span> <span class="s">"db-name"</span><span class="gs">)</span>
 </pre></div>
 
 <p>Read a database from disk:</p>
 
-<div class="highlight"><pre>get_db<span class="p">(</span><span class="s">"db-name"</span><span class="p">)</span>
+<div class="highlight"><pre><span class="nv">get_db</span><span class="gs">(</span><span class="s">"db-name"</span><span class="gs">)</span>
 </pre></div>
 
 <h3>File structure</h3>
@@ -84,6 +84,10 @@ put_db<span class="p">(</span>x<span class="p">,</span> <span class="s">"db-name
     LOOKUP.txt
     README.md
 </code></pre>
+
+<h2>Contact</h2>
+
+<p>The project is currently maintained by Thomas Reinholdsson (<a href="mailto:reinholdsson@gmail.com">reinholdsson@gmail.com</a>).</p>
       </section>
     </div>
     <footer>
