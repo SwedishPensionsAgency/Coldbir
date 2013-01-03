@@ -1,0 +1,101 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>coldbir by SthlmR</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>coldbir</h1>
+        <p>(keep it simple stupid) column database in R</p>
+        <p class="view"><a href="https://github.com/SthlmR/coldbir">View the Project on GitHub <small>SthlmR/coldbir</small></a></p>
+        <ul>
+          <li><a href="https://github.com/SthlmR/coldbir/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/SthlmR/coldbir/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/SthlmR/coldbir">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h2>Introduction</h2>
+
+<h2>File structure</h2>
+
+<p>The coldbir database consists of folders where each folder represent a variable. Each variable may have several dimensions, e.g. months and years. The data is stored as a <a href="http://en.wikipedia.org/wiki/Column-oriented_DBMS">column-oriented DBMS</a>. Below is an example of a database, named <em>mydb</em>, with a couple of variables:</p>
+
+<pre><code>mydb/
+  income/
+    data/
+      income[2011].cdb.gz
+      income[2012].cdb.gz
+    LOOKUP.txt
+    README.md
+  unemployment/
+    data/
+      unemployment[2011].cdb.gz
+      unemployment[2012].cdb.gz
+    LOOKUP.txt
+    README.md
+</code></pre>
+
+<h2>Example</h2>
+
+<p>To simplify the explanation we will introduce with another example. We will use the <em>survey</em> dataset from the <code>MASS</code> package. First, load the necessary packages</p>
+
+<div class="highlight"><pre>library<span class="p">(</span>coldbir<span class="p">)</span>
+library<span class="p">(</span>MASS<span class="p">)</span>
+
+</pre></div>
+
+<p>Then, we could simply write one specific variable to cdb file format with <code>put_v(survey$Exer, "exercise", "survey")</code>, but we will instead convert the whole dataset at once:</p>
+
+<div class="highlight"><pre>put_db<span class="p">(</span>survey<span class="p">,</span> <span class="s">"survey"</span><span class="p">)</span>
+<span class="c1"># Files were successfully written to disk</span>
+<span class="c1"># [1] TRUE</span>
+</pre></div>
+
+<p>To read a variable from disk, one simply type <code>variable &lt;- get_v("m.i", "survey")</code>, or</p>
+
+<div class="highlight"><pre>setwd<span class="p">(</span><span class="s">"survey"</span><span class="p">)</span>
+head<span class="p">(</span>get_v<span class="p">(</span><span class="s">"m.i"</span><span class="p">))</span>
+<span class="c1"># [1]  2  1 NA  2  2  1</span>
+</pre></div>
+
+<p>where we now changed our working directory to our <em>survey</em> database path. It is also possible to save a dictionary explaining what the keys in the data represents, for example:</p>
+
+<div class="highlight"><pre>df <span class="o">&lt;-</span> data.frame<span class="p">(</span>key <span class="o">=</span> c<span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="m">2</span><span class="p">),</span> value <span class="o">=</span> c<span class="p">(</span><span class="s">"Imperial"</span><span class="p">,</span> <span class="s">"Metric"</span><span class="p">))</span>
+
+put_dict<span class="p">(</span>df<span class="p">,</span> <span class="s">"m.i"</span><span class="p">)</span>
+<span class="c1"># Dictionary was successfully written to disk</span>
+<span class="c1"># [1] TRUE</span>
+
+get_dict<span class="p">(</span><span class="s">"m.i"</span><span class="p">)</span>
+<span class="c1">#   key    value</span>
+<span class="c1"># 1   1 Imperial</span>
+<span class="c1"># 2   2   Metric</span>
+
+v <span class="o">&lt;-</span> get_v<span class="p">(</span><span class="s">"m.i"</span><span class="p">)</span>
+v <span class="o">&lt;-</span> to_values<span class="p">(</span>v<span class="p">,</span> <span class="s">"m.i"</span><span class="p">)</span>
+head<span class="p">(</span>v<span class="p">)</span>
+<span class="c1"># [1] "Metric"   "Imperial" NA         "Metric"   "Metric"   "Imperial"</span>
+</pre></div>
+      </section>
+    </div>
+    <footer>
+      <p>Project maintained by <a href="https://github.com/SthlmR">SthlmR</a></p>
+      <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
+    </footer>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
+  </body>
+</html>
