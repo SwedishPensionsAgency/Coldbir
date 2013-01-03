@@ -16,50 +16,41 @@ Below is an introduction on how to simply use coldbir.
 
 Write a variable to disk:
 
-```{r}
-x <- 1:10  # example vector
-put_v(x, "variable-name")
-```
+    x <- 1:10  # example vector
+    put_v(x, "variable-name")
 
 Read a variable from disk:
 
-```{r}
-x <- get_v("variable-name")
-```
+    x <- get_v("variable-name")
 
 ### Databases
 
 Write a database to disk:
 
-```{r}
-x <- MASS::survey  # example data frame
-put_db(x, "db-name")
-```
+    x <- MASS::survey  # example data frame
+    put_db(x, "db-name")
 
 Read a database from disk:
 
-```{r}
-get_db("db-name")
-```
+    get_db("db-name")
 
 ### File structure
+
 The coldbir database consists of folders where each folder represent a variable. Each variable may have several dimensions, e.g. months and years. The data is stored as a [column-oriented DBMS](http://en.wikipedia.org/wiki/Column-oriented_DBMS). Below is an example of a database, named *mydb*, with a couple of variables:
 
-```
-mydb/
-  income/
-    data/
-      income[2011].cdb.gz
-      income[2012].cdb.gz
-    LOOKUP.txt
-    README.md
-  unemployment/
-    data/
-      unemployment[2011].cdb.gz
-      unemployment[2012].cdb.gz
-    LOOKUP.txt
-    README.md
-```
+    mydb/
+      income/
+        data/
+          income[2011].cdb.gz
+          income[2012].cdb.gz
+        LOOKUP.txt
+        README.md
+      unemployment/
+        data/
+          unemployment[2011].cdb.gz
+          unemployment[2012].cdb.gz
+        LOOKUP.txt
+        README.md
 
 ## Contact
 
