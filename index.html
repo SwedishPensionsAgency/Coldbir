@@ -27,9 +27,18 @@
         </ul>
       </header>
       <section>
-        <h2>Introduction</h2>
+        <h2>Installation</h2>
 
-<h2>File structure</h2>
+<p>Use <code>devtools</code> for easy installation</p>
+
+<pre><code># install.packages("devtools")
+devtools:::install_github('coldbir', 'mikula')
+library(coldbir)
+</code></pre>
+
+<h2>Introduction</h2>
+
+<h3>Database</h3>
 
 <p>The coldbir database consists of folders where each folder represent a variable. Each variable may have several dimensions, e.g. months and years. The data is stored as a <a href="http://en.wikipedia.org/wiki/Column-oriented_DBMS">column-oriented DBMS</a>. Below is an example of a database, named <em>mydb</em>, with a couple of variables:</p>
 
@@ -48,13 +57,12 @@
     README.md
 </code></pre>
 
-<h2>Example</h2>
+<h2>Examples</h2>
 
 <p>To simplify the explanation we will introduce with another example. We will use the <em>survey</em> dataset from the <code>MASS</code> package. First, load the necessary packages</p>
 
 <div class="highlight"><pre>library<span class="p">(</span>coldbir<span class="p">)</span>
 library<span class="p">(</span>MASS<span class="p">)</span>
-
 </pre></div>
 
 <p>Then, we could simply write one specific variable to cdb file format with <code>put_v(survey$Exer, "exercise", "survey")</code>, but we will instead convert the whole dataset at once:</p>
