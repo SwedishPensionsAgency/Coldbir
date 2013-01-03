@@ -1,6 +1,6 @@
 # coldbir
 
-A column database in R
+(Keep it simple stupid) column database in R.
 
 ## Installation
 
