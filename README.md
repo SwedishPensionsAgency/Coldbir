@@ -1,4 +1,5 @@
 # coldbir
+-----------------------
 
 ## Installation
 
@@ -16,7 +17,7 @@ First, make sure to load the package with `library(coldbir)`.
 Then the next step is to decide where the database is to be saved, or where it already exists:
 
 ```r
-db <- coldbir:::db$new("my_path")
+db <- coldbir:::db$new('my_path')
 ```
 
 To save data to the database one simply use `put_v`:
@@ -29,7 +30,7 @@ db$put_v(variable)
 and to get the variable it just to use `get_v`:
 
 ```r
-a <- db$get_v("variable")
+a <- db$get_v('variable')
 ```
 
 It is also possible to put a data frame to the coldbir database - each column will then represent one variable each.
@@ -44,7 +45,7 @@ However, since they are all saved as variables one cannot get all of them back a
 Use `get_v` to get them back. Their names are the same as their previous column names. For example:
 
 ```r
-b <- db$get_v("Pulse")
+b <- db$get_v('Pulse')
 ```
     
 This was an quick introduction to coldbir. Soon more to come.
