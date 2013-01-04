@@ -7,9 +7,7 @@
 
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <script src="javascripts/scale.fix.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
@@ -18,8 +16,11 @@
     <div class="wrapper">
       <header>
         <h1>coldbir</h1>
-        <p>(keep it simple stupid) column database in R</p>
+        <p>a tasty column database in R</p>
+
         <p class="view"><a href="https://github.com/SthlmR/coldbir">View the Project on GitHub <small>SthlmR/coldbir</small></a></p>
+
+
         <ul>
           <li><a href="https://github.com/SthlmR/coldbir/zipball/master">Download <strong>ZIP File</strong></a></li>
           <li><a href="https://github.com/SthlmR/coldbir/tarball/master">Download <strong>TAR Ball</strong></a></li>
@@ -27,50 +28,55 @@
         </ul>
       </header>
       <section>
-        <h1>coldbir</h1>
-
-<h2>Installation</h2>
+        <h2>Installation</h2>
 
 <p>Use <code>devtools</code> for easy installation</p>
 
-<pre><code># install.packages("devtools")
-devtools:::install_github('coldbir', 'mikula')
-library(coldbir)
-</code></pre>
+<div class="highlight"><pre>library<span class="p">(</span>devtools<span class="p">)</span>
+install_github<span class="p">(</span><span class="s">'coldbir'</span><span class="p">,</span> <span class="s">'SthlmR'</span><span class="p">)</span>
+</pre></div>
 
 <h2>Introduction</h2>
 
-<p>Below is an introduction on how to simply use coldbir.</p>
+<p>First, make sure to load the package with <code>library(coldbir)</code>.</p>
 
-<h3>Variables</h3>
+<p>Then the next step is to decide where the database is to be saved, or where it already exists:</p>
 
-<p>Write a variable to disk:</p>
+<div class="highlight"><pre>db <span class="o">&lt;-</span> coldbir<span class="p">:::</span>db<span class="p">$</span>new<span class="p">(</span><span class="s">'my_path'</span><span class="p">)</span>
+</pre></div>
 
-<pre><code>x &lt;- 1:10  # example vector
-put_v(x, "variable-name")
-</code></pre>
+<p>To save data to the database one simply use <code>put_v</code>:</p>
 
-<p>Read a variable from disk:</p>
+<div class="highlight"><pre>variable <span class="o">&lt;-</span> <span class="m">1</span>:<span class="m">10</span>
+db<span class="p">$</span>put_v<span class="p">(</span>variable<span class="p">)</span>
+</pre></div>
 
-<pre><code>x &lt;- get_v("variable-name")
-</code></pre>
+<p>and to get the variable it just to use <code>get_v</code>:</p>
 
-<h3>Databases</h3>
+<div class="highlight"><pre>a <span class="o">&lt;-</span> db<span class="p">$</span>get_v<span class="p">(</span><span class="s">'variable'</span><span class="p">)</span>
+</pre></div>
 
-<p>Write a database to disk:</p>
+<p>It is also possible to put a data frame to the coldbir database - each column will then represent one variable each.
+Once again, make use of <code>put_v</code>:</p>
 
-<pre><code>x &lt;- MASS::survey  # example data frame
-put_db(x, "db-name")
-</code></pre>
+<div class="highlight"><pre>variables <span class="o">&lt;-</span> MASS<span class="p">::</span>survey
+db<span class="p">$</span>put_v<span class="p">(</span>variables<span class="p">)</span>
+</pre></div>
 
-<p>Read a database from disk:</p>
+<p>However, since they are all saved as variables one cannot get all of them back at once. 
+Use <code>get_v</code> to get them back. Their names are the same as their previous column names. For example:</p>
 
-<pre><code>get_db("db-name")
-</code></pre>
+<div class="highlight"><pre>b <span class="o">&lt;-</span> db<span class="p">$</span>get_v<span class="p">(</span><span class="s">'Pulse'</span><span class="p">)</span>
+</pre></div>
+
+<p>This was an quick introduction to coldbir. Soon more to come.</p>
 
 <h3>File structure</h3>
 
-<p>The coldbir database consists of folders where each folder represent a variable. Each variable may have several dimensions, e.g. months and years. The data is stored as a <a href="http://en.wikipedia.org/wiki/Column-oriented_DBMS">column-oriented DBMS</a>. Below is an example of a database, named <em>mydb</em>, with a couple of variables:</p>
+<p>The coldbir database consists of folders where each folder represent a variable. 
+Each variable may have several dimensions, e.g. months and years. 
+The data is stored as a <a href="http://en.wikipedia.org/wiki/Column-oriented_DBMS">column-oriented DBMS</a>. 
+Below is an example of a database, named <em>mydb</em>, with a couple of variables:</p>
 
 <pre><code>mydb/
   income/
@@ -91,12 +97,12 @@ put_db(x, "db-name")
 
 <p>The project is currently maintained by Thomas Reinholdsson (<a href="mailto:reinholdsson@gmail.com">reinholdsson@gmail.com</a>).</p>
       </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/SthlmR">SthlmR</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
     </div>
-    <footer>
-      <p>Project maintained by <a href="https://github.com/SthlmR">SthlmR</a></p>
-      <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
-    </footer>
-    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    <script src="javascripts/scale.fix.js"></script>
     
   </body>
 </html>
