@@ -5,8 +5,6 @@
 #' @param name Variable name
 #' @param path Directory of where the file is located
 #'
-#' @export
-#'
 get_lookup <- function(name, path = getwd()) {
     folder_path <- file_path(name, path, create_dir = FALSE, file_name = FALSE, data_folder = FALSE)
     

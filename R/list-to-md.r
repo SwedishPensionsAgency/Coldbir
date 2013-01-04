@@ -5,7 +5,6 @@
 #' @param lst List to convert
 #' @param str Return string
 #' @param h Header start level
-#' @export
 #'
 list_to_md <- function(lst, str = "", h = 1) {
     lst_names <- names(lst)

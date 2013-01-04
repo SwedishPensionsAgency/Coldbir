@@ -7,8 +7,6 @@
 #' @param dims A numeric or character vector specifying the dimension of the data (e.g. year and month)
 #' @param na Specification of how missing values should be coded
 #'
-#' @export
-#'
 get_variable <- function(name, path = getwd(), dims = NULL, na = NA) {
 
     # Get file path

@@ -1,8 +1,1 @@
-export(get_lookup)
-export(get_readme)
-export(get_variable)
-export(list_to_md)
-export(put_lookup)
-export(put_readme)
-export(put_variable)
 export(to_values)

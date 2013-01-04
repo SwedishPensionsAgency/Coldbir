@@ -1,16 +1,14 @@
-#' Save vector to disk
+#' Put vector (or data frame) to disk
 #'
-#' Takes a numeric vector and saves its content to a file in the correct cdb.gz-format.
+#' Takes a vector (or data frame) and save its content to a file in the correct cdb.gz-format.
 #'
-#' @param x A factor or numeric vector, NOT a character vector
+#' @param x A data frame or vector
 #' @param name Variable name
 #' @param path Directory of where the file are to be created
 #' @param dims A numeric or character vector specifying the dimension of the data (e.g. year and month)
 #' @param attrib List of vector attributes
 #' @param compress Degree of compression in .gz file (size/speed - trade off). Zero compression gives most speed.
-#' @param lookup If lookup table should be added
-#'
-#' @export
+#' @param lookup If lookup table should be added. It will be saved as a seperate file in the folder of the variable.
 #'
 put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = NULL, lookup = TRUE, compress = 5) {
     
