@@ -10,7 +10,7 @@
 #'
 to_values <- function(v, ..., factors = FALSE) {
     
-    df <- get_dict(...)
+    df <- get_lookup(...)
     
     v <- df[[2]][match(v, df[[1]])]
     if (!factors) 

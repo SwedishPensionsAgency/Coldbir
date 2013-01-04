@@ -1,8 +1,8 @@
-\name{get_v}
-\alias{get_v}
+\name{get_variable}
+\alias{get_variable}
 \title{Read vector from disk}
 \usage{
-  get_v(name, path = getwd(), dims = NULL, na = NA)
+  get_variable(name, path = getwd(), dims = NULL, na = NA)
 }
 \arguments{
   \item{name}{Variable name}

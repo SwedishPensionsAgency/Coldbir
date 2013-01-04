@@ -1,8 +1,8 @@
-\name{get_dict}
-\alias{get_dict}
+\name{get_lookup}
+\alias{get_lookup}
 \title{Read dictionary from disk}
 \usage{
-  get_dict(name, path = getwd())
+  get_lookup(name, path = getwd())
 }
 \arguments{
   \item{name}{Variable name}
