@@ -2,9 +2,7 @@
 #'
 #' Get coldbir file format version
 #'
-#' @export
-#'
-get_db_ver <- function() {
+database_version <- function() {
     ver <- 1L
     return(ver)
 } 

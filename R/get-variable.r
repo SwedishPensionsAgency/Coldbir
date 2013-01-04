@@ -7,10 +7,8 @@
 #' @param dims A numeric or character vector specifying the dimension of the data (e.g. year and month)
 #' @param na Specification of how missing values should be coded
 #'
-#' @export
-#'
-get_v <- function(name, path = getwd(), dims = NULL, na = NA) {
-    
+get_variable <- function(name, path = getwd(), dims = NULL, na = NA) {
+
     # Get file path
     cdb <- file_path(name, path, dims, ext = c("cdb.gz", "cdb"), create_dir = FALSE)
     
@@ -46,7 +44,7 @@ get_v <- function(name, path = getwd(), dims = NULL, na = NA) {
     close(bin_file)
     
     # Check if using an old version of colbir
-    if (db_ver != get_db_ver()) 
+    if (db_ver != database_version())
         stop("Version of coldbir package and file format does not match")
     
     # Prepare data depending on vector type

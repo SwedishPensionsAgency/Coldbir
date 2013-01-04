@@ -1,0 +1,7 @@
+^\.git
+^\.Rhistory
+\.Rcheck
+\.tar\.gz$
+out
+^.*\.Rproj$
+^\.Rproj\.user$

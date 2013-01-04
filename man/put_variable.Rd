@@ -1,13 +1,12 @@
-\name{put_v}
-\alias{put_v}
-\title{Save vector to disk}
+\name{put_variable}
+\alias{put_variable}
+\title{Put vector (or data frame) to disk}
 \usage{
-  put_v(x, name, path = getwd(), dims = NULL,
+  put_variable(x, name = NULL, path = getwd(), dims = NULL,
     attrib = NULL, lookup = TRUE, compress = 5)
 }
 \arguments{
-  \item{x}{A factor or numeric vector, NOT a character
-  vector}
+  \item{x}{A data frame or vector}
 
   \item{name}{Variable name}
 
@@ -23,10 +22,11 @@
   (size/speed - trade off). Zero compression gives most
   speed.}
 
-  \item{lookup}{If lookup table should be added}
+  \item{lookup}{If lookup table should be added. It will be
+  saved as a seperate file in the folder of the variable.}
 }
 \description{
-  Takes a numeric vector and saves its content to a file in
-  the correct cdb.gz-format.
+  Takes a vector (or data frame) and save its content to a
+  file in the correct cdb.gz-format.
 }
 

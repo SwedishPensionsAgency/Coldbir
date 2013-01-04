@@ -1,8 +1,8 @@
-\name{put_keys}
-\alias{put_keys}
-\title{Write keys to disk}
+\name{put_lookup}
+\alias{put_lookup}
+\title{Write lookup table to disk}
 \usage{
-  put_keys(df, name, path = getwd(), create_dir = TRUE)
+  put_lookup(df, name, path = getwd(), create_dir = TRUE)
 }
 \arguments{
   \item{df}{Two-column data frame with keys and values}
@@ -16,6 +16,6 @@
   missing}
 }
 \description{
-  Write keys that represents variable data to disk.
+  Write lookup table that represents variable data to disk.
 }
 
