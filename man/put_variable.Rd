@@ -1,8 +1,8 @@
-\name{put_v}
-\alias{put_v}
+\name{put_variable}
+\alias{put_variable}
 \title{Save vector to disk}
 \usage{
-  put_v(x, name, path = getwd(), dims = NULL,
+  put_variable(x, name = NULL, path = getwd(), dims = NULL,
     attrib = NULL, lookup = TRUE, compress = 5)
 }
 \arguments{

@@ -19,6 +19,6 @@ put_readme <- function(name, path = getwd(), create_dir = TRUE, ...) {
     cat(md)
     sink()
     
-    message("Readme was successfully written to disk")
+    message(name, ": readme was successfully written to disk")
     return(TRUE)
 } 

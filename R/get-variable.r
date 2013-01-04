@@ -9,7 +9,7 @@
 #'
 #' @export
 #'
-get_v <- function(name, path = getwd(), dims = NULL, na = NA) {
+get_variable <- function(name, path = getwd(), dims = NULL, na = NA) {
 
     # Get file path
     cdb <- file_path(name, path, dims, ext = c("cdb.gz", "cdb"), create_dir = FALSE)

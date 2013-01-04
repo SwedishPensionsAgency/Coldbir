@@ -5,18 +5,13 @@ db <- setRefClass(
         initialize = function(path = NULL) {
             path <<- if (is.null(path)) getwd() else path
         },
-        put = function(x, name = NULL ,...) {
-            if (is.vector(x)) {
-                if (is.null(name)) {
-                    name <- deparse(substitute(x))
-                }
-                put_v(x = x, path = path, name = name, ...)
-            } else if (is.data.frame(x)) {
-                sapply(names(x), function(i) {
-                    put_v(x = x[[i]], name = i, ...)
-                })
-            }
-        },
-        get = function(...) get_v(path = path, ...)
+        put_v = function(...) put_variable(path = path, ...),
+        get_v = function(...) get_variable(path = path, ...),
+        
+        put_r = function(...) put_readme(path = path, ...),
+        get_r = function(...) get_readme(path = path, ...),
+        
+        put_l = function(...) put_lookup(path = path, ...),
+        get_l = function(...) get_lookup(path = path, ...)
     )
 )
