@@ -3,6 +3,6 @@
 #' Get coldbir file format version
 #'
 database_version <- function() {
-    ver <- 2L
+    ver <- 1L
     return(ver)
 } 
