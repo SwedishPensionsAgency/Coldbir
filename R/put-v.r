@@ -82,7 +82,7 @@ put_v <- function(x, name, path = getwd(), dims = NULL, attrib = NULL, lookup = 
     }
     
     # File header
-    db_ver <- get_db_ver()
+    db_ver <- database_version()
     
     # Add default attributes
     if (is.null(attrib)) 

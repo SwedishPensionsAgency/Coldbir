@@ -13,7 +13,7 @@ get_readme <- function(name, path, console = FALSE) {
     
     folder_path <- file_path(name, path, create_dir = FALSE, file_name = FALSE, data_folder = FALSE)
     
-    con <- file(file.path(folder_path, "README.md"), "r")
+    con <- file(file.path(folder_path, "readme.md"), "r")
     lns <- readLines(con, n = -1)
     close(con)
     

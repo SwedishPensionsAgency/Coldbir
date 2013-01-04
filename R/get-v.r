@@ -10,7 +10,7 @@
 #' @export
 #'
 get_v <- function(name, path = getwd(), dims = NULL, na = NA) {
-    
+
     # Get file path
     cdb <- file_path(name, path, dims, ext = c("cdb.gz", "cdb"), create_dir = FALSE)
     
@@ -46,7 +46,7 @@ get_v <- function(name, path = getwd(), dims = NULL, na = NA) {
     close(bin_file)
     
     # Check if using an old version of colbir
-    if (db_ver != get_db_ver()) 
+    if (db_ver != database_version())  # current version is 1
         stop("Version of coldbir package and file format does not match")
     
     # Prepare data depending on vector type

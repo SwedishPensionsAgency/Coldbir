@@ -5,7 +5,7 @@
 Use `devtools` for easy installation
 
     # install.packages("devtools")
-    devtools:::install_github('coldbir', 'mikula')
+    devtools:::install_github('coldbir', 'SthlmR')
     library(coldbir)
 
 ## Introduction

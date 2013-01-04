@@ -1,8 +1,8 @@
-\name{get_db_ver}
-\alias{get_db_ver}
+\name{database_version}
+\alias{database_version}
 \title{File format version}
 \usage{
-  get_db_ver()
+  database_version()
 }
 \description{
   Get coldbir file format version
