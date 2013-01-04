@@ -10,7 +10,7 @@ Use `devtools` for easy installation
 
 ## Introduction
 
-First, don't forget to use `library(coldbir)` to load the package.
+First, make sure to load the package with `library(coldbir)`.
 
 Then the next step is to decide where the database is to be saved, or already exists:
     
