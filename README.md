@@ -1,6 +1,8 @@
 # coldbir
 -----------------------
 
+The coldbir package is a column-oriented DBMS in R.
+
 ## Installation
 
 Use `devtools` for easy installation
