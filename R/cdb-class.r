@@ -60,9 +60,9 @@ setMethod(
 setMethod(
     f = "[",
     signature = "cdb",
-    definition = function(x, i, j, k){
+    definition = function(x, i, j){
         if (missing(j)) j <- NULL
-        data <- get_variable(name = i, path = get_path(x), dims = j, na = k)
+        data <- get_variable(name = i, path = get_path(x), dims = j)
         return(data)
     }
 )
