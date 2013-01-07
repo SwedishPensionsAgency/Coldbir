@@ -1,4 +1,3 @@
-#' Put vector (or data frame) to disk
 #'
 #' Takes a vector (or data frame) and save its content to a file in the correct cdb.gz-format.
 #'
@@ -9,6 +8,8 @@
 #' @param attrib List of vector attributes
 #' @param compress Degree of compression in .gz file (size/speed - trade off). Zero compression gives most speed.
 #' @param lookup If lookup table should be added. It will be saved as a seperate file in the folder of the variable.
+#'
+#' @importFrom RJSONIO toJSON
 #'
 put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = NULL, lookup = TRUE, compress = 5) {
     
@@ -93,14 +94,14 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
         }
         
         # File header
-        db_ver <- database_version()
+        db_ver <- as.integer(.database_version)
         
         # Add default attributes
         if (is.null(attrib)) 
             attrib <- list()
         attrib$cdb_name <- name
         attrib$cdb_dims <- dims
-        attr_raw <- charToRaw(RJSONIO:::toJSON(attrib, digits = 50))
+        attr_raw <- charToRaw(toJSON(attrib, digits = 50))
         attr_len <- length(attr_raw)
         
         vector_len <- length(x)

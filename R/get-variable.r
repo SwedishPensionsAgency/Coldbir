@@ -6,6 +6,8 @@
 #' @param path Directory of where the variable is located
 #' @param dims A numeric or character vector specifying the dimension of the data (e.g. year and month)
 #' @param na Specification of how missing values should be coded
+#' 
+#' @importFrom RJSONIO fromJSON
 #'
 get_variable <- function(name, path = getwd(), dims = NULL, na = NA) {
 
@@ -44,7 +46,7 @@ get_variable <- function(name, path = getwd(), dims = NULL, na = NA) {
     close(bin_file)
     
     # Check if using an old version of colbir
-    if (db_ver != database_version())
+    if (db_ver != as.integer(.database_version))
         stop("Version of coldbir package and file format does not match")
     
     # Prepare data depending on vector type
@@ -64,7 +66,7 @@ get_variable <- function(name, path = getwd(), dims = NULL, na = NA) {
     
     # Add attributes to vector
     attributes(x) <- if (attr_str != "") {
-        as.list(RJSONIO:::fromJSON(attr_str))
+        as.list(fromJSON(attr_str))
     } else NULL
     
     return(x)

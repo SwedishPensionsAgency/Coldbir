@@ -1,2 +1,4 @@
 export(cdb)
 export(to_values)
+importFrom(RJSONIO,fromJSON)
+importFrom(RJSONIO,toJSON)
