@@ -28,7 +28,7 @@ To save data to the database one simply write:
 a['variable_name'] <- 1:10
 ```
 
-and to get the variable it just to use:
+and to get the variable it is just to use:
 
 ```r
 b <- a['variable_name']
