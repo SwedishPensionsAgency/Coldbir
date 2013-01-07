@@ -14,7 +14,8 @@ setClass(
 
 #' Class initializor
 #' 
-#' Method that runs when a new coldbir object is initialized.
+#' Method that runs when a new coldbir database is initialized.
+#' 
 setMethod (
     f = "initialize",
     signature = "cdb",
@@ -24,28 +25,27 @@ setMethod (
     }
 )
 
-#' Create new coldbir object
+#' Assign new (or existing) coldbir database
 #' 
-#' Use this to create a new coldbir object.
+#' Method to assign either a new or existing coldbir database to an R object.
+#' The current working directory is set as the default path.
+#' 
+#' @param path Database path (the location of the coldbir database)
+#' 
+#' @examples db <- cdb()
 #' @export
-#' @param path Path
-#' @examples
-#' db <- cdb()
-coldbir <- function(...) {
+#' 
+cdb <- function(...) {
     new(Class = "cdb", ...)
 }
 
-#' Get path from cdb object
+#' Get path of coldbir database
 #' 
-#' Method to get the path of a cdb object.
-#' @export
-#' @docType methods
-#' @rdname get_path
-#' @examples
-#' get_path(db)
+#' Method to get the path of an cdb object.
+#' 
+#' @examples get_path(db)
+#' 
 setGeneric("get_path", function(object){ standardGeneric("get_path") })
-
-#' @rdname get_path
 setMethod(
     f = "get_path", 
     signature = "cdb",
@@ -56,7 +56,6 @@ setMethod(
 
 #' "["-method (overloading)
 #' 
-#' @export
 setMethod(
     f = "[",
     signature = "cdb",
@@ -69,7 +68,6 @@ setMethod(
 
 #' "[<-"-method (overloading)
 #' 
-#' @export
 setMethod(
     f = "[<-",
     signature = "cdb",

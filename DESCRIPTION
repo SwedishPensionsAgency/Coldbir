@@ -24,3 +24,4 @@ Collate:
     'put-lookup.r'
     'put-variable.r'
     'cdb-class.r'
+    'coldbir-class.r'

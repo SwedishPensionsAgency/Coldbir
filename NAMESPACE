@@ -1,5 +1,2 @@
-export(coldbir)
+export(cdb)
 export(to_values)
-exportMethods("[")
-exportMethods("[<-")
-exportMethods(get_path)
