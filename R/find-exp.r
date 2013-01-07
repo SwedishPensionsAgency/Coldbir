@@ -3,6 +3,8 @@
 #' ...
 #'
 #' @param x Number
+#' 
+#' @export
 #'
 find_exp <- function(x) {
     F <- 1

@@ -6,10 +6,12 @@
 #' @param path Directory of where the variable is located
 #' @param dims A numeric or character vector specifying the dimension of the data (e.g. year and month)
 #' @param na Specification of how missing values should be coded
+#' @param format Format of return vector ('n' = numeric, 'f' = factor, 'c' = character)
 #' 
 #' @importFrom RJSONIO fromJSON
+#' @export
 #'
-get_variable <- function(name, path = getwd(), dims = NULL, na = NA) {
+get_variable <- function(name, path = getwd(), dims = NULL, na = NA, format = "n") {
 
     # Get file path
     cdb <- file_path(name, path, dims, ext = c("cdb.gz", "cdb"), create_dir = FALSE)
@@ -68,6 +70,14 @@ get_variable <- function(name, path = getwd(), dims = NULL, na = NA) {
     attributes(x) <- if (attr_str != "") {
         as.list(fromJSON(attr_str))
     } else NULL
+    
+    if (format == "f") {
+        x <- to_values(x, name = name, path = path, factors = TRUE)
+    } else if (format == "c") {
+        x <- to_values(x, name = name, path = path, factors = FALSE)
+    } else if (format != "n") {
+        warning("Format not supported; variable is returned as numeric")
+    }
     
     return(x)
 } 

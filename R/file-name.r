@@ -5,6 +5,8 @@
 #' @param name Variable name
 #' @param dims Vector specifying the dimensions
 #' @param ext File extension
+#' 
+#' @export
 #'
 file_name <- function(name, dims = NULL, ext) {
     

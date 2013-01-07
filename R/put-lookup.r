@@ -6,6 +6,8 @@
 #' @param name Variable name
 #' @param path Directory of where the file are to be created
 #' @param create_dir If folder should be created when missing
+#' 
+#' @export
 #'
 put_lookup <- function(df, name, path = getwd(), create_dir = TRUE) {
     

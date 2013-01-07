@@ -3,6 +3,8 @@
 #' ...
 #'
 #' @param x Number
+#' 
+#' @export
 #'
 check_repr <- function(x) {
     

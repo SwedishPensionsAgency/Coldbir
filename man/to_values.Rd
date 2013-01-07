@@ -2,12 +2,12 @@
 \alias{to_values}
 \title{Replace keys with values in vector}
 \usage{
-  to_values(v, ..., factors = FALSE)
+  to_values(x, ..., factors = FALSE)
 }
 \arguments{
-  \item{v}{Vector}
+  \item{x}{Vector}
 
-  \item{...}{See get_dict().}
+  \item{...}{See get_lookup().}
 
   \item{factors}{If vector should be returned as factors,
   default is FALSE.}

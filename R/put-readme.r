@@ -6,6 +6,8 @@
 #' @param path Directory of where the file are to be created
 #' @param create_dir If folder should be created when missing
 #' @param ... list_to_md(...)
+#' 
+#' @export
 #'
 put_readme <- function(name, path = getwd(), create_dir = TRUE, ...) {
     

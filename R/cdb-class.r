@@ -62,6 +62,7 @@ setMethod(
     definition = function(x, i, j){
         if (missing(j)) j <- NULL
         data <- get_variable(name = i, path = get_path(x), dims = j)
+        #class(data) <- "cdb"
         return(data)
     }
 )
@@ -75,5 +76,17 @@ setMethod(
         if (missing(j)) j <- NULL
         put_variable(x = value, name = i, dims = j, path = get_path(x))
         return(x)
+    }
+)
+
+#' as.factor
+#' 
+setMethod(
+    f = "as.factor",
+    signature = "cdb",
+    definition = function(x){
+        
+        # TODO
+        
     }
 )

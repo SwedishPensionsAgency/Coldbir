@@ -5,6 +5,8 @@
 #' @param name Variable name
 #' @param path Directory of where the file are to be created
 #' @param console TRUE if print to console instead of to character string
+#' 
+#' @export
 #'
 get_readme <- function(name, path, console = FALSE) {
     

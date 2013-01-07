@@ -9,6 +9,8 @@
 #' @param create_dir If folder should be created when missing
 #' @param file_name If file name should be included in return path
 #' @param data_folder If data folder should be added
+#' 
+#' @export
 #'
 file_path <- function(name, path, dims = NULL, ext, create_dir = FALSE, file_name = TRUE, data_folder = TRUE) {
     

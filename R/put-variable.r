@@ -10,6 +10,7 @@
 #' @param lookup If lookup table should be added. It will be saved as a seperate file in the folder of the variable.
 #'
 #' @importFrom RJSONIO toJSON
+#' @export
 #'
 put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = NULL, lookup = TRUE, compress = 5) {
     
