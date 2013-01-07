@@ -19,35 +19,32 @@ First, make sure to load the package with `library(coldbir)`.
 Then the next step is to decide where the database is to be saved, or where it already exists:
 
 ```r
-db <- coldbir:::db$new('my_path')
+a <- cdb('database_path')
 ```
 
-To save data to the database one simply use `put_v`:
+To save data to the database one simply write:
 
 ```r
-variable <- 1:10
-db$put_v(variable)
+a['variable_name'] <- 1:10
 ```
 
-and to get the variable it just to use `get_v`:
+and to get the variable it just to use:
 
 ```r
-a <- db$get_v('variable')
+b <- a['variable_name']
 ```
 
-It is also possible to put a data frame to the coldbir database - each column will then represent one variable each.
-Once again, make use of `put_v`:
+It is also possible to put a data frame to the coldbir database - each column will then represent one variable each;
 
 ```r
-variables <- MASS::survey
-db$put_v(variables)
+a[] <- MASS::survey
 ```
 
 However, since they are all saved as variables one cannot get all of them back at once. 
 Use `get_v` to get them back. Their names are the same as their previous column names. For example:
 
 ```r
-b <- db$get_v('Pulse')
+b <- a['Pulse']
 ```
     
 This was an quick introduction to coldbir. Soon more to come.
@@ -64,14 +61,14 @@ Below is an example of a database, named *mydb*, with a couple of variables:
         data/
           income[2011].cdb.gz
           income[2012].cdb.gz
-        LOOKUP.txt
-        README.md
+        lookup.txt
+        readme.md
       unemployment/
         data/
           unemployment[2011].cdb.gz
           unemployment[2012].cdb.gz
-        LOOKUP.txt
-        README.md
+        lookup.txt
+        readme.md
 
 ## Contact
 
