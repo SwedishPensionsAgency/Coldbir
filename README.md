@@ -25,13 +25,13 @@ a <- cdb('database_path')
 To save data to the database one simply write:
 
 ```r
-a['variable_name'] <- 1:10
+a['foo'] <- 1:10
 ```
 
 and to get the variable it is just to use:
 
 ```r
-b <- a['variable_name']
+b <- a['foo']
 ```
 
 It is also possible to put a data frame to the coldbir database - each column will then represent one variable each;
@@ -40,8 +40,7 @@ It is also possible to put a data frame to the coldbir database - each column wi
 a[] <- MASS::survey
 ```
 
-However, since they are all saved as variables one cannot get all of them back at once. 
-Use `get_v` to get them back. Their names are the same as their previous column names. For example:
+However, since they are all saved as variables one cannot get all of them back at once. Their names are the same as their previous column names. For example:
 
 ```r
 b <- a['Pulse']
