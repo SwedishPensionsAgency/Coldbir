@@ -1,8 +1,8 @@
-\name{to_values}
-\alias{to_values}
+\name{to_char}
+\alias{to_char}
 \title{Replace keys with values in vector}
 \usage{
-  to_values(x, ..., factors = FALSE)
+  to_char(x, factors = FALSE)
 }
 \arguments{
   \item{x}{Vector}

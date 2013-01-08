@@ -41,7 +41,7 @@ cdb <- function(...) {
 
 #' Get path of coldbir database
 #' 
-#' Method to get the path of an cdb object.
+#' Method to get the path of a coldbir database object.
 #' 
 #' @examples get_path(db)
 #' 
@@ -61,9 +61,14 @@ setMethod(
     signature = "cdb",
     definition = function(x, i, j){
         if (missing(j)) j <- NULL
-        data <- get_variable(name = i, path = get_path(x), dims = j)
-        #class(data) <- "cdb"
-        return(data)
+        v <- get_variable(name = i, path = get_path(x), dims = j)
+        
+        # Add some attributes
+        attr(v, "cdb_path") <- get_path(x)
+        attr(v, "cdb_name") <- i
+        attr(v, "cdb_dims") <- j
+
+        return(v)
     }
 )
 
@@ -79,14 +84,3 @@ setMethod(
     }
 )
 
-#' as.factor
-#' 
-setMethod(
-    f = "as.factor",
-    signature = "cdb",
-    definition = function(x){
-        
-        # TODO
-        
-    }
-)

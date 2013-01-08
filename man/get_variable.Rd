@@ -2,8 +2,7 @@
 \alias{get_variable}
 \title{Read vector from disk}
 \usage{
-  get_variable(name, path = getwd(), dims = NULL, na = NA,
-    format = "n")
+  get_variable(name, path = getwd(), dims = NULL, na = NA)
 }
 \arguments{
   \item{name}{Variable name}
@@ -14,7 +13,7 @@
   dimension of the data (e.g. year and month)}
 
   \item{na}{Specification of how missing values should be
-  coded}
+  coded #}
 
   \item{format}{Format of return vector ('n' = numeric, 'f'
   = factor, 'c' = character)}

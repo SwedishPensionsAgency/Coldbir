@@ -8,12 +8,12 @@
 #'
 #' @export
 #'
-to_values <- function(x, ..., factors = FALSE) {
+to_char <- function(x, factors = FALSE) {
     
-    df <- get_lookup(...)
+    df <- get_lookup(name = attr(x, "cdb_name"), path = attr(x, "cdb_path"))
     
     x <- df[[2]][match(x, df[[1]])]
     if (!factors) 
         x <- as.character(x)
     return(x)
-} 
+}

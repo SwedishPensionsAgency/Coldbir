@@ -15,7 +15,6 @@ Collate:
     'file-name.r'
     'file-path.r'
     'list-to-md.r'
-    'to-values.r'
     'get-readme.r'
     'put-readme.r'
     'get-lookup.r'
@@ -25,3 +24,4 @@ Collate:
     'cdb-class.r'
     'coldbir-class.r'
     '0-constants.r'
+    'to-char.r'

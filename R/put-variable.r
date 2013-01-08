@@ -100,8 +100,8 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
         # Add default attributes
         if (is.null(attrib)) 
             attrib <- list()
-        attrib$cdb_name <- name
-        attrib$cdb_dims <- dims
+        #attrib$cdb_name <- name
+        #attrib$cdb_dims <- dims
         attr_raw <- charToRaw(toJSON(attrib, digits = 50))
         attr_len <- length(attr_raw)
         
