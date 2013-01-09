@@ -12,8 +12,14 @@ to_char <- function(x, ..., factors = FALSE) {
     
     df <- get_lookup(...)
     
-    x <- df[[2]][match(x, df[[1]])]
-    if (!factors) 
-        x <- as.character(x)
+    if (is.null(df)) {
+        warning(.lookup_filename, " not found; hence variable type remains numeric'")
+    } else {
+        x <- df[[2]][match(x, df[[1]])]
+        if (!factors) {
+            x <- as.character(x) 
+        }
+    }
+    
     return(x)
 }
