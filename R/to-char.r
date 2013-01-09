@@ -8,9 +8,9 @@
 #'
 #' @export
 #'
-to_char <- function(x, factors = FALSE) {
+to_char <- function(x, ..., factors = FALSE) {
     
-    df <- get_lookup(name = attr(x, "cdb_name"), path = attr(x, "cdb_path"))
+    df <- get_lookup(...)
     
     x <- df[[2]][match(x, df[[1]])]
     if (!factors) 

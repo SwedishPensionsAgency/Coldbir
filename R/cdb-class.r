@@ -1,6 +1,6 @@
 setClass(
     Class = "cdb",
-    representation = representation(path = "character"),
+    representation = representation(path = "character", type = "character", na = "numeric"),
     validity = function(object){
         #if(!RJSONIO:::isValidJSON(toJSON(object@form), TRUE)) {
         #    stop("The argument is not a valid JSON list")
@@ -19,8 +19,10 @@ setClass(
 setMethod (
     f = "initialize",
     signature = "cdb",
-    definition = function(.Object, path = getwd()) {
+    definition = function(.Object, path = getwd(), type = "numeric", na = NA_real_) {
         .Object@path <- path
+        .Object@type <- type
+        .Object@na <- na
         return(.Object)
     }
 )
@@ -61,12 +63,14 @@ setMethod(
     signature = "cdb",
     definition = function(x, i, j){
         if (missing(j)) j <- NULL
-        v <- get_variable(name = i, path = get_path(x), dims = j)
         
-        # Add some attributes
-        attr(v, "cdb_path") <- get_path(x)
-        attr(v, "cdb_name") <- i
-        attr(v, "cdb_dims") <- j
+        v <- get_variable(name = i, path = x@path, dims = j, na = x@na)
+    
+        # Convert to character or factor (if requested)
+        if (x@type %in% c("character", "factor")) {
+            factors <- if (x@type == "factor") TRUE else FALSE
+            v <- to_char(x = v, name = i, path = x@path, factors = factors)
+        }
 
         return(v)
     }
@@ -79,7 +83,7 @@ setMethod(
     signature = "cdb",
     definition = function(x, i, j, value){
         if (missing(j)) j <- NULL
-        put_variable(x = value, name = i, dims = j, path = get_path(x))
+        put_variable(x = value, name = i, dims = j, path = x@path)
         return(x)
     }
 )

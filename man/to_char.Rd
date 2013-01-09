@@ -2,7 +2,7 @@
 \alias{to_char}
 \title{Replace keys with values in vector}
 \usage{
-  to_char(x, factors = FALSE)
+  to_char(x, ..., factors = FALSE)
 }
 \arguments{
   \item{x}{Vector}
