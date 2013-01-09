@@ -34,6 +34,7 @@ setMethod (
 #' @param path Database path (the location of the coldbir database)
 #' @param type Return type of variable. Possible values: 'c' = character, 'f' = factor and 'n' = numeric (default).
 #' Character conversion might be a bit slow; hence numeric or factor is recommended.
+#' @param na Value representing missing values (default: NA_real_)
 #' 
 #' @examples db <- cdb()
 #' @export
@@ -46,7 +47,10 @@ cdb <- function(...) {
 #' 
 #' Method to get the path of a coldbir database object.
 #' 
-#' @examples get_path(db)
+#' @examples 
+#' db <- cdb()
+#' get_path(db)
+#' @export
 #' 
 setGeneric("get_path", function(object){ standardGeneric("get_path") })
 setMethod(
@@ -64,7 +68,6 @@ setMethod(
     signature = "cdb",
     definition = function(x, i, j){
         if (missing(j)) j <- NULL
-        
         v <- get_variable(name = i, path = x@path, dims = j, na = x@na)
     
         # Convert to character or factor (if requested)
@@ -72,7 +75,6 @@ setMethod(
             factors <- if (x@type == "f") TRUE else FALSE
             v <- to_char(x = v, name = i, path = x@path, factors = factors)
         }
-
         return(v)
     }
 )

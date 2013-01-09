@@ -5,6 +5,7 @@
   Method to get the path of a coldbir database object.
 }
 \examples{
+db <- cdb()
 get_path(db)
 }
 

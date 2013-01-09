@@ -12,6 +12,9 @@
   = character, 'f' = factor and 'n' = numeric (default).
   Character conversion might be a bit slow; hence numeric
   or factor is recommended.}
+
+  \item{na}{Value representing missing values (default:
+  NA_real_)}
 }
 \description{
   Method to assign either a new or existing coldbir
