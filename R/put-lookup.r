@@ -12,12 +12,12 @@
 put_lookup <- function(df, name, path = getwd(), create_dir = TRUE) {
     
     if (!is.data.frame(df) || ncol(df) != 2) 
-        stop("Input must be a two-column data frame")
+        stop("input must be a two-column data frame")
     
     folder_path <- file_path(name, path, create_dir = create_dir, file_name = FALSE, data_folder = FALSE)
     
     colnames(df) <- c("key", "value")
-    write.table(df, file = file.path(folder_path, "lookup.txt"), quote = FALSE, row.names = FALSE, sep = "\t")
+    write.table(df, file = file.path(folder_path, .lookup_filename), quote = FALSE, row.names = FALSE, sep = "\t")
     
     message(name, ": lookup table was successfully written to disk")
     return(TRUE)
