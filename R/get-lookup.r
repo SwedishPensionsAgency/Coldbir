@@ -12,7 +12,7 @@ get_lookup <- function(name, path = getwd()) {
     file <- file.path(folder_path, .lookup_filename)
     
     if (file.exists(file)) {
-        df <- read.table(file = , header = TRUE, quote = "", sep = "\t")
+        df <- read.table(file = file, header = TRUE, quote = "", sep = "\t")
         if (!is.data.frame(df) || ncol(df) != 2) {
             stop("lookup must be a two-column data frame")
         }
