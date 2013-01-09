@@ -32,6 +32,8 @@ setMethod (
 #' The current working directory is set as the default path.
 #' 
 #' @param path Database path (the location of the coldbir database)
+#' @param type Return type of variable. Possible values: 'c' = character, 'f' = factor and 'n' = numeric (default).
+#' Character conversion might be a bit slow; hence numeric or factor is recommended.
 #' 
 #' @examples db <- cdb()
 #' @export
