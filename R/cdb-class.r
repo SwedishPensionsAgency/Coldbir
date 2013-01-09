@@ -2,12 +2,10 @@ setClass(
     Class = "cdb",
     representation = representation(path = "character", type = "character", na = "numeric"),
     validity = function(object){
-        #if(!RJSONIO:::isValidJSON(toJSON(object@form), TRUE)) {
-        #    stop("The argument is not a valid JSON list")
-        #} 
-        #if(length(object@form$schema$properties) != length(object@form$options$fields)) {
-        #    stop("The number of element schemas and options must match")
-        #}
+        types <- c("c", "f", "n")
+        if (!(object@type %in% types)) {
+            stop("wrong type argument; only '", paste(types, collapse = "'/'"), "' are allowed")
+        }
         return(TRUE)
     }
 )
@@ -19,10 +17,11 @@ setClass(
 setMethod (
     f = "initialize",
     signature = "cdb",
-    definition = function(.Object, path = getwd(), type = "numeric", na = NA_real_) {
+    definition = function(.Object, path = getwd(), type = "n", na = NA_real_) {
         .Object@path <- path
         .Object@type <- type
         .Object@na <- na
+        validObject(.Object)
         return(.Object)
     }
 )
@@ -67,8 +66,8 @@ setMethod(
         v <- get_variable(name = i, path = x@path, dims = j, na = x@na)
     
         # Convert to character or factor (if requested)
-        if (x@type %in% c("character", "factor")) {
-            factors <- if (x@type == "factor") TRUE else FALSE
+        if (x@type %in% c("c", "f")) {
+            factors <- if (x@type == "f") TRUE else FALSE
             v <- to_char(x = v, name = i, path = x@path, factors = factors)
         }
 
