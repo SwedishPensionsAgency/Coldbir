@@ -17,21 +17,18 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
     # If x is a data frame it will recursively run put_variable over all columns
     if (is.data.frame(x)) {
         sapply(names(x), function(i) {
-            put_variable(x = x[[i]], name = i, path = path, dims = dims, attrib = attrib, lookup = lookup, compress = compress)
+            put_variable(x = x[[i]], name = i, path = path, dims = dims, 
+                attrib = attrib, lookup = lookup, compress = compress)
         })
         return(TRUE)
     } else {
 
         # Read object name if name argument is missing
-        if (is.null(name)) {
-            name <- deparse(substitute(x))
-        }
-    
+        if (is.null(name)) name <- deparse(substitute(x))
+
         # Errors and warnings
-        if (is.null(x)) 
-            stop("Vector is NULL")
-        if (all(is.na(x))) 
-            warning("All values are missing")
+        if (is.null(x)) stop("Vector is NULL")
+        if (all(is.na(x))) warning("All values are missing")
         
         # Check/set vector type and number of bytes
         if (is.integer(x)) {
@@ -81,8 +78,7 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
             stop("Data type is not supported")
         }
         
-        ext <- if (compress > 0) 
-            "cdb.gz" else "cdb"
+        ext <- if (compress > 0) "cdb.gz" else "cdb"
         
         # Construct file path
         cdb <- file_path(name, path, dims, ext, create_dir = TRUE)
@@ -98,10 +94,7 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
         db_ver <- as.integer(.database_version)
         
         # Add default attributes
-        if (is.null(attrib)) 
-            attrib <- list()
-        #attrib$cdb_name <- name
-        #attrib$cdb_dims <- dims
+        if (is.null(attrib)) attrib <- list()
         attr_raw <- charToRaw(toJSON(attrib, digits = 50))
         attr_len <- length(attr_raw)
         

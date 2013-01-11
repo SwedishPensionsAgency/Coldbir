@@ -39,8 +39,6 @@ get_variable <- function(name, path = getwd(), dims = NULL, na = NA) { #, format
     
     if (bytes <= 4) {
         x <- readBin(bin_file, integer(), n = vector_len, size = bytes)
-        # if (H_itemSize == 1) data[data == -128] <- as.integer(NA) if (H_itemSize == 2) data[data == -32768] <-
-        # as.integer(NA)
     } else {
         x <- readBin(bin_file, double(), n = vector_len)
     }
