@@ -118,7 +118,7 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
         writeBin(type, bin_file, size = 1)
         writeBin(as.raw(bytes), bin_file, size = 1)
         writeBin(as.raw(exponent), bin_file, size = 1)
-        writeBin(db_ver, bin_file, size = 8)
+        writeBin(db_ver, bin_file, size = 4)
         
         writeBin(attr_len, bin_file, size = 8)
         writeBin(attr_raw, bin_file)
