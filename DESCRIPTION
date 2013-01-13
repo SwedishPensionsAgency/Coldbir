@@ -2,10 +2,10 @@ Package: coldbir
 Type: Package
 Title: Column Database in R
 Version: 0.0.1
-Date: 2012-11-25
+Date: 2013-01-13
 Author: Danne Mikula, Thomas Reinholdsson
 Maintainer: Thomas Reinholdsson <reinholdsson@gmail.com>
-Description: A (keep it simple stupid) column database in R
+Description: A column database in R
 License: GPL (>= 2)
 Depends:
     RJSONIO
