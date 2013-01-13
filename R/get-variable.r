@@ -30,7 +30,7 @@ get_variable <- function(name, path = getwd(), dims = NULL, na = NA) { #, format
     type <- rawToChar(readBin(bin_file, raw(), n = 1, size = 1, signed = FALSE))
     bytes <- readBin(bin_file, integer(), n = 1, size = 1, signed = FALSE)
     exponent <- readBin(bin_file, integer(), n = 1, size = 1, signed = FALSE)
-    db_ver <- readBin(bin_file, integer(), n = 1, size = 4)
+    db_ver <- readBin(bin_file, integer(), n = 1, size = 8)
     
     attr_len <- readBin(bin_file, integer(), n = 1, size = 8)
     attr_str <- rawToChar(readBin(bin_file, raw(), n = attr_len))
