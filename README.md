@@ -1,7 +1,9 @@
-# coldbir
+# Coldbir
 -----------------------
 
-The coldbir package is a column-oriented DBMS in R.
+The Coldbir package is a column-oriented DBMS in R.
+
+The project is currently maintained by Thomas Reinholdsson (<reinholdsson@gmail.com>).
 
 ## Installation
 
@@ -9,12 +11,12 @@ Use `devtools` for easy installation
 
 ```r
 library(devtools)
-install_github('coldbir', 'SthlmR', 'v0.1')
+install_github('Coldbir', 'SthlmR', 'v0.1')
 ```
 
 ## Introduction
 
-First, make sure to load the package with `library(coldbir)`.
+First, make sure to load the package with `library(Coldbir)`.
 
 Then the next step is to decide where the database is to be saved, or where it already exists:
 
@@ -58,17 +60,22 @@ Below is an example of a database, named *mydb*, with a couple of variables:
     mydb/
       income/
         data/
-          income[2011].cdb.gz
-          income[2012].cdb.gz
+          d[2011].cdb.gz
+          d[2012].cdb.gz
         lookup.txt
         readme.md
       unemployment/
         data/
-          unemployment[2011].cdb.gz
-          unemployment[2012].cdb.gz
+          d[2011].cdb.gz
+          d[2012].cdb.gz
         lookup.txt
         readme.md
 
-## Contact
+## Development
 
-The project is currently maintained by Thomas Reinholdsson (<reinholdsson@gmail.com>).
+The *master* branch is the development branch, and might therefore be a bit instable. Stable releases are marked with tags, e.g. v1.0, where the first number represents a new stable release and the second number imply new bug fixes within the given release version.
+
+
+## License
+
+Coldbir is licensed under the AGPLv3, the terms of which are included in the file LICENSE.
