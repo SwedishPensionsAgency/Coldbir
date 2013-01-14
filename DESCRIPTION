@@ -1,11 +1,11 @@
-Package: coldbir
+Package: Coldbir
 Type: Package
-Title: Column Database in R
+Title: Column database in R
 Version: v0.1
 Date: 2013-01-14
 Author: Danne Mikula, Thomas Reinholdsson
 Maintainer: Thomas Reinholdsson <reinholdsson@gmail.com>
-Description: A column database in R
+Description: ...
 License: AGPLv3
 Depends:
     RJSONIO
