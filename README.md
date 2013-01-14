@@ -11,7 +11,7 @@ Use `devtools` for easy installation
 
 ```r
 library(devtools)
-install_github('Coldbir', 'SthlmR', 'v0.1')
+install_github('Coldbir', 'SthlmR')
 ```
 
 ## Introduction
