@@ -9,7 +9,7 @@ Use `devtools` for easy installation
 
 ```r
 library(devtools)
-install_github('coldbir', 'SthlmR')
+install_github('coldbir', 'SthlmR', 'v0.1')
 ```
 
 ## Introduction
