@@ -18,58 +18,58 @@
         <h1>coldbir</h1>
         <p>a tasty column database in R</p>
 
-        <p class="view"><a href="https://github.com/SthlmR/coldbir">View the Project on GitHub <small>SthlmR/coldbir</small></a></p>
+        <p class="view"><a href="https://github.com/SthlmR/Coldbir">View the Project on GitHub <small>SthlmR/Coldbir</small></a></p>
 
 
         <ul>
-          <li><a href="https://github.com/SthlmR/coldbir/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/SthlmR/coldbir/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/SthlmR/coldbir">View On <strong>GitHub</strong></a></li>
+          <li><a href="https://github.com/SthlmR/Coldbir/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/SthlmR/Coldbir/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/SthlmR/Coldbir">View On <strong>GitHub</strong></a></li>
         </ul>
       </header>
       <section>
-        <h2>Installation</h2>
+        <p>The Coldbir package is a column-oriented DBMS in R.</p>
+
+<p>The project is currently maintained by Thomas Reinholdsson (<a href="mailto:reinholdsson@gmail.com">reinholdsson@gmail.com</a>).</p>
+
+<h2>Installation</h2>
 
 <p>Use <code>devtools</code> for easy installation</p>
 
 <div class="highlight"><pre>library<span class="p">(</span>devtools<span class="p">)</span>
-install_github<span class="p">(</span><span class="s">'coldbir'</span><span class="p">,</span> <span class="s">'SthlmR'</span><span class="p">)</span>
+install_github<span class="p">(</span><span class="s">'Coldbir'</span><span class="p">,</span> <span class="s">'SthlmR'</span><span class="p">)</span>
 </pre></div>
 
 <h2>Introduction</h2>
 
-<p>First, make sure to load the package with <code>library(coldbir)</code>.</p>
+<p>First, make sure to load the package with <code>library(Coldbir)</code>.</p>
 
 <p>Then the next step is to decide where the database is to be saved, or where it already exists:</p>
 
-<div class="highlight"><pre>db <span class="o">&lt;-</span> coldbir<span class="p">:::</span>db<span class="p">$</span>new<span class="p">(</span><span class="s">'my_path'</span><span class="p">)</span>
+<div class="highlight"><pre>a <span class="o">&lt;-</span> cdb<span class="p">(</span><span class="s">'database_path'</span><span class="p">)</span>
 </pre></div>
 
-<p>To save data to the database one simply use <code>put_v</code>:</p>
+<p>To save data to the database one simply write:</p>
 
-<div class="highlight"><pre>variable <span class="o">&lt;-</span> <span class="m">1</span>:<span class="m">10</span>
-db<span class="p">$</span>put_v<span class="p">(</span>variable<span class="p">)</span>
+<div class="highlight"><pre>a<span class="p">[</span><span class="s">'foo'</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="m">1</span>:<span class="m">10</span>
 </pre></div>
 
-<p>and to get the variable it just to use <code>get_v</code>:</p>
+<p>and to get the variable it is just to use:</p>
 
-<div class="highlight"><pre>a <span class="o">&lt;-</span> db<span class="p">$</span>get_v<span class="p">(</span><span class="s">'variable'</span><span class="p">)</span>
+<div class="highlight"><pre>b <span class="o">&lt;-</span> a<span class="p">[</span><span class="s">'foo'</span><span class="p">]</span>
 </pre></div>
 
-<p>It is also possible to put a data frame to the coldbir database - each column will then represent one variable each.
-Once again, make use of <code>put_v</code>:</p>
+<p>It is also possible to put a data frame to the coldbir database - each column will then represent one variable each;</p>
 
-<div class="highlight"><pre>variables <span class="o">&lt;-</span> MASS<span class="p">::</span>survey
-db<span class="p">$</span>put_v<span class="p">(</span>variables<span class="p">)</span>
+<div class="highlight"><pre>a<span class="p">[]</span> <span class="o">&lt;-</span> MASS<span class="p">::</span>survey
 </pre></div>
 
-<p>However, since they are all saved as variables one cannot get all of them back at once. 
-Use <code>get_v</code> to get them back. Their names are the same as their previous column names. For example:</p>
+<p>However, since they are all saved as variables one cannot get all of them back at once. Their names are the same as their previous column names. For example:</p>
 
-<div class="highlight"><pre>b <span class="o">&lt;-</span> db<span class="p">$</span>get_v<span class="p">(</span><span class="s">'Pulse'</span><span class="p">)</span>
+<div class="highlight"><pre>b <span class="o">&lt;-</span> a<span class="p">[</span><span class="s">'Pulse'</span><span class="p">]</span>
 </pre></div>
 
-<p>This was an quick introduction to coldbir. More to come soon.</p>
+<p>This was an quick introduction to coldbir. Soon more to come.</p>
 
 <h3>File structure</h3>
 
@@ -81,21 +81,25 @@ Below is an example of a database, named <em>mydb</em>, with a couple of variabl
 <pre><code>mydb/
   income/
     data/
-      income[2011].cdb.gz
-      income[2012].cdb.gz
-    LOOKUP.txt
-    README.md
+      d[2011].cdb.gz
+      d[2012].cdb.gz
+    lookup.txt
+    readme.md
   unemployment/
     data/
-      unemployment[2011].cdb.gz
-      unemployment[2012].cdb.gz
-    LOOKUP.txt
-    README.md
+      d[2011].cdb.gz
+      d[2012].cdb.gz
+    lookup.txt
+    readme.md
 </code></pre>
 
-<h2>Contact</h2>
+<h2>Development</h2>
 
-<p>The project is currently maintained by Thomas Reinholdsson (<a href="mailto:reinholdsson@gmail.com">reinholdsson@gmail.com</a>).</p>
+<p>The <em>master</em> branch is the development branch, and might therefore be a bit instable. Stable releases are marked with tags, e.g. v1.0, where the first number represents a new stable release and the second number imply new bug fixes within the given release version.</p>
+
+<h2>License</h2>
+
+<p>Coldbir is licensed under the AGPLv3, the terms of which are included in the file LICENSE.</p>
       </section>
       <footer>
         <p>This project is maintained by <a href="https://github.com/SthlmR">SthlmR</a></p>
