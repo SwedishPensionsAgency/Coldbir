@@ -1,8 +1,8 @@
 Package: Coldbir
 Type: Package
 Title: Column database in R
-Version: v0.1
-Date: 2013-01-14
+Version: 0.2
+Date: 2013-01-23
 Author: Danne Mikula, Thomas Reinholdsson
 Maintainer: Thomas Reinholdsson <reinholdsson@gmail.com>
 Description: ...
@@ -22,6 +22,5 @@ Collate:
     'put-lookup.r'
     'put-variable.r'
     'cdb-class.r'
-    'coldbir-class.r'
     '0-constants.r'
     'to-char.r'
