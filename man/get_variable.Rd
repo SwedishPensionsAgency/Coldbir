@@ -13,10 +13,7 @@
   dimension of the data (e.g. year and month)}
 
   \item{na}{Specification of how missing values should be
-  coded #}
-
-  \item{format}{Format of return vector ('n' = numeric, 'f'
-  = factor, 'c' = character)}
+  coded}
 }
 \description{
   Reads a numeric vector from disk
