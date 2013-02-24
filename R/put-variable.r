@@ -50,6 +50,13 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
                 type <- 5L  # Date
                 bytes <- 8L  # save as double
                 exponent <- 0L
+                
+            } else if ("POSIXt" %in% class(x)) {
+                type <- if ("POSIXct" %in% class(x)) 6L else 7L
+                x <- as.double(x)  # convert to double
+                bytes <- 8L  # save as double
+                exponent <- 0L
+                
             } else {
                 type <- 2L  # double
                 exponent <- find_exp(x)
@@ -87,11 +94,6 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
             bytes <- 4L
             exponent <- 0L
             
-        } else if ("POSIXt" %in% class(x)) {
-            type <- if ("POSIXct" %in% class(x)) 6L else 7L
-            x <- as.double(x)  # convert to double
-            bytes <- 8L
-            exponent <- 0L
         } else {
             stop("Data type is not supported")
         }
