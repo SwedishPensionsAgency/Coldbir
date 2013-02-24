@@ -31,7 +31,7 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
         if (all(is.na(x))) warning("All values are missing")
         
         # Check/set vector type and number of bytes
-        ## The following types are currently supported
+        ## The following types are currently supported:
             # 1 = integer
             # 2 = double
             # 3 = logical
