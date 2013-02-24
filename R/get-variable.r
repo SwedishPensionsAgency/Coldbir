@@ -52,11 +52,13 @@ get_variable <- function(name, path = getwd(), dims = NULL, na = NA) { #, format
     if (type %in% c("i", "f")) {
         if (!is.na(na)) 
             x[is.na(x)] <- as.integer(na)
-    } else if (type == "d") {
+    } else if (type %in% c("d", "p")) {
         if (exponent > 0) 
             x <- x/10^exponent
-        if (!is.na(na)) 
+        if (!is.na(na))
             x[is.na(x)] <- as.double(na)
+        if (type == "p")
+            x <- as.Date(x, origin = "1970-01-01")
     } else if (type == "l") {
         x <- (x > 0L)
         if (!is.na(na)) 

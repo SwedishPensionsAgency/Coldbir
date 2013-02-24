@@ -37,7 +37,11 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
             exponent <- 0L
             
         } else if (is.double(x)) {
-            type <- charToRaw("d")
+            if (class(y) == "Date") {
+                type <- charToRaw("p")
+            } else {
+                type <- charToRaw("d")
+            }
             exponent <- find_exp(x)
             
             if (exponent <= 9L) {
