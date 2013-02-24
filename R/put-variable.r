@@ -37,7 +37,7 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
             exponent <- 0L
             
         } else if (is.double(x)) {
-            if (class(y) == "Date") {
+            if (class(x) == "Date") {
                 type <- charToRaw("p")
             } else {
                 type <- charToRaw("d")
