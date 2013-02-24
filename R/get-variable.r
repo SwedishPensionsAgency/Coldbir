@@ -47,8 +47,7 @@ get_variable <- function(name, path = getwd(), dims = NULL, na = NA) { #, format
     # Check if using an old version of colbir
     if (db_ver != as.integer(.database_version))
         stop("Version of coldbir package and file format does not match")
-    
-    browser()
+
     # Prepare data depending on vector type
     if (type %in% c("i", "f")) {
         if (!is.na(na)) 
