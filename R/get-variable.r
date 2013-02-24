@@ -67,7 +67,7 @@ get_variable <- function(name, path = getwd(), dims = NULL, na = NA) { #, format
     }
     
     # Add attributes to vector
-    if (attr_str != "") attributes(x) <- c(attributes(x), as.list(fromJSON(attr_str))
+    if (attr_str != "") attributes(x) <- c(attributes(x), as.list(fromJSON(attr_str)))
     
     return(x)
 } 
