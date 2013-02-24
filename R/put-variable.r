@@ -39,23 +39,23 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
         } else if (is.double(x)) {
             if (class(x) == "Date") {
                 type <- charToRaw("p")
+                bytes <- 8L  # save as double
+                exponent <- 0L
             } else {
                 type <- charToRaw("d")
-            }
-            exponent <- find_exp(x)
-            
-            if (exponent <= 9L) {
-                x <- round(x * 10^exponent, 0)
-                bytes <- check_repr(x)
-                if (bytes <= 4L) {
-                    bytes <- 4L
+                exponent <- find_exp(x)
+                
+                if (exponent <= 9L) {
+                    x <- round(x * 10^exponent, 0)
+                    bytes <- check_repr(x)
+                    if (bytes <= 4L) {
+                        bytes <- 4L
+                    }
+                } else {
+                    bytes <- 8L
+                    exponent <- 0L
                 }
-            } else {
-                # Save as double
-                bytes <- 8L
-                exponent <- 0L
             }
-            
         } else if (is.logical(x)) {
             type <- charToRaw("l")
             bytes <- 1L
