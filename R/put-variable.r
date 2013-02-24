@@ -27,8 +27,8 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
         if (is.null(name)) name <- deparse(substitute(x))
 
         # Errors and warnings
-        if (is.null(x)) stop("Vector is NULL")
-        if (all(is.na(x))) warning("All values are missing")
+        if (is.null(x)) stop(name, " - variable is NULL")
+        if (all(is.na(x))) warning(name, " - all values are missing")
         
         # Check/set vector type and number of bytes
         ## The following types are currently supported:
@@ -77,12 +77,12 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
             type <- 3L  # logical
             bytes <- 1L
             exponent <- 0L
-            warning("Logical vector; NA is converted to FALSE")
+            warning(name, " - logical vector; NA is converted to FALSE")
             
         } else if (is.factor(x) || is.character(x)) {
             if (is.character(x)) {
                 x <- as.factor(x)
-                warning("Character converted to factor")
+                warning(name, " - character converted to factor")
             }
             
             if (lookup) {
@@ -96,7 +96,7 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
             exponent <- 0L
             
         } else {
-            stop("Data type is not supported")
+            stop(name, " - data type is not supported")
         }
         
         ext <- if (compress > 0) "cdb.gz" else "cdb"
@@ -142,7 +142,7 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
         
         close(bin_file)
         
-        message(name, ": data was successfully written to disk")
+        message(name, " - successfully written to disk")
         return(TRUE)
 
     }
