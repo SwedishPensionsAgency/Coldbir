@@ -48,6 +48,7 @@ get_variable <- function(name, path = getwd(), dims = NULL, na = NA) { #, format
     if (db_ver != as.integer(.database_version))
         stop("Version of coldbir package and file format does not match")
     
+    browser()
     # Prepare data depending on vector type
     if (type %in% c("i", "f")) {
         if (!is.na(na)) 
@@ -66,9 +67,7 @@ get_variable <- function(name, path = getwd(), dims = NULL, na = NA) { #, format
     }
     
     # Add attributes to vector
-    attributes(x) <- if (attr_str != "") {
-        as.list(fromJSON(attr_str))
-    } else NULL
+    if (attr_str != "") attributes(x) <- c(attributes(x), as.list(fromJSON(attr_str))
     
     return(x)
 } 
