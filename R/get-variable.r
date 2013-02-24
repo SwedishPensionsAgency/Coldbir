@@ -10,7 +10,7 @@
 #' @importFrom RJSONIO fromJSON
 #' @export
 #'
-get_variable <- function(name, path = getwd(), dims = NULL, na = NA) { #, format = "n") {
+get_variable <- function(name, path = getwd(), dims = NULL, na = NA) {
 
     # Get file path
     cdb <- file_path(name, path, dims, ext = c("cdb.gz", "cdb"), create_dir = FALSE)
@@ -23,10 +23,10 @@ get_variable <- function(name, path = getwd(), dims = NULL, na = NA) { #, format
         bin_file <- file(cdb[2], "rb")
         
     } else {
-        stop("File does not exist")
+        stop(name, " - file does not exist")
     }
     
-    type <- rawToChar(readBin(bin_file, raw(), n = 1, size = 1, signed = FALSE))
+    type <- readBin(bin_file, integer(), n = 1, size = 1, signed = FALSE)
     bytes <- readBin(bin_file, integer(), n = 1, size = 1, signed = FALSE)
     exponent <- readBin(bin_file, integer(), n = 1, size = 1, signed = FALSE)
     db_ver <- readBin(bin_file, integer(), n = 1, size = 4)
@@ -46,27 +46,43 @@ get_variable <- function(name, path = getwd(), dims = NULL, na = NA) { #, format
     
     # Check if using an old version of colbir
     if (db_ver != as.integer(.database_version))
-        stop("Version of coldbir package and file format does not match")
-    
+        stop(name, " - version of coldbir package and file format does not match")
+
     # Prepare data depending on vector type
-    if (type %in% c("i", "f")) {
+    
+    ## integer or factor
+    if (type %in% c(1, 4)) {
         if (!is.na(na)) 
             x[is.na(x)] <- as.integer(na)
-    } else if (type == "d") {
+    
+    ## double
+    } else if (type == 2) {
         if (exponent > 0) 
             x <- x/10^exponent
-        if (!is.na(na)) 
+        if (!is.na(na))
             x[is.na(x)] <- as.double(na)
-    } else if (type == "l") {
+        
+    ## logical
+    } else if (type == 3) {
         x <- (x > 0L)
         if (!is.na(na)) 
             x[is.na(x)] <- as.logical(na)
+        
+    ## Date
+    } else if (type == 5) {
+        x <- as.Date(x, origin = "1970-01-01")
+        
+    ## POSIXct
+    } else if (type == 6) {
+        x <- as.POSIXct(x, origin = "1970-01-01")
+        
+    ## POSIXlt
+    } else if (type == 7) {
+        x <- as.POSIXlt(x, origin = "1970-01-01")
     }
     
     # Add attributes to vector
-    attributes(x) <- if (attr_str != "") {
-        as.list(fromJSON(attr_str))
-    } else NULL
+    if (attr_str != "") attributes(x) <- c(attributes(x), as.list(fromJSON(attr_str)))
     
     return(x)
 } 
