@@ -37,8 +37,8 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
             exponent <- 0L
             
         } else if (is.double(x)) {
-            if (class(x) == "Date") {
-                type <- charToRaw("p")
+            if ("Date" %in% class(x)) {
+                type <- charToRaw("pd")
                 bytes <- 8L  # save as double
                 exponent <- 0L
             } else {
@@ -78,6 +78,15 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
             bytes <- 4L
             exponent <- 0L
             
+        } else if ("POSIXt" %in% class(x)) {
+            if ("POSIXlt" %in% class(x)) {
+                type <- charToRaw("pl")
+            } else {
+                type <- charToRaw("pc")
+            }
+            x <- as.double(x)  # convert to double
+            bytes <- 8L
+            exponent <- 0L
         } else {
             stop("Data type is not supported")
         }
@@ -112,7 +121,7 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
         }
         
         # Write binary file
-        writeBin(type, bin_file, size = 1)
+        writeBin(type, bin_file, size = 2)
         writeBin(as.raw(bytes), bin_file, size = 1)
         writeBin(as.raw(exponent), bin_file, size = 1)
         writeBin(db_ver, bin_file, size = 4)

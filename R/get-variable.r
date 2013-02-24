@@ -26,7 +26,7 @@ get_variable <- function(name, path = getwd(), dims = NULL, na = NA) { #, format
         stop("File does not exist")
     }
     
-    type <- rawToChar(readBin(bin_file, raw(), n = 1, size = 1, signed = FALSE))
+    type <- rawToChar(readBin(bin_file, raw(), n = 1, size = 2, signed = FALSE))
     bytes <- readBin(bin_file, integer(), n = 1, size = 1, signed = FALSE)
     exponent <- readBin(bin_file, integer(), n = 1, size = 1, signed = FALSE)
     db_ver <- readBin(bin_file, integer(), n = 1, size = 4)
@@ -61,8 +61,14 @@ get_variable <- function(name, path = getwd(), dims = NULL, na = NA) { #, format
         x <- (x > 0L)
         if (!is.na(na)) 
             x[is.na(x)] <- as.logical(na)
-    } else if (type == "p") {
+        
+    # Dates and times
+    } else if (type == "pd") {
         x <- as.Date(x, origin = "1970-01-01")
+    } else if (type == "pc") {
+        x <- as.POSIXct(x, origin = "1970-01-01")
+    } else if (type == "pl") {
+        x <- as.POSIXlt(x, origin = "1970-01-01")
     }
     
     # Add attributes to vector
