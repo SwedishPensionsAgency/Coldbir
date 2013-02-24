@@ -45,15 +45,15 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
             bytes <- 4L  # H_itemSize, note: NA for integers is already -2147483648 in R
             exponent <- 0L
             
+        } else if ("POSIXt" %in% class(x)) {  # OBS: must be checked before is.double
+            type <- if ("POSIXct" %in% class(x)) 6L else 7L
+            x <- as.double(x)  # convert to double
+            bytes <- 8L  # save as double
+            exponent <- 0L
+            
         } else if (is.double(x)) {
             if ("Date" %in% class(x)) {
                 type <- 5L  # Date
-                bytes <- 8L  # save as double
-                exponent <- 0L
-                
-            } else if ("POSIXt" %in% class(x)) {
-                type <- if ("POSIXct" %in% class(x)) 6L else 7L
-                x <- as.double(x)  # convert to double
                 bytes <- 8L  # save as double
                 exponent <- 0L
                 
@@ -72,6 +72,7 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
                     exponent <- 0L
                 }
             }
+            
         } else if (is.logical(x)) {
             type <- 3L  # logical
             bytes <- 1L
