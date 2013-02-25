@@ -70,15 +70,18 @@ get_variable <- function(name, path = getwd(), dims = NULL, na = NA) {
         
     ## Date
     } else if (type == 5) {
-        x <- as.Date(x, origin = "1970-01-01")
+        origin <- "1970-01-01"
+        x <- as.Date(x, origin = origin)
         
     ## POSIXct
     } else if (type == 6) {
-        x <- as.POSIXct(x, origin = "1970-01-01")
+        origin <- as.POSIXct('1970-01-01 00:00:00', tz = 'GMT')
+        x <- as.POSIXct(x, origin = origin)
         
     ## POSIXlt
     } else if (type == 7) {
-        x <- as.POSIXlt(x, origin = "1970-01-01")
+        origin <- as.POSIXct('1970-01-01 00:00:00', tz = 'GMT')
+        x <- as.POSIXlt(x, origin = origin)
     }
     
     # Add attributes to vector
