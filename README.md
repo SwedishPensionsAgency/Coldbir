@@ -14,6 +14,7 @@ library(devtools)
 install_github('Coldbir', 'SthlmR', 'v0.2')
 ```
 
+
 ## Introduction
 
 First, make sure to load the package with `library(Coldbir)`.
@@ -47,8 +48,25 @@ However, since they are all saved as variables one cannot get all of them back a
 ```r
 b <- a['Pulse']
 ```
-    
-This was an quick introduction to coldbir. Soon more to come.
+
+
+### Data types
+
+Currently supported data types are:
+
+- `integer`
+- `double`
+- `logical`
+- `factor`
+- `Date` (v0.3)
+- `POSIX*t` (v0.3)
+
+The `POSIXct` timestamps are automatically converted to and saved in `GMT`; 
+hence when read from disk it will be represented in the same format. 
+`POSIXlt`, on the other hand, is also saved as `GMT` but is converted to and represented in the local timezone.
+
+Due to timezones one has to be really careful when using dates and timestamps.
+
 
 ### File structure
 
@@ -70,6 +88,7 @@ Below is an example of a database, named *mydb*, with a couple of variables:
           d[2012].cdb.gz
         lookup.txt
         readme.md
+
 
 ## Development
 
