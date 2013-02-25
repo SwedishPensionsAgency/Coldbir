@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>coldbir by SthlmR</title>
+    <title>Coldbir by SthlmR</title>
 
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
@@ -15,8 +15,8 @@
   <body>
     <div class="wrapper">
       <header>
-        <h1>coldbir</h1>
-        <p>a tasty column database in R</p>
+        <h1>Coldbir</h1>
+        <p>Column database in R</p>
 
         <p class="view"><a href="https://github.com/SthlmR/Coldbir">View the Project on GitHub <small>SthlmR/Coldbir</small></a></p>
 
@@ -37,7 +37,7 @@
 <p>Use <code>devtools</code> for easy installation</p>
 
 <div class="highlight"><pre>library<span class="p">(</span>devtools<span class="p">)</span>
-install_github<span class="p">(</span><span class="s">'Coldbir'</span><span class="p">,</span> <span class="s">'SthlmR'</span><span class="p">)</span>
+install_github<span class="p">(</span><span class="s">'Coldbir'</span><span class="p">,</span> <span class="s">'SthlmR'</span><span class="p">,</span> <span class="s">'v0.2'</span><span class="p">)</span>
 </pre></div>
 
 <h2>Introduction</h2>
@@ -69,7 +69,24 @@ install_github<span class="p">(</span><span class="s">'Coldbir'</span><span clas
 <div class="highlight"><pre>b <span class="o">&lt;-</span> a<span class="p">[</span><span class="s">'Pulse'</span><span class="p">]</span>
 </pre></div>
 
-<p>This was an quick introduction to coldbir. Soon more to come.</p>
+<h3>Data types</h3>
+
+<p>Currently supported data types are:</p>
+
+<ul>
+<li><code>integer</code></li>
+<li><code>double</code></li>
+<li><code>logical</code></li>
+<li><code>factor</code></li>
+<li>
+<code>Date</code> (v0.3)</li>
+<li>
+<code>POSIX*t</code> (v0.3)</li>
+</ul><p>The <code>POSIXct</code> timestamps are automatically converted to and saved in <code>GMT</code>; 
+hence when read from disk it will be represented in the same format. 
+<code>POSIXlt</code>, on the other hand, is also saved as <code>GMT</code> but is converted to and represented in the local timezone.</p>
+
+<p>Due to timezones one has to be really careful when using dates and timestamps.</p>
 
 <h3>File structure</h3>
 
