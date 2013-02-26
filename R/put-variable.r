@@ -30,53 +30,43 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
         if (is.null(x)) stop(name, " - variable is NULL")
         if (all(is.na(x))) warning(name, " - all values are missing")
         
+        # Create empty header
+        header <- list()
+        
         # Check/set vector type and number of bytes
-        ## The following types are currently supported:
-            # 1 = integer
-            # 2 = double
-            # 3 = logical
-            # 4 = factor
-            # 5 = Date
-            # 6 = POSIXct
-            # 7 = POSIXlt
-
         if (is.integer(x)) {
-            type <- 1L  # integer
-            bytes <- 4L  # H_itemSize, note: NA for integers is already -2147483648 in R
-            exponent <- 0L
+            header$type <- "integer"
+            header$bytes <- 4L  # H_itemSize, note: NA for integers is already -2147483648 in R
             
         } else if ("POSIXt" %in% class(x)) {  # OBS: must be checked before is.double
-            type <- if ("POSIXct" %in% class(x)) 6L else 7L
+            header$type <- "POSIXt"
+            header$bytes <- 8L  # save as double
             x <- as.double(x)  # convert to double
-            bytes <- 8L  # save as double
-            exponent <- 0L
             
         } else if (is.double(x)) {
             if ("Date" %in% class(x)) {
-                type <- 5L  # Date
-                bytes <- 8L  # save as double
-                exponent <- 0L
-                
+                header$type <- "Date"
+                header$bytes <- 8L
+
             } else {
-                type <- 2L  # double
-                exponent <- find_exp(x)
-                
-                if (exponent <= 9L) {
-                    x <- round(x * 10^exponent, 0)
-                    bytes <- check_repr(x)
-                    if (bytes <= 4L) {
-                        bytes <- 4L
+                header$type <- "double"
+                header$exponent <- find_exp(x)
+
+                if (header$exponent <= 9L) {
+                    x <- round(x * 10^header$exponent, 0)
+                    header$bytes <- check_repr(x)
+                    if (header$bytes <= 4L) {
+                        header$bytes <- 4L
                     }
                 } else {
-                    bytes <- 8L
-                    exponent <- 0L
+                    header$bytes <- 8L
+                    header$exponent <- 0L
                 }
             }
             
         } else if (is.logical(x)) {
-            type <- 3L  # logical
-            bytes <- 1L
-            exponent <- 0L
+            header$type <- "logical"
+            header$bytes <- 1L
             warning(name, " - logical vector; NA is converted to FALSE")
             
         } else if (is.factor(x) || is.character(x)) {
@@ -91,10 +81,8 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
                 put_lookup(lt, name = name, path = path)
             }
             
-            type <- 4L  # factor
-            bytes <- 4L
-            exponent <- 0L
-            
+            header$type <- "factor"
+            header$bytes <- 4L
         } else {
             stop(name, " - data type is not supported")
         }
@@ -112,33 +100,27 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
         }
         
         # File header
-        db_ver <- as.integer(.database_version)
+        header$db_ver <- as.integer(.database_version)
         
-        # Add default attributes
-        if (is.null(attrib)) attrib <- list()
-        attr_raw <- charToRaw(toJSON(attrib, digits = 50))
-        attr_len <- length(attr_raw)
+        # Add attributes
+        header$attributes <- attrib
         
-        vector_len <- length(x)
-        
+        header_raw <- charToRaw(toJSON(header, digits = 50))
+        header_len <- length(header_raw)
+
         # Removes attributes from vector
-        if (bytes == 8) {
+        if (header$bytes == 8) {
             x <- as.double(x)
         } else {
             x <- as.integer(x)
         }
         
         # Write binary file
-        writeBin(type, bin_file, size = 1)
-        writeBin(bytes, bin_file, size = 1)
-        writeBin(exponent, bin_file, size = 1)
-        writeBin(db_ver, bin_file, size = 4)
+        writeBin(header_len, bin_file, size = 8)
+        writeBin(header_raw, bin_file)
         
-        writeBin(attr_len, bin_file, size = 8)
-        writeBin(attr_raw, bin_file)
-        
-        writeBin(vector_len, bin_file, size = 8)
-        writeBin(x, bin_file, size = bytes)  # write each vector element to bin_file
+        writeBin(length(x), bin_file, size = 8)
+        writeBin(x, bin_file, size = header$bytes)  # write each vector element to bin_file
         
         close(bin_file)
         

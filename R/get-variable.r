@@ -26,18 +26,14 @@ get_variable <- function(name, path = getwd(), dims = NULL, na = NA) {
         stop(name, " - file does not exist")
     }
     
-    type <- readBin(bin_file, integer(), n = 1, size = 1, signed = FALSE)
-    bytes <- readBin(bin_file, integer(), n = 1, size = 1, signed = FALSE)
-    exponent <- readBin(bin_file, integer(), n = 1, size = 1, signed = FALSE)
-    db_ver <- readBin(bin_file, integer(), n = 1, size = 4)
-    
-    attr_len <- readBin(bin_file, integer(), n = 1, size = 8)
-    attr_str <- rawToChar(readBin(bin_file, raw(), n = attr_len))
+    header_len <- readBin(bin_file, integer(), n = 1, size = 8)
+    header_str <- rawToChar(readBin(bin_file, raw(), n = header_len))
+    header <- fromJSON(header_str, simplifyWithNames = FALSE)
     
     vector_len <- readBin(bin_file, integer(), n = 1, size = 8)
     
-    if (bytes <= 4) {
-        x <- readBin(bin_file, integer(), n = vector_len, size = bytes)
+    if (header$bytes <= 4) {
+        x <- readBin(bin_file, integer(), n = vector_len, size = header$bytes)
     } else {
         x <- readBin(bin_file, double(), n = vector_len)
     }
@@ -45,47 +41,49 @@ get_variable <- function(name, path = getwd(), dims = NULL, na = NA) {
     close(bin_file)
     
     # Check if using an old version of colbir
-    if (db_ver != as.integer(.database_version))
+    if (header$db_ver != as.integer(.database_version))
         stop(name, " - version of coldbir package and file format does not match")
 
     # Prepare data depending on vector type
     
     ## integer or factor
-    if (type %in% c(1, 4)) {
+    if (header$type %in% c("integer", "factor")) {
         if (!is.na(na)) 
             x[is.na(x)] <- as.integer(na)
     
     ## double
-    } else if (type == 2) {
-        if (exponent > 0) 
-            x <- x/10^exponent
+    } else if (header$type == "double") {
+        if (!is.null(header$exponent)) 
+            x <- x/10^header$exponent
         if (!is.na(na))
             x[is.na(x)] <- as.double(na)
-        
+
     ## logical
-    } else if (type == 3) {
+    } else if (header$type == "logical") {
         x <- (x > 0L)
         if (!is.na(na)) 
             x[is.na(x)] <- as.logical(na)
         
     ## Date
-    } else if (type == 5) {
+    } else if (header$type == "Date") {
         origin <- "1970-01-01"
         x <- as.Date(x, origin = origin)
         
     ## POSIXct
-    } else if (type == 6) {
+    } else if (header$type == "POSIXt") {
         origin <- as.POSIXct('1970-01-01 00:00:00', tz = 'GMT')
         x <- as.POSIXct(x, origin = origin)
         
     ## POSIXlt
-    } else if (type == 7) {
-        origin <- as.POSIXct('1970-01-01 00:00:00', tz = 'GMT')
-        x <- as.POSIXlt(x, origin = origin)
+    #} else if (type == 7) {
+    #    origin <- as.POSIXct('1970-01-01 00:00:00', tz = 'GMT')
+    #    x <- as.POSIXlt(x, origin = origin)
     }
     
     # Add attributes to vector
-    if (attr_str != "") attributes(x) <- c(attributes(x), as.list(fromJSON(attr_str)))
+    if (!is.null(header$attributes)) {
+        attributes(x) <- c(attributes(x), header$attributes)
+    }
     
     return(x)
 } 
