@@ -57,7 +57,7 @@ Currently supported data types:
 
 ### Readme
 
-An additional feature is to add documentation to variable. 
+An additional feature is to add documentation to a variable. 
 
 First, create an object of the `readme` class:
 
