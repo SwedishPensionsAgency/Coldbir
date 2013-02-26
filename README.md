@@ -9,8 +9,16 @@ The project is currently maintained by Thomas Reinholdsson (<reinholdsson@gmail.
 
 Use `devtools` for easy installation
 
+<<<<<<< HEAD
     library(devtools)
     install_github('Coldbir', 'SthlmR', 'v0.2')
+=======
+```r
+library(devtools)
+install_github('Coldbir', 'SthlmR', 'v0.3')
+```
+
+>>>>>>> Update readme
 
 ## Introduction
 
