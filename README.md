@@ -45,14 +45,7 @@ Currently supported data types:
 - `logical`
 - `factor`
 - `Date` (v0.3)
-- `POSIX*t` (v0.3)
-
-The `POSIXct` timestamps are automatically converted to and saved in `GMT`; 
-hence when read from disk it will be represented in the same format. 
-`POSIXlt`, on the other hand, is also saved as `GMT` but is converted to and represented in the local timezone.
-
-Due to timezones one has to be really careful when using dates and timestamps.
-
+- `POSIXct` / `POSIXlt` (v0.3)
 
 ### File structure
 
