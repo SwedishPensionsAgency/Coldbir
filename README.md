@@ -55,6 +55,30 @@ Currently supported data types:
 - `Date` (v0.3)
 - `POSIXct` / `POSIXlt` (v0.3)
 
+### Readme
+
+An additional feature is to add documentation to variable. 
+
+First, create an object of the `readme` class:
+
+```r
+r <- readme(
+  'Foo' = 'This is a variable', 
+  'Info' = list(
+    'Stats' = paste('The minimum value is ', min(1:10)),
+    'Source' = "Some db"
+  )
+)
+
+```
+
+As one may notice, the readme object is build up as a list. Thus it makes it possible to e.g. include variable statistics that updates automatically. Finally, to add the readme.md to a variable folder:
+
+```r
+a['foo'] <- r
+```
+
+
 ### File structure
 
 The coldbir database consists of folders where each folder represent a variable. 

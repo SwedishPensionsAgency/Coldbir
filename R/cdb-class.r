@@ -86,7 +86,11 @@ setMethod(
     signature = "cdb",
     definition = function(x, i, j, value){
         if (missing(j)) j <- NULL
-        put_variable(x = value, name = i, dims = j, path = x@path)
+        if (class(value) == "readme") {
+            put_readme(x = to_markdown(value), name = i, path = x@path)
+        } else {
+            put_variable(x = value, name = i, dims = j, path = x@path)
+        }
         return(x)
     }
 )
