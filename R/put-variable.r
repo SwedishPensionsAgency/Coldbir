@@ -34,24 +34,17 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
         header <- list()
         
         # Check/set vector type and number of bytes
-        if (is.integer(x)) {
-            header$type <- "integer"
-            header$bytes <- 4L  # H_itemSize, note: NA for integers is already -2147483648 in R
+        
+        if (is.numeric(x)) {
             
-        } else if ("POSIXt" %in% class(x)) {  # OBS: must be checked before is.double
-            header$type <- "POSIXt"
-            header$bytes <- 8L  # save as double
-            x <- as.double(x)  # convert to double
-            
-        } else if (is.double(x)) {
-            if ("Date" %in% class(x)) {
-                header$type <- "Date"
-                header$bytes <- 8L
-
-            } else {
+            if (is.integer(x)) {
+                header$type <- "integer"
+                header$bytes <- 4L  # H_itemSize, note: NA for integers is already -2147483648 in R
+                
+            } else if (is.double(x)) {
                 header$type <- "double"
                 header$exponent <- find_exp(x)
-
+                
                 if (header$exponent <= 9L) {
                     x <- round(x * 10^header$exponent, 0)
                     header$bytes <- check_repr(x)
@@ -63,12 +56,24 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
                     header$exponent <- 0L
                 }
             }
-            
+
         } else if (is.logical(x)) {
             header$type <- "logical"
             header$bytes <- 1L
-            warning(name, " - logical vector; NA is converted to FALSE")
+            if (any(is.na(x))) {
+                warning(name, " - logical vector; NA is converted to FALSE")
+            }
             
+        } else if ("POSIXt" %in% class(x)) {  # OBS: must be checked before is.double
+            header$type <- if ("POSIXct" %in% class(x)) "POSIXct" else "POSIXlt"
+            header$bytes <- 8L  # save as double
+            header$timezone <- format(x, format = "%Z")
+            x <- as.double(x)  # convert to double
+            
+        } else if ("Date" %in% class(x)) {
+                header$type <- "Date"
+                header$bytes <- 8L
+
         } else if (is.factor(x) || is.character(x)) {
             if (is.character(x)) {
                 x <- as.factor(x)
@@ -83,6 +88,7 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
             
             header$type <- "factor"
             header$bytes <- 4L
+            
         } else {
             stop(name, " - data type is not supported")
         }
@@ -118,7 +124,6 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
         # Write binary file
         writeBin(header_len, bin_file, size = 8)
         writeBin(header_raw, bin_file)
-        
         writeBin(length(x), bin_file, size = 8)
         writeBin(x, bin_file, size = header$bytes)  # write each vector element to bin_file
         
