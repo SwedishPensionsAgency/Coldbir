@@ -9,11 +9,11 @@
 #' 
 #' @export
 #'
-put_readme <- function(x, name, path = getwd(), create_dir = TRUE) {
+put_readme <- function(x, name, path = getwd(), create_dir = TRUE, file_ext = "json") {
     
     folder_path <- file_path(name, path, create_dir = create_dir, file_name = FALSE, data_folder = FALSE)
 
-    sink(file.path(folder_path, .readme_filename))
+    sink(file.path(folder_path, paste(.readme_filename, file_ext, sep = ".")))
     cat(x)
     sink()
     

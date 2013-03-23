@@ -1,6 +1,6 @@
 setClass(
     Class = "cdb",
-    representation = representation(path = "character", type = "character", na = "numeric"),
+    representation = representation(path = "character", type = "character", na = "numeric", md = "logical"),
     validity = function(object){
         types <- c("c", "f", "n")
         if (!(object@type %in% types)) {
@@ -17,10 +17,11 @@ setClass(
 setMethod (
     f = "initialize",
     signature = "cdb",
-    definition = function(.Object, path = getwd(), type = "n", na = NA_real_) {
+    definition = function(.Object, path = getwd(), type = "n", na = NA_real_, md = TRUE) {
         .Object@path <- path
         .Object@type <- type
         .Object@na <- na
+        .Object@md <- md
         validObject(.Object)
         return(.Object)
     }
@@ -35,6 +36,7 @@ setMethod (
 #' @param type Return type of variable. Possible values: 'c' = character, 'f' = factor and 'n' = numeric (default).
 #' Character conversion might be a bit slow; hence numeric or factor is recommended.
 #' @param na Value representing missing values (default: NA_real_)
+#' @param md If markdown readme should be added (in addition to a json-file)
 #' 
 #' @examples db <- cdb()
 #' @export
@@ -86,8 +88,17 @@ setMethod(
     signature = "cdb",
     definition = function(x, i, j, value){
         if (missing(j)) j <- NULL
+        
         if (class(value) == "readme") {
-            put_readme(x = to_markdown(value), name = i, path = x@path)
+            
+            # Create readme.json
+            put_readme(x = to_json(value), name = i, path = x@path, file_ext = "json")
+             
+            if (x@md) {
+                # Create readme.md
+                put_readme(x = to_markdown(value), name = i, path = x@path, file_ext = "md")
+            }
+            
         } else {
             put_variable(x = value, name = i, dims = j, path = x@path)
         }

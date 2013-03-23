@@ -43,3 +43,14 @@ setMethod(
         list_to_md(object@lst)
     }
 )
+
+#' Convert readme to json
+#' 
+setGeneric("to_json", function(object){ standardGeneric("to_json") })
+setMethod(
+    f = "to_json",
+    signature = "readme",
+    definition = function(object) {
+        toJSON(object@lst, pretty = TRUE)
+    }
+)
