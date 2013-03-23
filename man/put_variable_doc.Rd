@@ -1,8 +1,8 @@
-\name{put_documentation}
-\alias{put_documentation}
-\title{Put documentation to disk}
+\name{put_variable_doc}
+\alias{put_variable_doc}
+\title{Put variable documentation to disk}
 \usage{
-  put_documentation(x, name, path = getwd(),
+  put_variable_doc(x, name, path = getwd(),
     create_dir = TRUE, file_name = .doc_json)
 }
 \arguments{

@@ -22,6 +22,6 @@ Collate:
     'cdb-class.r'
     '0-constants.r'
     'to-char.r'
-    'get-documentation.r'
-    'put-documentation.r'
     'doc-class.r'
+    'get-variable-doc.r'
+    'put-variable-doc.r'

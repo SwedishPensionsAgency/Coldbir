@@ -1,8 +1,8 @@
-\name{get_documentation}
-\alias{get_documentation}
-\title{Get documentation from disk}
+\name{get_variable_doc}
+\alias{get_variable_doc}
+\title{Get variable documentation from disk}
 \usage{
-  get_documentation(name, path, console = FALSE,
+  get_variable_doc(name, path, console = FALSE,
     file_name = .doc_json)
 }
 \arguments{

@@ -1,4 +1,4 @@
-#' Get documentation from disk
+#' Get variable documentation from disk
 #'
 #' Read documentation of a variable from disk.
 #'
@@ -9,7 +9,7 @@
 #' 
 #' @export
 #'
-get_documentation <- function(name, path, console = FALSE, file_name = .doc_json) {
+get_variable_doc <- function(name, path, console = FALSE, file_name = .doc_json) {
     
     folder_path <- file_path(name, path, create_dir = FALSE, file_name = FALSE, data_folder = FALSE)
     

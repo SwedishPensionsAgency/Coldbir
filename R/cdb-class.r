@@ -92,11 +92,11 @@ setMethod(
         if (class(value) == "doc") {
             
             # Create readme.json
-            put_documentation(x = to_json(value), name = i, path = x@path, file_name = .doc_json)
+            put_variable_doc(x = to_json(value), name = i, path = x@path, file_name = .doc_json)
 
             if (x@md) {
                 # Create readme.md
-                put_documentation(x = to_markdown(value), name = i, path = x@path, file_name = .doc_md)
+                put_variable_doc(x = to_markdown(value), name = i, path = x@path, file_name = .doc_md)
             }
             
         } else {
@@ -119,7 +119,7 @@ setMethod(
     f = "get_doc",
     signature = "cdb",
     definition = function(object, name){
-        d <- get_documentation(name = name, path = object@path, file_name = .doc_json)
+        d <- get_variable_doc(name = name, path = object@path, file_name = .doc_json)
         d <- fromJSON(d, simplifyWithNames = FALSE)
         return(d)
     }

@@ -1,4 +1,4 @@
-#' Put documentation to disk
+#' Put variable documentation to disk
 #'
 #' Write documentation of a variable to disk.
 #'
@@ -10,7 +10,7 @@
 #' 
 #' @export
 #'
-put_documentation <- function(x, name, path = getwd(), create_dir = TRUE, file_name = .doc_json) {
+put_variable_doc <- function(x, name, path = getwd(), create_dir = TRUE, file_name = .doc_json) {
     
     folder_path <- file_path(name, path, create_dir = create_dir, file_name = FALSE, data_folder = FALSE)
 
