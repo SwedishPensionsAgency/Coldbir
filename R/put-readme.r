@@ -6,6 +6,7 @@
 #' @param name Variable name
 #' @param path Directory of where the file are to be created
 #' @param create_dir If folder should be created when missing
+#' @param file_ext File extension
 #' 
 #' @export
 #'

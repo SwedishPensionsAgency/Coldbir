@@ -52,7 +52,7 @@ cdb <- function(...) {
 #' @examples 
 #' db <- cdb()
 #' get_path(db)
-#' @export
+#' @exportMethod
 #' 
 setGeneric("get_path", function(object){ standardGeneric("get_path") })
 setMethod(
@@ -93,7 +93,7 @@ setMethod(
             
             # Create readme.json
             put_readme(x = to_json(value), name = i, path = x@path, file_ext = "json")
-             
+
             if (x@md) {
                 # Create readme.md
                 put_readme(x = to_markdown(value), name = i, path = x@path, file_ext = "md")
@@ -106,3 +106,19 @@ setMethod(
     }
 )
 
+#' Get variable documentation
+#' 
+#' ...
+#' 
+#' @exportMethod
+#' 
+setGeneric("doc", function(object, x = "character"){ standardGeneric("doc") })
+setMethod(
+    f = "doc",
+    signature = "cdb",
+    definition = function(object, x){
+        readme <- get_readme(name = x, path = object@path, file_ext = "json")
+        readme <- fromJSON(readme, simplifyWithNames = FALSE)
+        return(readme)
+    }
+)

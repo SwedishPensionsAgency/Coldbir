@@ -5,15 +5,16 @@
 #' @param name Variable name
 #' @param path Directory of where the file are to be created
 #' @param console TRUE if print to console instead of to character string
+#' @param file_ext File extension
 #' 
 #' @export
 #'
-get_readme <- function(name, path, console = FALSE) {
+get_readme <- function(name, path, console = FALSE, file_ext = "json") {
     
     folder_path <- file_path(name, path, create_dir = FALSE, file_name = FALSE, data_folder = FALSE)
     
-    con <- file(file.path(folder_path, .readme_filename), "r")
-    lns <- readLines(con, n = -1)
+    con <- file(file.path(folder_path, paste(.readme_filename, file_ext, sep = ".")), "r")
+    lns <- readLines(con, n = -1, warn = FALSE)
     close(con)
     
     if (console) {
