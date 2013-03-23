@@ -106,6 +106,7 @@ Below is an example of a database, named *mydb*, with a couple of variables:
         readme.md
         doc.json
 
+The `doc.json` includes the variable documentation that is read with `get_doc()` method. `readme.md` includes the same information but in markdown.
 
 ## Development
 
