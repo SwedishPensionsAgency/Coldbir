@@ -65,7 +65,7 @@ Create an object of the `doc` class and add it to a variable:
 a['foo'] <- doc(
       'Foo' = 'This is a variable', 
       'Info' = list(
-        'Stats' = paste('The minimum value is ', min(1:10)),
+        'Stats' = paste('The minimum value is', min(1:10)),
         'Source' = "Some db"
         )
       )
@@ -76,7 +76,10 @@ a['foo'] <- doc(
 To get the documentation (as a list):
 
 ```r
-get_doc(a, "foo")
+d <- get_doc(a, "foo")
+
+d$Info$Stats
+# [1] "The minimum value is 1"
 ```
 
 ### File structure
