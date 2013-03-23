@@ -36,7 +36,7 @@ setMethod (
 #' @param type Return type of variable. Possible values: 'c' = character, 'f' = factor and 'n' = numeric (default).
 #' Character conversion might be a bit slow; hence numeric or factor is recommended.
 #' @param na Value representing missing values (default: NA_real_)
-#' @param md If markdown readme should be added (in addition to a json-file)
+#' @param md If markdown documentation should be added (in addition to a json-file)
 #' 
 #' @examples db <- cdb()
 #' @export
@@ -52,7 +52,7 @@ cdb <- function(...) {
 #' @examples 
 #' db <- cdb()
 #' get_path(db)
-#' @exportMethod
+#' @export
 #' 
 setGeneric("get_path", function(object){ standardGeneric("get_path") })
 setMethod(
@@ -89,14 +89,14 @@ setMethod(
     definition = function(x, i, j, value){
         if (missing(j)) j <- NULL
         
-        if (class(value) == "readme") {
+        if (class(value) == "doc") {
             
             # Create readme.json
-            put_readme(x = to_json(value), name = i, path = x@path, file_ext = "json")
+            put_documentation(x = to_json(value), name = i, path = x@path, file_name = .doc_json)
 
             if (x@md) {
                 # Create readme.md
-                put_readme(x = to_markdown(value), name = i, path = x@path, file_ext = "md")
+                put_documentation(x = to_markdown(value), name = i, path = x@path, file_name = .doc_md)
             }
             
         } else {
@@ -110,15 +110,17 @@ setMethod(
 #' 
 #' ...
 #' 
-#' @exportMethod
+#' @param object Cdb object
+#' @param name Variable nane
+#' @export
 #' 
-setGeneric("doc", function(object, x = "character"){ standardGeneric("doc") })
+setGeneric("get_doc", function(object, name = "character"){ standardGeneric("get_doc") })
 setMethod(
-    f = "doc",
+    f = "get_doc",
     signature = "cdb",
-    definition = function(object, x){
-        readme <- get_readme(name = x, path = object@path, file_ext = "json")
-        readme <- fromJSON(readme, simplifyWithNames = FALSE)
-        return(readme)
+    definition = function(object, name){
+        d <- get_documentation(name = name, path = object@path, file_name = .doc_json)
+        d <- fromJSON(d, simplifyWithNames = FALSE)
+        return(d)
     }
 )

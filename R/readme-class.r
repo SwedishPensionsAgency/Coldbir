@@ -1,5 +1,5 @@
 setClass(
-    Class = "readme",
+    Class = "doc",
     representation = representation(lst = "list"),
     validity = function(object){
         return(TRUE)
@@ -8,11 +8,11 @@ setClass(
 
 #' Class initializor
 #' 
-#' Method that runs when a new readme object is initialized.
+#' Method that runs when a new doc object is initialized.
 #' 
 setMethod (
     f = "initialize",
-    signature = "readme",
+    signature = "doc",
     definition = function(.Object, ...) {
         .Object@lst <- list(...)
         validObject(.Object)
@@ -20,36 +20,36 @@ setMethod (
     }
 )
 
-#' Create new readme
+#' Create new doc
 #' 
 #' ...
 #' 
-#' @param x Readme list
+#' @param x Documentation list
 #' 
-#' @examples r <- readme()
+#' @examples r <- doc(title = "GDP", description = "Gross domestic product ...")
 #' @export
 #' 
-readme <- function(...) {
-    new(Class = "readme", ...)
+doc <- function(...) {
+    new(Class = "doc", ...)
 }
 
-#' Convert readme to markdown
+#' Convert doc to markdown
 #'
 setGeneric("to_markdown", function(object){ standardGeneric("to_markdown") })
 setMethod(
     f = "to_markdown",
-    signature = "readme",
+    signature = "doc",
     definition = function(object) {
         list_to_md(object@lst)
     }
 )
 
-#' Convert readme to json
+#' Convert doc to json
 #' 
 setGeneric("to_json", function(object){ standardGeneric("to_json") })
 setMethod(
     f = "to_json",
-    signature = "readme",
+    signature = "doc",
     definition = function(object) {
         toJSON(object@lst, pretty = TRUE)
     }

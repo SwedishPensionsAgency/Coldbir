@@ -55,14 +55,14 @@ Currently supported data types:
 - `Date` (v0.3)
 - `POSIXct` / `POSIXlt` (v0.3)
 
-### Readme
+### Variable documentation
 
 An additional feature is to add documentation to a variable. 
 
-First, create an object of the `readme` class:
+First, create an object of the `doc` class:
 
 ```r
-r <- readme(
+r <- doc(
       'Foo' = 'This is a variable', 
       'Info' = list(
         'Stats' = paste('The minimum value is ', min(1:10)),
@@ -71,12 +71,17 @@ r <- readme(
       )
 ```
 
-As one may notice, the readme object is build up as a list. Thus it makes it possible to e.g. include variable statistics that updates automatically. Finally, to add the readme.md to a variable folder:
+As one may notice, the doc object is build up as a list. Thus it makes it possible to e.g. include variable statistics that updates automatically. Finally, to add the documentation to a variable folder:
 
 ```r
 a['foo'] <- r
 ```
 
+and to get the documentation:
+
+```r
+get_doc(a, "foo")
+```
 
 ### File structure
 
@@ -92,12 +97,14 @@ Below is an example of a database, named *mydb*, with a couple of variables:
           d[2012].cdb.gz
         lookup.txt
         readme.md
+        doc.json
       unemployment/
         data/
           d[2011].cdb.gz
           d[2012].cdb.gz
         lookup.txt
         readme.md
+        doc.json
 
 
 ## Development

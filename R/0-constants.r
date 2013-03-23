@@ -1,3 +1,4 @@
 .database_version <- 4
-.readme_filename <- "readme"  # without file extension
+.doc_json <- "doc.json"
+.doc_md <- "readme.md"
 .lookup_filename <- "lookup.txt"

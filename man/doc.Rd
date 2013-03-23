@@ -1,8 +1,8 @@
-\name{readme}
-\alias{readme}
+\name{doc}
+\alias{doc}
 \title{Create new doc}
 \usage{
-  readme(...)
+  doc(...)
 }
 \arguments{
   \item{x}{Documentation list}
@@ -11,6 +11,6 @@
   ...
 }
 \examples{
-r <- doc()
+r <- doc(title = "GDP", description = "Gross domestic product ...")
 }
 

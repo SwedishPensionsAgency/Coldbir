@@ -15,6 +15,9 @@
 
   \item{na}{Value representing missing values (default:
   NA_real_)}
+
+  \item{md}{If markdown documentation should be added (in
+  addition to a json-file)}
 }
 \description{
   Method to assign either a new or existing coldbir

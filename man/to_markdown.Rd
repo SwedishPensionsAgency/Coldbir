@@ -1,7 +1,7 @@
 \name{to_markdown}
 \alias{to_markdown}
-\title{Convert readme to markdown}
+\title{Convert doc to markdown}
 \description{
-  Convert readme to markdown
+  Convert doc to markdown
 }
 

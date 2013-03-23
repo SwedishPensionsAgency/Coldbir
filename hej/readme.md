@@ -1,14 +1,8 @@
-# Foo
+# a
 
-This is a variable
+3
 
-# Info
+# b
 
-## Stats
-
-The minimum value is  1
-
-## Source
-
-Some db
+4
 
