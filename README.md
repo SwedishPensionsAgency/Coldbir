@@ -32,7 +32,7 @@ To save data to the database one simply write:
 
     a['foo'] <- 1:10
 
-and to get the variable it is just to use:
+and to get the variable:
 
     b <- a['foo']
 
@@ -59,10 +59,10 @@ Currently supported data types:
 
 An additional feature is to add documentation to a variable. 
 
-First, create an object of the `doc` class:
+Create an object of the `doc` class and add it to a variable:
 
 ```r
-r <- doc(
+a['foo'] <- doc(
       'Foo' = 'This is a variable', 
       'Info' = list(
         'Stats' = paste('The minimum value is ', min(1:10)),
@@ -71,13 +71,9 @@ r <- doc(
       )
 ```
 
-As one may notice, the doc object is build up as a list. Thus it makes it possible to e.g. include variable statistics that updates automatically. Finally, to add the documentation to a variable folder:
+*As one may notice, the doc object is build up as a list. Thus it makes it possible to e.g. include variable statistics that updates automatically.* 
 
-```r
-a['foo'] <- r
-```
-
-and to get the documentation:
+To get the documentation (as a list):
 
 ```r
 get_doc(a, "foo")
