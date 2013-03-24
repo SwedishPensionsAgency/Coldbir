@@ -119,7 +119,7 @@ Link to database
 a <- cdb()
 ```
 
-Add survey dataset to database
+Add survey data to database
 ```r
 require(MASS)
 a["Age"] <- survey$Age
