@@ -147,9 +147,8 @@ plot(a["Age"], a["Pulse"],
 
 Histogram
 ```r
-v <- "Pulse"
-d <- get_doc(a, v)
-hist(a[v], main = paste("Histogram of", d$title), xlab = d$title, sub = d$description)
+d <- get_doc(a, "Pulse")
+hist(a["Pulse"], main = paste("Histogram of", d$title), xlab = d$title, sub = d$description)
 ```
 
 ## Development
