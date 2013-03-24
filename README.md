@@ -121,7 +121,9 @@ a <- cdb()
 
 Add survey dataset to database
 ```r
-a[] <- MASS::survey
+require(MASS)
+a["Age"] <- survey$Age
+a["Pulse"] <- survey$Pulse
 ```
 Add documentation for `Age` and `Pulse`
 ```r
