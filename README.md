@@ -82,6 +82,48 @@ d$Info$Stats
 # [1] "The minimum value is 1"
 ```
 
+### Example: Survey data
+
+#### Write data and documentation
+
+Link to database
+```r
+a <- cdb()
+```
+
+Add survey dataset to database
+```r
+a[] <- MASS::survey
+```
+Add documentation for `Age` and `Pulse`
+```r
+a["Age"] <- doc(
+    title = "Age",
+    description = "Age of the student in years."
+    )
+
+a["Pulse"] <- doc(
+    title = "Pulse",
+    description = "Pulse rate of student (beats per minute)."
+    )
+```
+#### Use data and documentation with plots
+
+Scatter plot
+```r
+plot(a["Age"], a["Pulse"],
+     xlab = get_doc(a, "Age")$description, 
+     ylab = get_doc(a, "Pulse")$description
+     )
+```
+
+Histogram
+```r
+v <- "Pulse"
+d <- get_doc(a, v)
+hist(a[v], main = paste("Histogram of", d$title), xlab = d$title, sub = d$description)
+```
+
 ### File structure
 
 The coldbir database consists of folders where each folder represent a variable. 
