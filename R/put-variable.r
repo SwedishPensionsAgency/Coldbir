@@ -98,13 +98,6 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
         # Construct file path
         cdb <- file_path(name, path, dims, ext, create_dir = TRUE)
         
-        # Create file and add file extension
-        if (compress > 0) {
-            bin_file <- gzfile(cdb, open = "wb", compression = compress)
-        } else {
-            bin_file <- file(cdb, "wb")
-        }
-        
         # File header
         header$db_ver <- as.integer(.database_version)
         
@@ -121,14 +114,39 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
             x <- as.integer(x)
         }
         
-        # Write binary file
-        writeBin(header_len, bin_file, size = 8)
-        writeBin(header_raw, bin_file)
-        writeBin(length(x), bin_file, size = 8)
-        writeBin(x, bin_file, size = header$bytes)  # write each vector element to bin_file
+        write_variable <- function(cdb, tmp) {
+            # Create file and add file extension
+            if (compress > 0) {
+                bin_file <- gzfile(tmp, open = "wb", compression = compress)
+            } else {
+                bin_file <- file(tmp, "wb")
+            }
+            
+            # Write binary file
+            writeBin(header_len, bin_file, size = 8)
+            writeBin(header_raw, bin_file)
+            writeBin(length(x), bin_file, size = 8)
+            writeBin(x, bin_file, size = header$bytes)  # write each vector element to bin_file
+            close(bin_file)
+
+            # Rename temporary variable to real name (overwrite)
+            file.copy(tmp, cdb, overwrite = TRUE)
+        }
         
-        close(bin_file)
+        # Create temporary file
+        tmp <- tempfile(tmpdir = "")
+        tmp <- paste(cdb, substring(tmp, 2, nchar(tmp)), sep = "_")
+
+        # Try to write file to disk
+        tryCatch(
+            write_variable(cdb, tmp),
+            finally = file.remove(tmp),
+            error = function(e) {
+                stop(e)
+            }
+        )
         
+        # Return TRUE and message if variable is successfully written
         message(name, " - successfully written to disk")
         return(TRUE)
 
