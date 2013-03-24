@@ -13,11 +13,30 @@
 put_variable_doc <- function(x, name, path = getwd(), create_dir = TRUE, file_name = .doc_json) {
     
     folder_path <- file_path(name, path, create_dir = create_dir, file_name = FALSE, data_folder = FALSE)
-
-    sink(file.path(folder_path, file_name))
-    cat(x)
-    sink()
+    f <- file.path(folder_path, file_name)
     
+    write_doc <- function() {
+        # Write temporary doc file to disk
+        sink(tmp)
+        cat(x)
+        sink()
+        
+        # Rename temporary doc to real name (overwrite)
+        file.copy(tmp, f, overwrite = TRUE)
+    }
+
+    # Create temporary file
+    tmp <- create_temp_file(f)
+
+    # Try to write doc file to disk
+    tryCatch(
+        write_doc(),
+        finally = file.remove(tmp),
+        error = function(e) {
+            stop(e)
+        }
+    )
+
     message(name, ": documentation was successfully written to disk")
     return(TRUE)
 } 

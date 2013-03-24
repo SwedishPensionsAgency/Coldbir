@@ -114,7 +114,7 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
             x <- as.integer(x)
         }
         
-        write_variable <- function(cdb, tmp) {
+        write_variable <- function() {
             # Create file and add file extension
             if (compress > 0) {
                 bin_file <- gzfile(tmp, open = "wb", compression = compress)
@@ -134,12 +134,11 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
         }
         
         # Create temporary file
-        tmp <- tempfile(tmpdir = "")
-        tmp <- paste(cdb, substring(tmp, 2, nchar(tmp)), sep = "_")
+        tmp <- create_temp_file(cdb)
 
         # Try to write file to disk
         tryCatch(
-            write_variable(cdb, tmp),
+            write_variable(),
             finally = file.remove(tmp),
             error = function(e) {
                 stop(e)
