@@ -82,7 +82,35 @@ d$Info$Stats
 # [1] "The minimum value is 1"
 ```
 
-### Example: Survey data
+### File structure
+
+The coldbir database consists of folders where each folder represent a variable. 
+Each variable may have several dimensions, e.g. months and years. 
+The data is stored as a [column-oriented DBMS](http://en.wikipedia.org/wiki/Column-oriented_DBMS). 
+Below is an example of a database, named *mydb*, with a couple of variables:
+
+    mydb/
+      income/
+        data/
+          d[2011].cdb.gz
+          d[2012].cdb.gz
+        lookup.txt
+        readme.md
+        doc.json
+      unemployment/
+        data/
+          d[2011].cdb.gz
+          d[2012].cdb.gz
+        lookup.txt
+        readme.md
+        doc.json
+
+The `doc.json` includes the variable documentation that is read with `get_doc()` method. `readme.md` includes the same information but in markdown.
+
+
+## Examples
+
+### Example 1: Survey data
 
 #### Write data and documentation
 
@@ -123,31 +151,6 @@ v <- "Pulse"
 d <- get_doc(a, v)
 hist(a[v], main = paste("Histogram of", d$title), xlab = d$title, sub = d$description)
 ```
-
-### File structure
-
-The coldbir database consists of folders where each folder represent a variable. 
-Each variable may have several dimensions, e.g. months and years. 
-The data is stored as a [column-oriented DBMS](http://en.wikipedia.org/wiki/Column-oriented_DBMS). 
-Below is an example of a database, named *mydb*, with a couple of variables:
-
-    mydb/
-      income/
-        data/
-          d[2011].cdb.gz
-          d[2012].cdb.gz
-        lookup.txt
-        readme.md
-        doc.json
-      unemployment/
-        data/
-          d[2011].cdb.gz
-          d[2012].cdb.gz
-        lookup.txt
-        readme.md
-        doc.json
-
-The `doc.json` includes the variable documentation that is read with `get_doc()` method. `readme.md` includes the same information but in markdown.
 
 ## Development
 
