@@ -102,6 +102,8 @@ setMethod(
         } else {
             put_variable(x = value, name = i, dims = j, path = x@path)
         }
+        
+        class(x) <- c(class(x), "cdb")
         return(x)
     }
 )
@@ -120,7 +122,25 @@ setMethod(
     signature = "cdb",
     definition = function(object, name){
         d <- get_variable_doc(name = name, path = object@path, file_name = .doc_json)
-        d <- fromJSON(d, simplifyWithNames = FALSE)
+        d <- RJSONIO::fromJSON(d, simplifyWithNames = FALSE)
         return(d)
     }
 )
+
+#' Help method: a?"foo"
+#' 
+#' @export
+setMethod("?",  c("cdb", "character"), function(e1, e2) {
+    cat(list_to_md(get_doc(e1, e2)))
+    # Why does it return an S4 object instead??
+    # TODO: if perfect match then return readme, otherwise return suggested results by search matching
+})
+
+#' Help method: ?a
+#' 
+#' @export
+setMethod("?",  "cdb", function(e1) {
+    cat("Database documenation/help ...")
+    # returns NULL
+})
+

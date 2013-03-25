@@ -26,3 +26,4 @@ Collate:
     'get-variable-doc.r'
     'put-variable-doc.r'
     'create-temp-file.r'
+    'Coldbir.r'
