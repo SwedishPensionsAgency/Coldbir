@@ -14,11 +14,31 @@ put_lookup <- function(df, name, path = getwd(), create_dir = TRUE) {
     if (!is.data.frame(df) || ncol(df) != 2) 
         stop("input must be a two-column data frame")
     
-    folder_path <- file_path(name, path, create_dir = create_dir, file_name = FALSE, data_folder = FALSE)
-    
     colnames(df) <- c("key", "value")
-    write.table(df, file = file.path(folder_path, .lookup_filename), quote = FALSE, row.names = FALSE, sep = "\t")
     
-    message(name, ": lookup table was successfully written to disk")
+    folder_path <- file_path(name, path, create_dir = create_dir, file_name = FALSE, data_folder = FALSE)
+    f <- file.path(folder_path, .lookup_filename)
+
+    write_lookup <- function() {
+        # Write temporary doc file to disk
+        write.table(df, file = tmp, quote = FALSE, row.names = FALSE, sep = "\t")
+        
+        # Rename temporary doc to real name (overwrite)
+        file.copy(tmp, f, overwrite = TRUE)
+    }    
+    
+    # Create temporary file
+    tmp <- create_temp_file(f)
+    
+    # Try to write doc file to disk
+    tryCatch(
+        write_lookup(),
+        finally = file.remove(tmp),
+        error = function(e) {
+            flog.fatal("%s - writing failed; rollback! (%s)", name, e)
+        }
+    )
+    
+    flog.info(f)
     return(TRUE)
 } 

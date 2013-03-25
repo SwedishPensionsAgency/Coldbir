@@ -33,7 +33,7 @@ put_variable_doc <- function(x, name, path = getwd(), create_dir = TRUE, file_na
         write_doc(),
         finally = file.remove(tmp),
         error = function(e) {
-            stop(e)
+            flog.fatal("%s - writing failed; rollback! (%s)", name, e)
         }
     )
 

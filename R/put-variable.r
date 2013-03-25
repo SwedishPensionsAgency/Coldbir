@@ -26,14 +26,15 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
         # Read object name if name argument is missing
         if (is.null(name)) name <- deparse(substitute(x))
 
-        # Errors and warnings
+        # if null => exit
         if (is.null(x)) {
-            flog.error("%s - variable is NULL", name)
-            stop()
+            flog.warn("%s - variable is NULL; nothing to write", name)
+            return(FALSE)
         }
         
+        # Info
         if (all(is.na(x))) {
-            flog.warn("%s - all values are missing", name)
+            flog.info("%s - all values are missing", name)
         }
         
         # Create empty header
@@ -148,7 +149,7 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
             write_variable(),
             finally = file.remove(tmp),
             error = function(e) {
-                stop(e)
+                flog.fatal("%s - writing failed; rollback! (%s)", name, e)
             }
         )
         

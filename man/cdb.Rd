@@ -18,6 +18,9 @@
 
   \item{md}{If markdown documentation should be added (in
   addition to a json-file)}
+
+  \item{log_level}{futile.logger level (default: 4).
+  Available levels: 1-9.}
 }
 \description{
   Method to assign either a new or existing coldbir
