@@ -77,6 +77,7 @@ setMethod(
             factors <- if (x@type == "f") TRUE else FALSE
             v <- to_char(x = v, name = i, path = x@path, factors = factors)
         }
+        
         return(v)
     }
 )
@@ -103,7 +104,6 @@ setMethod(
             put_variable(x = value, name = i, dims = j, path = x@path)
         }
         
-        class(x) <- c(class(x), "cdb")
         return(x)
     }
 )
@@ -131,7 +131,8 @@ setMethod(
 #' 
 #' @export
 setMethod("?",  c("cdb", "character"), function(e1, e2) {
-    cat(list_to_md(get_doc(e1, e2)))
+    x <- get_doc(e1, e2)
+    cat(list_to_md(x))
     # Why does it return an S4 object instead??
     # TODO: if perfect match then return readme, otherwise return suggested results by search matching
 })
@@ -143,4 +144,21 @@ setMethod("?",  "cdb", function(e1) {
     cat("Database documenation/help ...")
     # returns NULL
 })
+
+#' List all variables in database
+#' 
+#' ...
+#' 
+#' @param object Cdb object
+#' @export
+#' 
+setGeneric("vars", function(object){ standardGeneric("vars") })
+setMethod(
+    f = "vars",
+    signature = "cdb",
+    definition = function(object){
+        x <- search_files(object@path)
+        cat(x, sep = "\n")
+    }
+)
 

@@ -27,3 +27,4 @@ Collate:
     'put-variable-doc.r'
     'create-temp-file.r'
     'Coldbir.r'
+    'search-files.r'
