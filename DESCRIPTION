@@ -8,7 +8,8 @@ Maintainer: Thomas Reinholdsson <reinholdsson@gmail.com>
 Description: ...
 License: AGPLv3
 Depends:
-    RJSONIO
+    RJSONIO,
+    futile.logger
 Collate:
     'check-repr.r'
     'find-exp.r'

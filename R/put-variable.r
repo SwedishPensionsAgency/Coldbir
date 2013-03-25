@@ -27,8 +27,14 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
         if (is.null(name)) name <- deparse(substitute(x))
 
         # Errors and warnings
-        if (is.null(x)) stop(name, " - variable is NULL")
-        if (all(is.na(x))) warning(name, " - all values are missing")
+        if (is.null(x)) {
+            flog.error("%s - variable is NULL", name)
+            stop()
+        }
+        
+        if (all(is.na(x))) {
+            flog.warn("%s - all values are missing", name)
+        }
         
         # Create empty header
         header <- list()
@@ -61,7 +67,7 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
             header$type <- "logical"
             header$bytes <- 1L
             if (any(is.na(x))) {
-                warning(name, " - logical vector; NA is converted to FALSE")
+                flog.warn("%s - logical vector; NA is converted to FALSE", name)
             }
             
         } else if ("POSIXt" %in% class(x)) {  # OBS: must be checked before is.double
@@ -77,7 +83,7 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
         } else if (is.factor(x) || is.character(x)) {
             if (is.character(x)) {
                 x <- as.factor(x)
-                warning(name, " - character converted to factor")
+                flog.warn("%s - character converted to factor", name)
             }
             
             if (lookup) {
@@ -90,7 +96,8 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
             header$bytes <- 4L
             
         } else {
-            stop(name, " - data type is not supported")
+            flog.error("%s - data type is not supported", name)
+            stop()
         }
         
         ext <- if (compress > 0) "cdb.gz" else "cdb"
@@ -146,7 +153,7 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
         )
         
         # Return TRUE and message if variable is successfully written
-        message(cdb)
+        flog.info(cdb)
         return(TRUE)
 
     }

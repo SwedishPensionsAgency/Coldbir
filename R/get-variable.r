@@ -23,7 +23,8 @@ get_variable <- function(name, path = getwd(), dims = NULL, na = NA) {
         bin_file <- file(cdb[2], "rb")
         
     } else {
-        stop(name, " - file does not exist")
+        flog.error("%s - file does not exist", name)
+        stop()
     }
     
     header_len <- readBin(bin_file, integer(), n = 1, size = 8)
@@ -41,8 +42,10 @@ get_variable <- function(name, path = getwd(), dims = NULL, na = NA) {
     close(bin_file)
     
     # Check if using an old version of colbir
-    if (header$db_ver != as.integer(.database_version))
-        stop(name, " - version of coldbir package and file format does not match")
+    if (header$db_ver != as.integer(.database_version)) {
+        flog.error("%s - version of coldbir package and file format does not match", name)
+        stop()
+    }
 
     # Prepare data depending on vector type
     
