@@ -37,6 +37,6 @@ put_variable_doc <- function(x, name, path = getwd(), create_dir = TRUE, file_na
         }
     )
 
-    message(name, ": documentation was successfully written to disk")
+    message(f)
     return(TRUE)
 } 

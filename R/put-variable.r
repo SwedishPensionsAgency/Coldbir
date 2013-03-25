@@ -146,7 +146,7 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
         )
         
         # Return TRUE and message if variable is successfully written
-        message(name, " - successfully written to disk")
+        message(cdb)
         return(TRUE)
 
     }
