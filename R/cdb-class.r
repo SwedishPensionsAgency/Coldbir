@@ -1,6 +1,6 @@
 setClass(
     Class = "cdb",
-    representation = representation(path = "character", type = "character", na = "numeric", md = "logical", log_level = "numeric"),
+    representation = representation(path = "character", type = "character", na = "numeric", md = "logical", log_level = "numeric", log_file = "character"),
     validity = function(object){
         types <- c("c", "f", "n")
         if (!(object@type %in% types)) {
@@ -17,16 +17,24 @@ setClass(
 setMethod (
     f = "initialize",
     signature = "cdb",
-    definition = function(.Object, path = getwd(), type = "n", na = NA_real_, md = TRUE, log_level = 4) {
+    definition = function(.Object, path = getwd(), type = "n", na = NA_real_, md = TRUE, 
+        log_level = 4, log_file = "") {
         .Object@path <- path
         .Object@type <- type
         .Object@na <- na
         .Object@md <- md
         .Object@log_level <- log_level
+        .Object@log_file <- log_file
         validObject(.Object)
         
-        # Set log level
+        # Set futile.logger options
         flog.threshold(log_level)
+        
+        if (log_file != "") {
+            flog.appender(appender.file(log_file))
+        } else {
+            flog.appender(appender.console())
+        }
         
         return(.Object)
     }
@@ -42,7 +50,8 @@ setMethod (
 #' Character conversion might be a bit slow; hence numeric or factor is recommended.
 #' @param na Value representing missing values (default: NA_real_)
 #' @param md If markdown documentation should be added (in addition to a json-file)
-#' @param log_level futile.logger level (default: 4). Available levels: 1-9.
+#' @param log_level Log level (default: 4). Available levels: 1-9.
+#' @param log_file Log file. As default log messages will be written to console.
 #' 
 #' @examples db <- cdb()
 #' @export
