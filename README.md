@@ -9,11 +9,8 @@ The project is currently maintained by Thomas Reinholdsson (<reinholdsson@gmail.
 
 Use `devtools` for easy installation
 
-```r
-library(devtools)
-install_github('Coldbir', 'SthlmR', 'v0.2')
-```
-
+    library(devtools)
+    install_github('Coldbir', 'SthlmR', 'v0.2')
 
 ## Introduction
 
@@ -21,38 +18,27 @@ First, make sure to load the package with `library(Coldbir)`.
 
 Then the next step is to decide where the database is to be saved, or where it already exists:
 
-```r
-a <- cdb('database_path')
-```
+    a <- cdb('database_path')
 
 To save data to the database one simply write:
 
-```r
-a['foo'] <- 1:10
-```
+    a['foo'] <- 1:10
 
 and to get the variable it is just to use:
 
-```r
-b <- a['foo']
-```
+    b <- a['foo']
 
 It is also possible to put a data frame to the coldbir database - each column will then represent one variable each;
 
-```r
-a[] <- MASS::survey
-```
+    a[] <- MASS::survey
 
 However, since they are all saved as variables one cannot get all of them back at once. Their names are the same as their previous column names. For example:
 
-```r
-b <- a['Pulse']
-```
-
+    b <- a['Pulse']
 
 ### Data types
 
-Currently supported data types are:
+Currently supported data types:
 
 - `integer`
 - `double`
