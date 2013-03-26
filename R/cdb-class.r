@@ -146,18 +146,14 @@ setMethod(
 #' 
 #' @export
 setMethod("?",  c("cdb", "character"), function(e1, e2) {
-    x <- get_doc(e1, e2)
-    cat(list_to_md(x))
-    # Why does it return an S4 object instead??
-    # TODO: if perfect match then return readme, otherwise return suggested results by search matching
+    run_help(path = e1@path, search = e2)
 })
 
 #' Help method: ?a
 #' 
 #' @export
 setMethod("?",  "cdb", function(e1) {
-    cat("Database documenation/help ...")
-    # returns NULL
+    run_help(path = e1@path)
 })
 
 #' List all variables in database
@@ -176,4 +172,3 @@ setMethod(
         cat(x, sep = "\n")
     }
 )
-

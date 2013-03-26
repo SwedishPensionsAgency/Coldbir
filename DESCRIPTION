@@ -9,7 +9,8 @@ Description: ...
 License: AGPLv3
 Depends:
     RJSONIO,
-    futile.logger
+    futile.logger,
+    shiny
 Collate:
     'check-repr.r'
     'find-exp.r'
@@ -29,3 +30,4 @@ Collate:
     'create-temp-file.r'
     'Coldbir.r'
     'search-files.r'
+    'run-help.r'
