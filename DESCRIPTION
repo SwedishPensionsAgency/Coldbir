@@ -31,3 +31,4 @@ Collate:
     'Coldbir.r'
     'search-files.r'
     'run-help.r'
+    'list-variables.r'
