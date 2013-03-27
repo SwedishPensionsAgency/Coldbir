@@ -1,5 +1,8 @@
+# Connect to database
+db <- cdb(.help_args$path)
+
 shinyServer(function(input, output) {
-    output$show <- renderText({
-        paste(.help_args$path, .help_args$search)  # global variable set by the cdb-class
+    output$histogram <- renderPlot({
+        hist(db[input$variable], main = input$variable, labels = TRUE, col = "lightblue")
     })
 })

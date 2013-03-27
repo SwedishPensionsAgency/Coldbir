@@ -8,6 +8,6 @@
 #' @export
 #'
 run_help <- function(path, search = NULL) {
-    .help_args <<- list("path" = path, "search" = search)
+    .help_args <<- list("path" = tools::file_path_as_absolute(path), "search" = search)
     shiny::runApp(file.path(system.file(package = "Coldbir"), "help-app"), launch.browser = TRUE)
 }

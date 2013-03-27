@@ -168,7 +168,7 @@ setMethod(
     f = "vars",
     signature = "cdb",
     definition = function(object){
-        x <- search_files(object@path)
-        cat(x, sep = "\n")
+        x <- list_variables(path = object@path)
+        return(x)
     }
 )
