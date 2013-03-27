@@ -1,14 +1,24 @@
 # Connect to database
-db <- cdb(.help_args$path)
+db <- cdb(.help_args$path, type = "f")
 
 # Fetch all variables
 list_vars <- vars(db)
 list_vars <- setNames(as.list(list_vars), list_vars)
 
 # Interface
-shinyUI(bootstrapPage(
-     selectInput(inputId = "variable",
-                 label = "Variables:",
-                 choices = list_vars),
-    plotOutput("histogram")
+shinyUI(pageWithSidebar(
+    
+    headerPanel(""),
+    
+    sidebarPanel(
+        radioButtons(inputId = "variable",
+            label = "",
+            choices = list_vars)
+    ),
+    
+    mainPanel(
+        htmlOutput("docs"),
+        plotOutput("plot"),
+        htmlOutput("summary")
+    )
 ))
