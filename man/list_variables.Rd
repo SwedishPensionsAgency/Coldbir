@@ -2,12 +2,15 @@
 \alias{list_variables}
 \title{Get all variables}
 \usage{
-  list_variables(..., unique = TRUE)
+  list_variables(path = getwd(), dims = FALSE, ...)
 }
 \arguments{
-  \item{...}{search_files() arguments}
+  \item{path}{Path}
 
-  \item{unique}{Return vector of unique variables}
+  \item{dims}{If dims should be included (returns a data
+  table)}
+
+  \item{...}{search_files() arguments}
 }
 \description{
   ...

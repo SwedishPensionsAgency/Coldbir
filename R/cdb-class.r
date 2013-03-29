@@ -147,14 +147,33 @@ setMethod(
 #' ...
 #' 
 #' @param object Cdb object
+#' @param dims If dims should be returned
 #' @export
 #' 
-setGeneric("vars", function(object){ standardGeneric("vars") })
+setGeneric("get_vars", function(object, dims = "boolean"){ standardGeneric("get_vars") })
 setMethod(
-    f = "vars",
+    f = "get_vars",
     signature = "cdb",
-    definition = function(object){
-        x <- list_variables(path = object@path)
-        return(x)
+    definition = function(object, dims = FALSE){
+        list_variables(path = object@path, dims = dims)
+    }
+)
+
+#' Get variable dims
+#' 
+#' ...
+#' 
+#' @param object Cdb object
+#' @param name Variable nane
+#' @export
+#' 
+setGeneric("get_dims", function(object, name = "character"){ standardGeneric("get_dims") })
+setMethod(
+    f = "get_dims",
+    signature = "cdb",
+    definition = function(object, name){
+        x <- list_variables(path = object@path, dims = TRUE)
+        x <- subset(x, variable == name)
+        x$dims
     }
 )
