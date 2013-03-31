@@ -2,7 +2,7 @@ Package: Coldbir
 Type: Package
 Title: Column database in R
 Version: 0.3
-Date: 2013-01-26
+Date: 2013-03-31
 Author: Danne Mikula, Thomas Reinholdsson
 Maintainer: Thomas Reinholdsson <reinholdsson@gmail.com>
 Description: ...
