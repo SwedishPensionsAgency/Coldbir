@@ -97,7 +97,7 @@ The `doc.json` includes the variable documentation that is read with `get_doc()`
 
 ## Examples
 
-### Example 1: Survey data
+### Example: Survey data
 
 #### Write data and documentation
 
@@ -123,7 +123,7 @@ Add documentation for `Age` and `Pulse`
         description = "Pulse rate of student (beats per minute)."
         )
         
-#### Use data and documentation with plots
+#### How to use
 
 Scatter plot
 
