@@ -1,7 +1,5 @@
-
-R/.DS_Store
-
-.DS_Store
-
+*.DS_Store
 .Rhistory
 .Rproj.user
+.Rproj
+.Rbuildignore
