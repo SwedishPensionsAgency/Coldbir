@@ -81,16 +81,16 @@ Below is an example of a database, named *mydb*, with a couple of variables:
         data/
           d[2011].cdb.gz
           d[2012].cdb.gz
+        doc.json
         lookup.txt
         readme.md
-        doc.json
       unemployment/
         data/
           d[2011].cdb.gz
           d[2012].cdb.gz
+        doc.json
         lookup.txt
         readme.md
-        doc.json
 
 The `doc.json` includes the variable documentation that is read with `get_doc()` method. `readme.md` includes the same information but in markdown.
 
