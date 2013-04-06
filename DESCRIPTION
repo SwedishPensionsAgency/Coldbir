@@ -2,7 +2,7 @@ Package: Coldbir
 Type: Package
 Title: Column database in R
 Version: 0.3
-Date: 2013-03-31
+Date: 2013-04-06
 Author: Danne Mikula, Thomas Reinholdsson
 Maintainer: Thomas Reinholdsson <reinholdsson@gmail.com>
 Description: ...
@@ -10,8 +10,7 @@ License: AGPLv3
 Depends:
     RJSONIO,
     futile.logger,
-    stringr,
-    data.table
+    stringr
 Collate:
     'check-repr.r'
     'find-exp.r'

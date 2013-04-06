@@ -43,8 +43,8 @@ Currently supported data types:
 - `double`
 - `logical`
 - `factor`
-- `Date` (v0.3)
-- `POSIXct` / `POSIXlt` (v0.3)
+- `Date`
+- `POSIXct` / `POSIXlt`
 
 ### Variable documentation
 
