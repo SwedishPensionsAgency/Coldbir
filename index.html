@@ -36,9 +36,8 @@
 
 <p>Use <code>devtools</code> for easy installation</p>
 
-<div class="highlight"><pre>library<span class="p">(</span>devtools<span class="p">)</span>
-install_github<span class="p">(</span><span class="s">'Coldbir'</span><span class="p">,</span> <span class="s">'SthlmR'</span><span class="p">,</span> <span class="s">'v0.2'</span><span class="p">)</span>
-</pre></div>
+<pre><code>devtools::install_github('Coldbir', 'SthlmR', 'v0.3')
+</code></pre>
 
 <h2>Introduction</h2>
 
@@ -46,47 +45,66 @@ install_github<span class="p">(</span><span class="s">'Coldbir'</span><span clas
 
 <p>Then the next step is to decide where the database is to be saved, or where it already exists:</p>
 
-<div class="highlight"><pre>a <span class="o">&lt;-</span> cdb<span class="p">(</span><span class="s">'database_path'</span><span class="p">)</span>
-</pre></div>
+<pre><code>a &lt;- cdb('database_path')
+</code></pre>
 
 <p>To save data to the database one simply write:</p>
 
-<div class="highlight"><pre>a<span class="p">[</span><span class="s">'foo'</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="m">1</span>:<span class="m">10</span>
-</pre></div>
+<pre><code>a['foo'] &lt;- 1:10
+</code></pre>
 
-<p>and to get the variable it is just to use:</p>
+<p>and to get the variable:</p>
 
-<div class="highlight"><pre>b <span class="o">&lt;-</span> a<span class="p">[</span><span class="s">'foo'</span><span class="p">]</span>
-</pre></div>
+<pre><code>b &lt;- a['foo']
+</code></pre>
 
 <p>It is also possible to put a data frame to the coldbir database - each column will then represent one variable each;</p>
 
-<div class="highlight"><pre>a<span class="p">[]</span> <span class="o">&lt;-</span> MASS<span class="p">::</span>survey
-</pre></div>
+<pre><code>a[] &lt;- MASS::survey
+</code></pre>
 
 <p>However, since they are all saved as variables one cannot get all of them back at once. Their names are the same as their previous column names. For example:</p>
 
-<div class="highlight"><pre>b <span class="o">&lt;-</span> a<span class="p">[</span><span class="s">'Pulse'</span><span class="p">]</span>
-</pre></div>
+<pre><code>b &lt;- a['Pulse']
+</code></pre>
 
 <h3>Data types</h3>
 
-<p>Currently supported data types are:</p>
+<p>Currently supported data types:</p>
 
 <ul>
 <li><code>integer</code></li>
 <li><code>double</code></li>
 <li><code>logical</code></li>
 <li><code>factor</code></li>
+<li><code>Date</code></li>
 <li>
-<code>Date</code> (v0.3)</li>
-<li>
-<code>POSIX*t</code> (v0.3)</li>
-</ul><p>The <code>POSIXct</code> timestamps are automatically converted to and saved in <code>GMT</code>; 
-hence when read from disk it will be represented in the same format. 
-<code>POSIXlt</code>, on the other hand, is also saved as <code>GMT</code> but is converted to and represented in the local timezone.</p>
+<code>POSIXct</code> / <code>POSIXlt</code>
+</li>
+</ul><h3>Variable documentation</h3>
 
-<p>Due to timezones one has to be really careful when using dates and timestamps.</p>
+<p>An additional feature is to add documentation to a variable. </p>
+
+<p>Create an object of the <code>doc</code> class and add it to a variable:</p>
+
+<pre><code>a['foo'] &lt;- doc(
+      'Foo' = 'This is a variable', 
+      'Info' = list(
+        'Stats' = paste('The minimum value is', min(1:10)),
+        'Source' = "Some db"
+        )
+      )
+</code></pre>
+
+<p><em>As one may notice, the doc object is build up as a list. Thus it makes it possible to e.g. include variable statistics that updates automatically.</em> </p>
+
+<p>To get the documentation (as a list):</p>
+
+<pre><code>d &lt;- get_doc(a, "foo")
+
+d$Info$Stats
+# [1] "The minimum value is 1"
+</code></pre>
 
 <h3>File structure</h3>
 
@@ -100,14 +118,65 @@ Below is an example of a database, named <em>mydb</em>, with a couple of variabl
     data/
       d[2011].cdb.gz
       d[2012].cdb.gz
+    doc.json
     lookup.txt
     readme.md
   unemployment/
     data/
       d[2011].cdb.gz
       d[2012].cdb.gz
+    doc.json
     lookup.txt
     readme.md
+</code></pre>
+
+<p>The <code>doc.json</code> includes the variable documentation that is read with <code>get_doc()</code> method. <code>readme.md</code> includes the same information but in markdown.</p>
+
+<h2>Examples</h2>
+
+<h3>Example: Survey data</h3>
+
+<h4>Write data and documentation</h4>
+
+<p>Link to database</p>
+
+<pre><code>a &lt;- cdb()
+</code></pre>
+
+<p>Add survey data to database</p>
+
+<pre><code>require(MASS)
+a["Age"] &lt;- survey$Age
+a["Pulse"] &lt;- survey$Pulse
+</code></pre>
+
+<p>Add documentation for <code>Age</code> and <code>Pulse</code></p>
+
+<pre><code>a["Age"] &lt;- doc(
+    title = "Age",
+    description = "Age of the student in years."
+    )
+
+a["Pulse"] &lt;- doc(
+    title = "Pulse",
+    description = "Pulse rate of student (beats per minute)."
+    )
+</code></pre>
+
+<h4>How to use</h4>
+
+<p>Scatter plot</p>
+
+<pre><code>plot(a["Age"], a["Pulse"],
+     xlab = get_doc(a, "Age")$description, 
+     ylab = get_doc(a, "Pulse")$description
+     )
+</code></pre>
+
+<p>Histogram</p>
+
+<pre><code>d &lt;- get_doc(a, "Pulse")
+hist(a["Pulse"], main = paste("Histogram of", d$title), xlab = d$title, sub = d$description)
 </code></pre>
 
 <h2>Development</h2>
