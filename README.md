@@ -44,7 +44,7 @@ Currently supported data types:
 - `logical`
 - `factor`
 - `Date`
-- `POSIXct` / `POSIXlt`
+- `POSIXct` / `POSIXlt` ** **EXPERIMENTAL** **
 
 ### Variable documentation
 
