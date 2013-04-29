@@ -10,7 +10,9 @@ License: AGPLv3
 Depends:
     RJSONIO,
     futile.logger,
-    stringr
+    stringr,
+    lubridate,
+    data.table
 Collate:
     'check-repr.r'
     'find-exp.r'
