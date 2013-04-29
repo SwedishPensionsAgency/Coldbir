@@ -11,7 +11,8 @@ Depends:
     RJSONIO,
     futile.logger,
     stringr,
-    lubridate
+    lubridate,
+    data.table
 Collate:
     'check-repr.r'
     'find-exp.r'
