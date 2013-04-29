@@ -1,7 +1,7 @@
 # devtools::test(".")
 
 path <- tempfile()
-size <- 100
+size <- 1e3
 
 context("init database")
     db <- cdb(path)
@@ -27,7 +27,7 @@ context("variable (double)")
     })
 
 context("variable (POSIXct)")
-    ts <- as.character(.POSIXct(runif(1e3) * unclass(Sys.time())))
+    ts <- as.character(.POSIXct(runif(size) * unclass(Sys.time())))
     # ts <- as.character(as.POSIXct(runif(1e4) * unclass(Sys.time()), origin = "1970-01-01"))
 
     #attr(x, "tzone") <- "GMT"
