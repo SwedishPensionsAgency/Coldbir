@@ -74,9 +74,10 @@ put_variable <- function(x, name = NULL, path = getwd(), dims = NULL, attrib = N
         } else if ("POSIXt" %in% class(x)) {  # OBS: must be checked before is.double
             header$type <- "POSIXct"
             header$bytes <- 8L  # save as double
-            x <- as.POSIXct(as.character(x), tz = .tzone)  # convert to GMT
+
+            x <- lubridate::force_tz(x, .tzone)  # convert to GMT
             x <- as.double(x)  # convert to double
-            
+
         } else if ("Date" %in% class(x)) {
                 header$type <- "Date"
                 header$bytes <- 8L
