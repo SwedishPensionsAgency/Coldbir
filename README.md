@@ -7,7 +7,7 @@ The project is currently maintained by Thomas Reinholdsson (<reinholdsson@gmail.
 
 ## Installation
 
-Use `devtools` for easy installation
+Use `devtools` for easy installation:
 
     devtools::install_github('Coldbir', 'SthlmR', 'v0.3')
 
@@ -15,11 +15,11 @@ Use `devtools` for easy installation
 
 First, make sure to load the package with `library(Coldbir)`.
 
-Then the next step is to decide where the database is to be saved, or where it already exists:
+Then, to decide where the database is to be saved, or whether it already exists, do:
 
     a <- cdb('database_path')
 
-To save data to the database one simply write:
+To save data to the database, simply write:
 
     a['foo'] <- 1:10
 
