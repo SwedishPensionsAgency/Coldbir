@@ -1,0 +1,12 @@
+[user]
+	email = love.hansson@pensionsmyndigheten.se
+	name = Love Hansson
+[gui]
+[gui]
+[gui]
+[https]
+	proxy = proxya.ppm.nu:8080
+	useragent = APT-HTTP/1.5
+[http]
+	useragent = APT-HTTP/1.5
+	proxy = proxya.ppm.nu:8080
