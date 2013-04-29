@@ -1,6 +1,6 @@
 \name{put_variable}
 \alias{put_variable}
-\title{Takes a vector (or data frame) and save its content to a file in the correct cdb.gz-format.}
+\title{Write vector to disk}
 \usage{
   put_variable(x, name = NULL, path = getwd(), dims = NULL,
     attrib = NULL, lookup = TRUE, compress = 5)

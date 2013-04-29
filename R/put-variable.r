@@ -1,3 +1,4 @@
+#' Write vector to disk
 #'
 #' Takes a vector (or data frame) and save its content to a file in the correct cdb.gz-format.
 #' 
