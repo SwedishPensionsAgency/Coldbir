@@ -3,7 +3,7 @@
 \title{Get variable documentation from disk}
 \usage{
   get_variable_doc(name, path, console = FALSE,
-    file_name = .doc_json)
+    file_name = .doc_file)
 }
 \arguments{
   \item{name}{Variable name}

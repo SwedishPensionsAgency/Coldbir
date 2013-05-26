@@ -16,9 +16,6 @@
   \item{na}{Value representing missing values (default:
   NA_real_)}
 
-  \item{md}{If markdown documentation should be added (in
-  addition to a json-file)}
-
   \item{log_level}{Log level (default: 4). Available
   levels: 1-9.}
 

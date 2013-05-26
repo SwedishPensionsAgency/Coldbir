@@ -9,7 +9,7 @@
 #' 
 #' @export
 #'
-get_variable_doc <- function(name, path, console = FALSE, file_name = .doc_json) {
+get_variable_doc <- function(name, path, console = FALSE, file_name = .doc_file) {
     
     folder_path <- file_path(name, path, create_dir = FALSE, file_name = FALSE, data_folder = FALSE)
     
