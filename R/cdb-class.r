@@ -84,13 +84,33 @@ setMethod(
     f = "[",
     signature = "cdb",
     definition = function(x, i, j){
+        
         if (missing(j)) j <- NULL
-        v <- get_variable(name = i, path = x@path, dims = j, na = x@na)
-    
-        # Convert to character or factor (if requested)
-        if (x@type %in% c("c", "f")) {
-            factors <- if (x@type == "f") TRUE else FALSE
-            v <- to_char(x = v, name = i, path = x@path, factors = factors)
+        
+        if (missing(i) || is.vector(i) && length(i) > 1){
+            if (missing(i)){
+                i <- get_vars(x, dims = FALSE)
+            }
+            
+            # Read all variables to a list
+            lst <- lapply(i, function(var){
+                dt <- data.table(x[var])
+                setnames(dt, names(dt), var)
+                return(dt)
+            })
+            
+            # Combine as one data table
+            v <- do.call("cbind", lst)
+            
+        } else {
+            
+            v <- get_variable(name = i, path = x@path, dims = j, na = x@na)
+            
+            # Convert to character or factor (if requested)
+            if (x@type %in% c("c", "f")) {
+                factors <- if (x@type == "f") TRUE else FALSE
+                v <- to_char(x = v, name = i, path = x@path, factors = factors)
+            }
         }
         
         return(v)
