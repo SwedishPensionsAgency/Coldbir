@@ -94,7 +94,7 @@ setMethod(
             
             # Read all variables to a list
             lst <- lapply(i, function(var){
-                dt <- data.table(x[var])
+                dt <- data.table(x[var, j])
                 setnames(dt, names(dt), var)
                 return(dt)
             })
