@@ -8,6 +8,7 @@ Maintainer: Thomas Reinholdsson <reinholdsson@gmail.com>
 Description: ...
 License: AGPLv3
 Depends:
+    data.table,
     RJSONIO,
     futile.logger,
     stringr
