@@ -92,15 +92,14 @@ setMethod(
                 i <- get_vars(x, dims = FALSE)
             }
             
-            # Read all variables to a list
-            lst <- lapply(i, function(var){
-                dt <- data.table(x[var, j])
-                setnames(dt, names(dt), var)
-                return(dt)
-            })
+            # Create data.table with first variable
+            v <- data.table(first = x[i[1], j])
+            setnames(v, "first", i[1])
             
-            # Combine as one data table
-            v <- do.call("cbind", lst)
+            # Add all other variables
+            for(var in i[2:length(i)]){
+                v[ , i := x[var, j], with = F]
+            }
             
         } else {
             
