@@ -3,7 +3,7 @@
 \title{Put variable documentation to disk}
 \usage{
   put_variable_doc(x, name, path = getwd(),
-    create_dir = TRUE, file_name = .doc_json)
+    create_dir = TRUE, file_name = .doc_file)
 }
 \arguments{
   \item{x}{Character string}

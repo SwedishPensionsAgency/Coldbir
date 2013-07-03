@@ -12,7 +12,8 @@ Depends:
     futile.logger,
     stringr,
     lubridate,
-    data.table
+    data.table,
+    yaml
 Collate:
     'check-repr.r'
     'find-exp.r'
