@@ -51,6 +51,17 @@ setMethod(
     f = "to_json",
     signature = "doc",
     definition = function(object) {
-        toJSON(object@lst, pretty = TRUE)
+        RJSONIO::toJSON(object@lst, pretty = TRUE)
+    }
+)
+
+#' Convert doc to yaml
+#' 
+setGeneric("to_yaml", function(object){ standardGeneric("to_yaml") })
+setMethod(
+    f = "to_yaml",
+    signature = "doc",
+    definition = function(object) {
+        yaml::as.yaml(object@lst)
     }
 )

@@ -1,6 +1,6 @@
 setClass(
     Class = "cdb",
-    representation = representation(path = "character", type = "character", na = "numeric", md = "logical", log_level = "numeric", log_file = "character"),
+    representation = representation(path = "character", type = "character", na = "numeric", log_level = "numeric", log_file = "character"),
     validity = function(object){
         types <- c("c", "f", "n")
         if (!(object@type %in% types)) {
@@ -17,12 +17,11 @@ setClass(
 setMethod (
     f = "initialize",
     signature = "cdb",
-    definition = function(.Object, path = getwd(), type = "n", na = NA_real_, md = TRUE, 
+    definition = function(.Object, path = getwd(), type = "n", na = NA_real_, 
         log_level = 4, log_file = "") {
         .Object@path <- path
         .Object@type <- type
         .Object@na <- na
-        .Object@md <- md
         .Object@log_level <- log_level
         .Object@log_file <- log_file
         validObject(.Object)
@@ -49,7 +48,6 @@ setMethod (
 #' @param type Return type of variable. Possible values: 'c' = character, 'f' = factor and 'n' = numeric (default).
 #' Character conversion might be a bit slow; hence numeric or factor is recommended.
 #' @param na Value representing missing values (default: NA_real_)
-#' @param md If markdown documentation should be added (in addition to a json-file)
 #' @param log_level Log level (default: 4). Available levels: 1-9.
 #' @param log_file Log file. As default log messages will be written to console.
 #' 
@@ -108,12 +106,7 @@ setMethod(
         if (all(class(value) == "doc")) {
             
             # Create readme.json
-            put_variable_doc(x = to_json(value), name = i, path = x@path, file_name = .doc_json)
-
-            if (x@md) {
-                # Create readme.md
-                put_variable_doc(x = to_markdown(value), name = i, path = x@path, file_name = .doc_md)
-            }
+            put_variable_doc(x = to_yaml(value), name = i, path = x@path, file_name = .doc_file)
             
         } else {
             put_variable(x = value, name = i, dims = j, path = x@path)
@@ -136,8 +129,8 @@ setMethod(
     f = "get_doc",
     signature = "cdb",
     definition = function(object, name){
-        d <- get_variable_doc(name = name, path = object@path, file_name = .doc_json)
-        d <- RJSONIO::fromJSON(d, simplifyWithNames = FALSE)
+        d <- get_variable_doc(name = name, path = object@path, file_name = .doc_file)
+        d <- yaml::yaml.load(d)
         return(d)
     }
 )
