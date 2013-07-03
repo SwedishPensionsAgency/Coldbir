@@ -74,11 +74,8 @@ get_variable <- function(name, path = getwd(), dims = NULL, na = NA) {
         
     ## POSIXt
     } else if (header$type %in% c("POSIXct", "POSIXlt")) {
-        origin <- as.POSIXct("1970-01-01 00:00:00", tz = "GMT")
-        x <- as.POSIXct(x, origin = origin)  # slow => time * 1.5
-        attributes(x)$tzone <- header$timezone
-        
-        if (header$type == "POSIXlt") x <- as.POSIXlt(x)  # very slow => time * 10
+        origin <- as.POSIXct("1970-01-01 00:00:00", tz = .tzone)
+        x <- as.POSIXct(x, tz = .tzone, origin = origin)
     }
     
     # Add attributes to vector
