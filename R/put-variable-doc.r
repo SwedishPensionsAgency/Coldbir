@@ -10,7 +10,7 @@
 #' 
 #' @export
 #'
-put_variable_doc <- function(x, name, path = getwd(), create_dir = TRUE, file_name = .doc_json) {
+put_variable_doc <- function(x, name, path = getwd(), create_dir = TRUE, file_name = .doc_file) {
     
     folder_path <- file_path(name, path, create_dir = create_dir, file_name = FALSE, data_folder = FALSE)
     f <- file.path(folder_path, file_name)

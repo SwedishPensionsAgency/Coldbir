@@ -9,7 +9,7 @@ The project is currently maintained by Thomas Reinholdsson (<reinholdsson@gmail.
 
 Use `devtools` for easy installation:
 
-    devtools::install_github('Coldbir', 'SthlmR', 'v0.3')
+    devtools::install_github('Coldbir', 'SthlmR')
 
 ## Introduction
 
@@ -45,6 +45,8 @@ Currently supported data types:
 - `factor`
 - `Date`
 - `POSIXct` / `POSIXlt` ** **EXPERIMENTAL** **
+
+Timezones are not supported. All timestamps are written as `GMT` without timezone conversion. E.g. `2013-04-29 01:00:00 CST` is stored (and returned) as `2013-04-29 01:00:00 GMT`. `POSIXlt` is automatically converted to `POSIXct`.
 
 ### Variable documentation
 

@@ -11,7 +11,10 @@ Depends:
     data.table,
     RJSONIO,
     futile.logger,
-    stringr
+    stringr,
+    lubridate,
+    data.table,
+    yaml
 Collate:
     'check-repr.r'
     'find-exp.r'

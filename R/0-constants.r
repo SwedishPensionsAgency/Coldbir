@@ -1,4 +1,4 @@
 .database_version <- 4
-.doc_json <- "doc.json"
-.doc_md <- "readme.md"
+.doc_file <- "documentation.yml"
 .lookup_filename <- "lookup.txt"
+.tzone <- "GMT"
