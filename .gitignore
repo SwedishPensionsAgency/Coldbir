@@ -1,6 +1,7 @@
+*.gz
 *.DS_Store
+*.Rproj
 .Rhistory
 .Rproj.user
-*.Rproj
 .Rbuildignore
-*.gz
+.gitconfig
