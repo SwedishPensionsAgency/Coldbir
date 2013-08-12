@@ -98,7 +98,7 @@ setMethod(
             
             # Add all other variables
             for(var in i[2:length(i)]){
-                v[ , i := x[var, j], with = F]
+                v[ , var := x[var, j], with = F]
             }
             
         } else {
