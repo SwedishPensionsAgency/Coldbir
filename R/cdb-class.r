@@ -92,18 +92,39 @@ setMethod(
     f = "[",
     signature = "cdb",
     definition = function(x, i, j){
-        if (missing(j)) j <- x@dims
-        v <- get_variable(name = i, path = x@path, dims = j, na = x@na)
-    
-        # Convert to character or factor (if requested)
-        if (x@type %in% c("c", "f")) {
-            factors <- if (x@type == "f") TRUE else FALSE
-            v <- to_char(x = v, name = i, path = x@path, factors = factors)
-        }
-        
-        return(v)
+
+	if (missing(j)) j <- x@dims
+
+	if (missing(i) || is.vector(i) && length(i) > 1){
+    if (missing(i)){
+      vars <- get_vars(a, dims = T)
+      fun <- function(x) isTRUE(all.equal(x, as.character(j)))
+      i <- vars[sapply(vars$dims, fun)]$variable
     }
-)
+    
+    # Create data.table with first variable
+    v <- data.table(first = x[i[1], j])
+    setnames(v, "first", i[1])
+
+    # Add all other variables
+    if (length(i) > 1) {
+	    for(var in i[2:length(i)]){
+		    v[ , var := x[var, j], with = F]
+	    }
+    }
+    
+	} else {
+    v <- get_variable(name = i, path = x@path, dims = j, na = x@na)
+
+    # Convert to character or factor (if requested)
+    if (x@type %in% c("c", "f")) {
+  		factors <- if (x@type == "f") TRUE else FALSE
+  		v <- to_char(x = v, name = i, path = x@path, factors = factors)
+    }
+  }
+        
+  return(v)
+})
 
 #' "[<-"-method (overloading)
 #' 
