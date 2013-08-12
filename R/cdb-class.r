@@ -17,7 +17,7 @@ setClass(
 setMethod (
     f = "initialize",
     signature = "cdb",
-    definition = function(.Object, path = getwd(), type = "n", na = NA_real_, 
+    definition = function(.Object, path = getwd(), type = "f", na = NA_real_, 
         log_level = 4, log_file = "") {
         .Object@path <- path
         .Object@type <- type
