@@ -17,7 +17,7 @@ setClass(
 setMethod (
     f = "initialize",
     signature = "cdb",
-    definition = function(.Object, path = getwd(), type = "n", na = NA_real_, 
+    definition = function(.Object, path = getwd(), type = "f", na = NA_real_, 
         log_level = 4, log_file = "") {
         .Object@path <- path
         .Object@type <- type
@@ -82,13 +82,32 @@ setMethod(
     f = "[",
     signature = "cdb",
     definition = function(x, i, j){
+        
         if (missing(j)) j <- NULL
-        v <- get_variable(name = i, path = x@path, dims = j, na = x@na)
-    
-        # Convert to character or factor (if requested)
-        if (x@type %in% c("c", "f")) {
-            factors <- if (x@type == "f") TRUE else FALSE
-            v <- to_char(x = v, name = i, path = x@path, factors = factors)
+        
+        if (missing(i) || is.vector(i) && length(i) > 1){
+            if (missing(i)){
+                i <- get_vars(x, dims = FALSE)
+            }
+            
+            # Create data.table with first variable
+            v <- data.table(first = x[i[1], j])
+            setnames(v, "first", i[1])
+            
+            # Add all other variables
+            for(var in i[2:length(i)]){
+                v[ , var := x[var, j], with = F]
+            }
+            
+        } else {
+            
+            v <- get_variable(name = i, path = x@path, dims = j, na = x@na)
+            
+            # Convert to character or factor (if requested)
+            if (x@type %in% c("c", "f")) {
+                factors <- if (x@type == "f") TRUE else FALSE
+                v <- to_char(x = v, name = i, path = x@path, factors = factors)
+            }
         }
         
         return(v)
