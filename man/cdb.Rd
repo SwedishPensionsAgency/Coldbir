@@ -8,6 +8,8 @@
   \item{path}{Database path (the location of the coldbir
   database)}
 
+  \item{dims}{Set default dimensions}
+
   \item{type}{Return type of variable. Possible values: 'c'
   = character, 'f' = factor and 'n' = numeric (default).
   Character conversion might be a bit slow; hence numeric
