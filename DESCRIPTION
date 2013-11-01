@@ -25,6 +25,7 @@ Collate:
     'put-lookup.r'
     'put-variable.r'
     'cdb-class.r'
+    'cdb-class-r5.r'
     '0-constants.r'
     'to-char.r'
     'doc-class.r'

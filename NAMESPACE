@@ -1,4 +1,5 @@
 export(cdb)
+export(cdb2)
 export(check_repr)
 export(create_temp_file)
 export(doc)
