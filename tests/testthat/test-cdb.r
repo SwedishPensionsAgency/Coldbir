@@ -61,7 +61,12 @@ test_that("put/get variable with dims = NULL", {
 
 context("DATASETS")
 ###################
-x <- MASS::survey
+x <- data.table(MASS::survey)
+
+# In addition we change the column names
+# to specifically test issue 49.
+setnames(x, c("Wr.Hnd", "NW.Hnd"), c("var", "x"))
+
 db[, "survey"] <- x
 test_that("get dataset", {
   expect_equal(x, db[, "survey"])

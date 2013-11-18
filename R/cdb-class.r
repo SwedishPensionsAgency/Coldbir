@@ -342,7 +342,10 @@ setMethod(
       # Add all other variables
       if (length(i) > 1) {
         for(var in i[2:length(i)]){
-          v[ , var := x[var, j], with = F]
+          # Use function call below since the data.table (`:=`) otherwise
+          # interprets `x` as a column name, if it exists (see issue 49).
+          read_var <- function() x[var, j]
+          v[ , var := read_var(), with = F]
         }
       }
       
