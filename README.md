@@ -66,8 +66,8 @@ Create an object of the `doc` class and add it to a variable:
 
 To get the documentation (as a list):
 
-    d <- get_doc(a, "foo")
-
+    d <- a$get_doc("foo")
+    
     d$Info$Stats
     # [1] "The minimum value is 1"
 
@@ -83,14 +83,14 @@ Below is an example of a database, named *mydb*, with a couple of variables:
         data/
           d[2011].cdb.gz
           d[2012].cdb.gz
-        doc.json
+        documentation.yml
         lookup.txt
         readme.md
       unemployment/
         data/
           d[2011].cdb.gz
           d[2012].cdb.gz
-        doc.json
+        documentation.yml
         lookup.txt
         readme.md
 
@@ -130,19 +130,18 @@ Add documentation for `Age` and `Pulse`
 Scatter plot
 
     plot(a["Age"], a["Pulse"],
-         xlab = get_doc(a, "Age")$description, 
-         ylab = get_doc(a, "Pulse")$description
+         xlab = a$get_doc("Age")$description, 
+         ylab = a$get_doc("Pulse")$description
          )
 
 Histogram
 
-    d <- get_doc(a, "Pulse")
+    d <- a$get_doc("Pulse")
     hist(a["Pulse"], main = paste("Histogram of", d$title), xlab = d$title, sub = d$description)
 
 ## Development
 
 The *master* branch is the development branch, and might therefore be a bit instable. Stable releases are marked with tags, e.g. v1.0, where the first number represents a new stable release and the second number imply new bug fixes within the given release version.
-
 
 ## License
 

@@ -34,7 +34,15 @@ context("variable (POSIXct)")
 context("documentation")
     x <- list(a = "text", b = list(c = 1, d = 2))
     db["x"] <- doc(x)
-    test_that("get doc", {
+    test_that("get documentation", {
+        expect_error(db["non-existing"])
+        expect_equal(list(x), db$get_doc("x"))
+    })
+
+context("documentation")
+    x <- list(a = "text", b = list(c = 1, d = 2))
+    db["x"] <- doc(x)
+    test_that("get documentation", {
         expect_error(db["non-existing"])
         expect_equal(list(x), db$get_doc("x"))
     })

@@ -68,6 +68,11 @@ cdb <- setRefClass(
       return(d)
     },
     
+    # List all variables
+    get_vars = function(dims) {
+      list_variables(path = .self$path, dims = dims)
+    },
+    
     # Get variable data
     get_variable = function(name) {
   
@@ -145,6 +150,7 @@ cdb <- setRefClass(
       return(x)
     },
     
+    # Put variable data
     put_variable = function(x, name = NULL, attrib = NULL, lookup = TRUE) {
       
       # If x is a data frame it will recursively run put_variable over all columns
