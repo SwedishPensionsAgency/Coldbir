@@ -141,7 +141,11 @@ Histogram
 
 ## Development
 
+### Branch
+
 The *dev* branch is the development branch, and might therefore be a bit unstable. *master* is the latest stable version and larger releases are marked with tags, e.g. v1.0, where the first number represents a new stable release and the second number imply new bug fixes within the given release version.
+
+### Build and test
 
 Use the `makefile` to run tests and to build the package:
 
