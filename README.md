@@ -141,7 +141,16 @@ Histogram
 
 ## Development
 
-The *master* branch is the development branch, and might therefore be a bit instable. Stable releases are marked with tags, e.g. v1.0, where the first number represents a new stable release and the second number imply new bug fixes within the given release version.
+The *dev* branch is the development branch, and might therefore be a bit unstable. *master* is the latest stable version and larger releases are marked with tags, e.g. v1.0, where the first number represents a new stable release and the second number imply new bug fixes within the given release version.
+
+Use the `makefile` to run tests and to build the package:
+
+- Build: `make build`
+- Install: `make install`
+- Check: `make check`
+- Test: `make test`
+
+Where *Install* and *Check* first build the package and then run the subsequent procedure. The structure of this build and test procedure is inspired by the [pander](https://github.com/Rapporter/pander) - many thanks to its developers!
 
 ## License
 
