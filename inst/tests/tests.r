@@ -4,9 +4,9 @@ path <- tempfile()
 size <- 1e3
 
 context("init database")
-    db <- cdb(path, log_level = 9)
+    db <- cdb(path, log_level = 1)
     test_that("init cdb", {
-        expect_equal(path, get_path(db))
+        expect_equal(path, db$path)
     })
 
 context("variable (integer)")
@@ -34,9 +34,9 @@ context("variable (POSIXct)")
 context("documentation")
     x <- list(a = "text", b = list(c = 1, d = 2))
     db["x"] <- doc(x)
-    test_that("get variable", {
+    test_that("get doc", {
         expect_error(db["non-existing"])
-        expect_equal(list(x), get_doc(db, "x"))
+        expect_equal(list(x), db$get_doc("x"))
     })
 
 # Remove all temporary test files

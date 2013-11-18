@@ -60,6 +60,15 @@ cdb <- setRefClass(
         flog.appender(appender.console())
       }
     },
+    
+    # Get variable documentation
+    get_doc = function(name) {
+      d <- get_variable_doc(name = name, path = .self$path, file_name = .doc_file)
+      d <- yaml::yaml.load(d)
+      return(d)
+    },
+    
+    # Get variable data
     get_variable = function(name) {
   
       # Get file path
