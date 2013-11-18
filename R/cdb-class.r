@@ -96,8 +96,9 @@ setMethod(
 	if (missing(j)) j <- x@dims
 
 	if (missing(i) || is.vector(i) && length(i) > 1){
+    
     if (missing(i)){
-      vars <- get_vars(a, dims = T)
+      vars <- get_vars(x, dims = T)
       fun <- function(x) isTRUE(all.equal(x, as.character(j)))
       i <- vars[sapply(vars$dims, fun)]$variable
     }
@@ -105,11 +106,12 @@ setMethod(
     # Create data.table with first variable
     v <- data.table(first = x[i[1], j])
     setnames(v, "first", i[1])
-
+    
     # Add all other variables
     if (length(i) > 1) {
 	    for(var in i[2:length(i)]){
-		    v[ , var := x[var, j], with = F]
+        read_var <- function() x[var, j]
+		    v[ , var := read_var(), with = F]
 	    }
     }
     
