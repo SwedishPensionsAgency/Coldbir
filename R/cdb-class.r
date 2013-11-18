@@ -73,6 +73,13 @@ cdb <- setRefClass(
       list_variables(path = .self$path, dims = dims)
     },
     
+    # Get variable dimensions
+    get_dims = function(name) {
+        x <- list_variables(path = .self$path, dims = T)
+        x <- subset(x, variable == name)
+        return(x$dims)
+    },
+    
     # Get variable data
     get_variable = function(name) {
   
