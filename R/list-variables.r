@@ -7,7 +7,7 @@
 #' @param ... search_files() arguments
 #' 
 #' @export
-list_variables <- function(path = getwd(), dims = FALSE, ...) {
+list_variables <- function(path = getwd(), dims = F, ...) {
     files <- search_files(path = path, ...)
     
     # Extract variable names
@@ -23,7 +23,7 @@ list_variables <- function(path = getwd(), dims = FALSE, ...) {
             x <- gsub("\\[", "", x)
             x <- gsub("\\]", "", x)
             
-            #if(length(x) == 0) x <- NULL
+            if (length(x) == 0) x <- NULL
             return(x)
         })
         
@@ -36,6 +36,6 @@ list_variables <- function(path = getwd(), dims = FALSE, ...) {
         x <- vars
     }
     
-    if (dims == FALSE) x <- unique(x)
+    if (dims == F) x <- unique(x)
     return(x)
 }

@@ -2,7 +2,7 @@
 \alias{list_variables}
 \title{Get all variables}
 \usage{
-  list_variables(path = getwd(), dims = FALSE, ...)
+  list_variables(path = getwd(), dims = F, ...)
 }
 \arguments{
   \item{path}{Path}

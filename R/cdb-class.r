@@ -81,10 +81,10 @@ cdb <- setRefClass(
     },
     
     # Get variable data
-    get_variable = function(name) {
+    get_variable = function(name, dims = .self$dims) {
   
       # Get file path
-      cdb <- file_path(name, .self$path, .self$dims, ext = c("cdb.gz", "cdb"), create_dir = FALSE)
+      cdb <- file_path(name, .self$path, dims, ext = c("cdb.gz", "cdb"), create_dir = FALSE)
       
       # Connect to compressed/uncompressed file
       if (file.exists(cdb[1])) {
