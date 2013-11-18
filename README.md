@@ -145,10 +145,10 @@ The *dev* branch is the development branch, and might therefore be a bit unstabl
 
 Use the `makefile` to run tests and to build the package:
 
-- Build: `make build`
-- Install: `make install`
-- Check: `make check`
-- Test: `make test`
+- `make build`: to build the package
+- `make install`: to build and install the package
+- `make check`: to build and check (cran requirements) the package
+- `make test`: to run all package tests
 
 Where *Install* and *Check* first build the package and then run the subsequent procedure. The structure of this build and test procedure is inspired by the [pander](https://github.com/Rapporter/pander) - many thanks to its developers!
 
