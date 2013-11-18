@@ -23,7 +23,7 @@ list_variables <- function(path = getwd(), dims = F, ...) {
             x <- gsub("\\[", "", x)
             x <- gsub("\\]", "", x)
             
-            if (length(x) == 0) x <- NULL
+            #if (length(x) == 0) x <- NULL
             return(x)
         })
         

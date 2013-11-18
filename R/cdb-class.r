@@ -158,7 +158,7 @@ cdb <- setRefClass(
     },
     
     # Put variable data
-    put_variable = function(x, name = NULL, attrib = NULL, lookup = TRUE) {
+    put_variable = function(x, name = NULL, dims = .self$dims, attrib = NULL, lookup = TRUE) {
       
       # If x is a data frame it will recursively run put_variable over all columns
       if (is.data.frame(x)) {
@@ -166,6 +166,7 @@ cdb <- setRefClass(
           put_variable(
             x = x[[i]],
             name = i,
+            dims = dims,
             attrib = attrib,
             lookup = lookup
           )
@@ -259,7 +260,7 @@ cdb <- setRefClass(
         cdb <- file_path(
           name = name,
           path = .self$path,
-          dims = .self$dims,
+          dims = dims,
           ext = ext,
           create_dir = T
         )
@@ -346,7 +347,7 @@ setMethod(
       }
       
     } else {
-      v <- x$get_variable(i) #get_variable(name = i, path = x$path, dims = j, na = x$na)
+      v <- x$get_variable(name = i, dims = j)
       
       # Convert to character or factor (if requested)
       if (x$type %in% c("c", "f")) {
@@ -373,7 +374,7 @@ setMethod(
       put_variable_doc(x = to_yaml(value), name = i, path = x$path, file_name = .doc_file)
       
     } else {
-      x$put_variable(x = value, name = i)
+      x$put_variable(x = value, name = i, dims = j)
     }
     
     return(x)
