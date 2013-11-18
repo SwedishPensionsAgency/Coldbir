@@ -148,9 +148,9 @@ Use the `makefile` to run tests and to build the package:
 - `make build`: to build the package
 - `make install`: to build and install the package
 - `make check`: to build and check (cran requirements) the package
-- `make test`: to run all package tests
+- `make test`: to run the package tests
 
-Where *Install* and *Check* first build the package and then run the subsequent procedure. The structure of this build and test procedure is inspired by the [pander](https://github.com/Rapporter/pander) - many thanks to its developers!
+The `testthat` package is required to run the package tests and the related test code is available in `tests/testthat/`. The build/test structure of this package takes a lot of inspiration from the [pander](https://github.com/Rapporter/pander) package - many thanks to its developers!
 
 ## License
 
