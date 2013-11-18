@@ -1,11 +1,9 @@
-# devtools::test(".")
-
 path <- tempfile()
 size <- 1e3
+db <- cdb(path, log_level = 1)
 
 context("INITIALIZE DATABASE")
 ##############################
-db <- cdb(path, log_level = 1)
 test_that("init cdb", {
     expect_equal(path, db$path)
 })
@@ -59,6 +57,15 @@ test_that("put/get variable with dims = NULL", {
   expect_error(db["non-existing", dims])
   expect_equal(x, db["x", dims])
   expect_true(file.exists(file.path(db$path, "x", "data", "d.cdb.gz")))
+})
+
+context("DATASETS")
+###################
+x <- MASS::survey
+db[, "survey"] <- x
+test_that("get dataset", {
+  expect_equal(x, db[, "survey"])
+  expect_true()
 })
 
 # CLEAN UP

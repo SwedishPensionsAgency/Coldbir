@@ -69,7 +69,7 @@ cdb <- setRefClass(
     },
     
     # List all variables
-    get_vars = function(dims) {
+    get_vars = function(dims = F) {
       list_variables(path = .self$path, dims = dims)
     },
     
@@ -330,7 +330,7 @@ setMethod(
     
     if (missing(i) || is.vector(i) && length(i) > 1){
       if (missing(i)){
-        vars <- get_vars(a, dims = T)
+        vars <- x$get_vars(dims = T)
         fun <- function(x) isTRUE(all.equal(x, as.character(j)))
         i <- vars[sapply(vars$dims, fun)]$variable
       }
