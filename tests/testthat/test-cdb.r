@@ -65,12 +65,15 @@ x <- data.table(MASS::survey)
 
 # In addition we change the column names
 # to specifically test issue 49.
-setnames(x, c("Wr.Hnd", "NW.Hnd"), c("var", "x"))
+setnames(x, c("Wr.Hnd", "NW.Hnd", "Pulse"), c("var", "x", "z"))
 
 db[, "survey"] <- x
+
+# Order columns by name since the folders in the database
+setcolorder(x, sort(names(x)))
+
 test_that("get dataset", {
   expect_equal(x, db[, "survey"])
-  expect_true()
 })
 
 # CLEAN UP
