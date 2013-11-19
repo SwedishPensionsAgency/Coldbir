@@ -61,9 +61,20 @@ cdb <- setRefClass(
       }
     },
     
-    # Get variable documentation
+    #' Get variable documentation from disk
+    #'
+    #' Read documentation of a variable from disk.
+    #'
+    #' @param name Variable name
     get_doc = function(name) {
-      d <- get_variable_doc(name = name, path = .self$path, file_name = .doc_file)
+      
+      file <- file_path(name, .self$path, create_dir = F, file_name = T, data_folder = F)
+      
+      con <- file(file, "r")
+      lns <- readLines(con, n = -1, warn = FALSE)
+      close(con)
+      
+      d <- paste(lns, collapse = "\n")
       d <- yaml::yaml.load(d)
       return(d)
     },
