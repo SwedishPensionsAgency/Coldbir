@@ -2,9 +2,8 @@
 \alias{file_path}
 \title{Generate coldbir file path}
 \usage{
-  file_path(name, path, dims = NULL, ext,
-    create_dir = FALSE, file_name = TRUE,
-    data_folder = TRUE)
+  file_path(name, path, dims = NULL, ext = NULL,
+    create_dir = F, file_name = T, data_folder = T)
 }
 \arguments{
   \item{name}{Variable name}
