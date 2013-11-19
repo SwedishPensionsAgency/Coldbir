@@ -134,9 +134,14 @@ cdb <- setRefClass(
         
       ## logical
       } else if (header$type == "logical") {
-          x <- (x > 0L)
-          if (!is.na(.self$na)) 
-              x[is.na(x)] <- as.logical(.self$na)
+        # NA's are stored as -1, thus they are replaced with NA
+        x[x == -1L] <- NA
+        
+        # Replace 0/1 with TRUE/FALSE
+        x <- (x > 0L)
+        
+        if (!is.na(.self$na)) 
+          x[is.na(x)] <- as.logical(.self$na)
           
       ## Date
       } else if (header$type == "Date") {
@@ -219,9 +224,14 @@ cdb <- setRefClass(
         } else if (is.logical(x)) {
           header$type <- "logical"
           header$bytes <- 1L
-          if (any(is.na(x))) {
-            flog.warn("%s - logical vector; NA is converted to FALSE", name)
-          }
+          
+          # Replace integer value with NA,
+          # unless -2147483648 is in the range
+          x[is.na(x)] <- -1L
+          
+#           if (any(is.na(x))) {
+#             flog.warn("%s - logical vector; NA is converted to FALSE", name)
+#           }
               
         } else if ("POSIXt" %in% class(x)) {  # OBS: must be checked before is.double
           header$type <- "POSIXct"
@@ -253,7 +263,7 @@ cdb <- setRefClass(
           flog.error("%s - data type is not supported", name)
           stop()
         }
-          
+        
         ext <- if (.self$compress > 0) "cdb.gz" else "cdb"
         
         # Construct file path
