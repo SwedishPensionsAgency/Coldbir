@@ -61,6 +61,43 @@ cdb <- setRefClass(
       }
     },
     
+    #' Put variable documentation to disk
+    #'
+    #' Write documentation of a variable to disk.
+    #'
+    #' @param name Variable name
+    #' @param x Character string
+    #' 
+    put_doc = function(name, x) {
+      
+      f <- file_path(name, .self$path, create_dir = T, file_name = F, data_folder = F)
+      
+      write_doc <- function() {
+        # Write temporary doc file to disk
+        sink(tmp)
+        cat(x)
+        sink()
+        
+        # Rename temporary doc to real name (overwrite)
+        file.copy(tmp, f, overwrite = T)
+      }
+      
+      # Create temporary file
+      tmp <- create_temp_file(f)
+      
+      # Try to write doc file to disk
+      tryCatch(
+        write_doc(),
+        finally = file.remove(tmp),
+        error = function(e) {
+          flog.fatal("%s - writing failed; rollback! (%s)", name, e)
+        }
+      )
+      
+      flog.info(f)
+      return(T)
+    },
+    
     #' Get variable documentation from disk
     #'
     #' Read documentation of a variable from disk.
@@ -383,7 +420,7 @@ setMethod(
     if (missing(j)) j <- x$dims
     
     if (all(class(value) == "doc")) {
-      
+            
       # Create readme.json
       put_variable_doc(x = to_yaml(value), name = i, path = x$path, file_name = .doc_file)
       

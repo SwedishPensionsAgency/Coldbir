@@ -12,7 +12,7 @@
 #' 
 #' @export
 #'
-file_path <- function(name, path, dims = NULL, ext, create_dir = FALSE, file_name = TRUE, data_folder = TRUE) {
+file_path <- function(name, path, dims = NULL, ext = NULL, create_dir = F, file_name = T, data_folder = T) {
     
     folder_path <- if (data_folder) {
         file.path(path, name, "data")
