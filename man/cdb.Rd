@@ -23,6 +23,9 @@
 
   \item{log_file}{Log file. As default log messages will be
   written to console.}
+
+  \item{encoding}{set documentation encoding (default:
+  UTF-8)}
 }
 \description{
   Method to assign either a new or existing coldbir

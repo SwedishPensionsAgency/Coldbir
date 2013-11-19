@@ -62,6 +62,7 @@ setMethod(
     f = "to_yaml",
     signature = "doc",
     definition = function(object) {
-        yaml::as.yaml(object@lst)
+        # Use unicode = T to allow for UTF-8 characters
+        yaml::as.yaml(object@lst, unicode = T)
     }
 )

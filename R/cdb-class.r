@@ -10,6 +10,7 @@
 #' @param na Value representing missing values (default: NA_real_)
 #' @param log_level Log level (default: 4). Available levels: 1-9.
 #' @param log_file Log file. As default log messages will be written to console.
+#' @param encoding set documentation encoding (default: UTF-8)
 #' 
 #' @examples db <- cdb()
 #' @export
@@ -23,7 +24,8 @@ cdb <- setRefClass(
     log_level = "numeric",
     log_file = "character",
     dims = "ANY",
-    compress = "numeric"
+    compress = "numeric",
+    encoding = "character"
   ),
   methods = list(
     initialize = function(
@@ -33,7 +35,8 @@ cdb <- setRefClass(
         log_level = 4,
         log_file = "",
         dims = NULL,
-        compress = 5
+        compress = 5,
+        encoding = "UTF-8"
       ) {
       
       # Validate
@@ -50,6 +53,7 @@ cdb <- setRefClass(
       .self$log_file <- log_file
       .self$dims <- dims
       .self$compress <- compress
+      .self$encoding <- encoding
       
       # Set futile.logger options
       flog.threshold(log_level)
@@ -65,7 +69,7 @@ cdb <- setRefClass(
     #'
     #' Write documentation of a variable to disk.
     #'
-    #' @param x doc list
+    #' @param x documentation string
     #' @param name Variable name
     #' 
     put_doc = function(x, name) {
@@ -73,22 +77,17 @@ cdb <- setRefClass(
       f <- file_path(name, .self$path, create_dir = T, file_name = F, data_folder = F)
       f <- file.path(f, .doc_file)
       
-      write_doc <- function() {
-        # Write temporary doc file to disk
-        sink(tmp)
-        cat(to_yaml(x))
-        sink()
-        
-        # Rename temporary doc to real name (overwrite)
-        file.copy(tmp, f, overwrite = T)
-      }
-      
       # Create temporary file
       tmp <- create_temp_file(f)
       
-      # Try to write doc file to disk
       tryCatch(
-        write_doc(),
+        {
+          con <- file(tmp, encoding = .self$encoding)
+          writeLines(x, con)
+          close(con)
+          
+          file.copy(tmp, f, overwrite = T)
+        },
         finally = file.remove(tmp),
         error = function(e) {
           flog.fatal("%s - writing failed; rollback! (%s)", name, e)
@@ -109,7 +108,7 @@ cdb <- setRefClass(
       f <- file_path(name, .self$path, create_dir = F, file_name = F, data_folder = F)
       f <- file.path(f, .doc_file)
       
-      con <- file(f, "r")
+      con <- file(f, "r", encoding = .self$encoding)
       lns <- readLines(con, n = -1, warn = FALSE)
       close(con)
       
@@ -424,7 +423,7 @@ setMethod(
     if (all(class(value) == "doc")) {
             
       # Create readme.json
-      x$put_doc(x = value, name = i)
+      x$put_doc(x = to_yaml(value), name = i)
       
     } else {
       x$put_variable(x = value, name = i, dims = j)

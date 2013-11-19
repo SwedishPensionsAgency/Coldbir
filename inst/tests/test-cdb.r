@@ -31,7 +31,7 @@ test_that("POSIXct", {
 
 context("VARIABLE DOCUMENTATION")
 #################################
-x <- list(a = "text", b = list(c = 1, d = 2))
+x <- list(a = "text", b = list(c = 1, d = 2), c = "åäö")
 db["x"] <- doc(x)
 test_that("get documentation", {
     expect_error(db["non-existing"])
