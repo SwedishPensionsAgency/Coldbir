@@ -27,14 +27,14 @@ cdb <- setRefClass(
   ),
   methods = list(
     initialize = function(
-        path = getwd(),
-        type = "f",
-        na = NA_real_, 
-        log_level = 4,
-        log_file = "",
-        dims = NULL,
-        compress = 5
-      ) {
+      path = getwd(),
+      type = "f",
+      na = NA_real_, 
+      log_level = 4,
+      log_file = "",
+      dims = NULL,
+      compress = 5
+    ) {
       
       # Validate
       types <- c("c", "f", "n")
@@ -75,9 +75,9 @@ cdb <- setRefClass(
     
     # Get variable dimensions
     get_dims = function(name) {
-        x <- list_variables(path = .self$path, dims = T)
-        x <- subset(x, variable == name)
-        return(x$dims)
+      x <- list_variables(path = .self$path, dims = T)
+      x <- subset(x, variable == name)
+      return(x$dims)
     },
     
     # Get variable data
@@ -88,14 +88,14 @@ cdb <- setRefClass(
       
       # Connect to compressed/uncompressed file
       if (file.exists(cdb[1])) {
-          bin_file <- gzfile(cdb[1], "rb")
+        bin_file <- gzfile(cdb[1], "rb")
           
       } else if (file.exists(cdb[2])) {
-          bin_file <- file(cdb[2], "rb")
+        bin_file <- file(cdb[2], "rb")
           
       } else {
-          flog.error("%s - file does not exist", name)
-          stop()
+        flog.error("%s - file does not exist", name)
+        stop()
       }
       
       header_len <- readBin(bin_file, integer(), n = 1, size = 8)
@@ -105,32 +105,32 @@ cdb <- setRefClass(
       vector_len <- readBin(bin_file, integer(), n = 1, size = 8)
       
       if (header$bytes <= 4) {
-          x <- readBin(bin_file, integer(), n = vector_len, size = header$bytes)
+        x <- readBin(bin_file, integer(), n = vector_len, size = header$bytes)
       } else {
-          x <- readBin(bin_file, double(), n = vector_len)
+        x <- readBin(bin_file, double(), n = vector_len)
       }
       
       close(bin_file)
       
       # Check if using an old version of colbir
       if (header$db_ver != as.integer(.database_version)) {
-          flog.error("%s - version of coldbir package and file format does not match", name)
-          stop()
+        flog.error("%s - version of coldbir package and file format does not match", name)
+        stop()
       }
   
       # Prepare data depending on vector type
       
       ## integer or factor
       if (header$type %in% c("integer", "factor")) {
-          if (!is.na(.self$na)) 
-              x[is.na(x)] <- as.integer(.self$na)
+        if (!is.na(.self$na)) 
+          x[is.na(x)] <- as.integer(.self$na)
       
       ## double
       } else if (header$type == "double") {
-          if (!is.null(header$exponent)) 
-              x <- x / 10^header$exponent
-          if (!is.na(.self$na))
-              x[is.na(x)] <- as.double(.self$na)
+        if (!is.null(header$exponent)) 
+          x <- x / 10^header$exponent
+        if (!is.na(.self$na))
+          x[is.na(x)] <- as.double(.self$na)
         
       ## logical
       } else if (header$type == "logical") {
@@ -140,23 +140,23 @@ cdb <- setRefClass(
         # Replace 0/1 with TRUE/FALSE
         x <- (x > 0L)
         
-        if (!is.na(.self$na)) 
+        if (!is.na(.self$na))
           x[is.na(x)] <- as.logical(.self$na)
           
       ## Date
       } else if (header$type == "Date") {
-          origin <- "1970-01-01"
-          x <- as.Date(x, origin = origin)
-          
+        origin <- "1970-01-01"
+        x <- as.Date(x, origin = origin)
+        
       ## POSIXt
       } else if (header$type %in% c("POSIXct", "POSIXlt")) {
-          origin <- as.POSIXct("1970-01-01 00:00:00", tz = .tzone)
-          x <- as.POSIXct(x, tz = .tzone, origin = origin)
+        origin <- as.POSIXct("1970-01-01 00:00:00", tz = .tzone)
+        x <- as.POSIXct(x, tz = .tzone, origin = origin)
       }
       
       # Add attributes to vector
       if (!is.null(header$attributes)) {
-          attributes(x) <- c(attributes(x), header$attributes)
+        attributes(x) <- c(attributes(x), header$attributes)
       }
       
       return(x)
@@ -229,27 +229,23 @@ cdb <- setRefClass(
           # unless -2147483648 is in the range
           x[is.na(x)] <- -1L
           
-#           if (any(is.na(x))) {
-#             flog.warn("%s - logical vector; NA is converted to FALSE", name)
-#           }
-              
         } else if ("POSIXt" %in% class(x)) {  # OBS: must be checked before is.double
           header$type <- "POSIXct"
           header$bytes <- 8L  # save as double
-  
+          
           x <- lubridate::force_tz(x, .tzone)  # convert to GMT
           x <- as.double(x)  # convert to double
-  
+          
         } else if ("Date" %in% class(x)) {
           header$type <- "Date"
           header$bytes <- 8L
-  
+          
         } else if (is.factor(x) || is.character(x)) {
           if (is.character(x)) {
             x <- as.factor(x)
             flog.warn("%s - character converted to factor", name)
           }
-              
+          
           if (lookup) {
             values <- levels(x)
             lt <- data.frame(key = 1:length(values), value = values)
