@@ -1,6 +1,6 @@
 path <- tempfile()
 size <- 1e3
-db <- cdb(path, log_level = 1)
+db <- cdb(path, log_level = 1, read_only = F)
 
 context("INITIALIZE DATABASE")
 ##############################
@@ -105,6 +105,17 @@ setcolorder(x, sort(names(x)))
 test_that("get dataset", {
   expect_equal(x, db[, "survey"])
 })
+
+context("READ ONLY")
+####################
+db$read_only <- T
+test_that("put variable", {
+  expect_error({ db["read_only"] <- 1:10})
+})
+test_that("put docs", {
+  expect_error({ db["read_only"] <- doc(a = 1, b = 2) })
+})
+db$read_only <- F
 
 # CLEAN UP
 system(sprintf("rm -r %s", path))

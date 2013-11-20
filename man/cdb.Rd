@@ -25,6 +25,8 @@
   written to console.}
 
   \item{compress}{file compression level}
+
+  \item{read_only}{read only (default: T)}
 }
 \description{
   Method to assign either a new or existing coldbir

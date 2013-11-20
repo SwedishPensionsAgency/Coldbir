@@ -11,6 +11,7 @@
 #' @param log_level Log level (default: 4). Available levels: 1-9.
 #' @param log_file Log file. As default log messages will be written to console.
 #' @param compress file compression level
+#' @param read_only read only (default: T)
 #' 
 #' @examples db <- cdb()
 #' @export
@@ -23,7 +24,8 @@ cdb <- setRefClass(
     log_level = "numeric",
     log_file = "character",
     dims = "ANY",
-    compress = "numeric"
+    compress = "numeric",
+    read_only = "logical"
   ),
   methods = list(
     initialize = function(
@@ -33,7 +35,8 @@ cdb <- setRefClass(
       log_level = 4,
       log_file = "",
       dims = NULL,
-      compress = 5
+      compress = 5,
+      read_only = T
     ) {
       
       # Validate
@@ -50,6 +53,7 @@ cdb <- setRefClass(
       .self$log_file <- log_file
       .self$dims <- dims
       .self$compress <- compress
+      .self$read_only <- read_only
       
       # Set futile.logger options
       flog.threshold(log_level)
@@ -164,6 +168,8 @@ cdb <- setRefClass(
     
     # Put variable data
     put_variable = function(x, name = NULL, dims = .self$dims, attrib = NULL, lookup = TRUE) {
+      
+      if (read_only) stop("You're only allowed to read data, to change this use cdb(..., read_only = F)")
       
       # If x is a data frame it will recursively run put_variable over all columns
       if (is.data.frame(x)) {
@@ -397,6 +403,7 @@ setMethod(
   signature = "cdb",
   definition = function(x, i, j, value){
     if (missing(j)) j <- x$dims
+    if (x$read_only) stop("You're only allowed to read data, to change this use cdb(..., read_only = F)")
     
     if (all(class(value) == "doc")) {
       
