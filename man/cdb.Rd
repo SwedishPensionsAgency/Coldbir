@@ -23,6 +23,8 @@
 
   \item{log_file}{Log file. As default log messages will be
   written to console.}
+
+  \item{compress}{file compression level}
 }
 \description{
   Method to assign either a new or existing coldbir

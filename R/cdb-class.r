@@ -10,6 +10,7 @@
 #' @param na Value representing missing values (default: NA_real_)
 #' @param log_level Log level (default: 4). Available levels: 1-9.
 #' @param log_file Log file. As default log messages will be written to console.
+#' @param compress file compression level
 #' 
 #' @examples db <- cdb()
 #' @export
@@ -325,8 +326,14 @@ cdb <- setRefClass(
   )
 )
 
-#' "["-method (overloading)
+#' Extract content from variable
 #' 
+#' Function to extract data content from a Coldbir variable.
+#' Overloads the `[`-method.
+#' 
+#' @param x cdb object
+#' @param i variable name
+#' @param j variable dims
 setMethod(
   f = "[",
   signature = "cdb",
@@ -369,8 +376,15 @@ setMethod(
   }
 )
 
-#' "[<-"-method (overloading)
+#' Assign content to variable 
 #' 
+#' Function to assign content, either data or documentation,
+#' to a Coldbir variable. Overloads the `[<-`-method.
+#' 
+#' @param x cdb object
+#' @param i variable name
+#' @param j variable dims
+#' @param value value
 setMethod(
   f = "[<-",
   signature = "cdb",
@@ -389,5 +403,3 @@ setMethod(
     return(x)
   }
 )
-
-

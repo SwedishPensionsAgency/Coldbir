@@ -6,7 +6,7 @@ Date: 2013-08-12
 Author: Danne Mikula, Thomas Reinholdsson
 Maintainer: Thomas Reinholdsson <reinholdsson@gmail.com>
 Description: ...
-License: AGPLv3
+License: AGPL-3
 Depends:
     data.table (>= 1.8.8),
     RJSONIO (>= 1.0-3),
