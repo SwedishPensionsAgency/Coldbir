@@ -1,7 +1,6 @@
 \docType{methods}
-\name{[}
-\alias{[}
-\alias{[,cdb-method}
+\name{`[`}
+\alias{`[`}
 \title{Extract content from variable}
 \arguments{
   \item{x}{cdb object}

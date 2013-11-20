@@ -1,7 +1,6 @@
 \docType{methods}
-\name{[<-}
-\alias{[<-}
-\alias{[<-,cdb-method}
+\name{`[<-`}
+\alias{`[<-`}
 \title{Assign content to variable}
 \arguments{
   \item{x}{cdb object}

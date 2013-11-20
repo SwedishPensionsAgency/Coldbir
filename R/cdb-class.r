@@ -334,8 +334,7 @@ cdb <- setRefClass(
 #' @param i variable name
 #' @param j variable dims
 #' 
-#' @name [
-#' @aliases [,cdb-method
+#' @name `[`
 #' @docType methods
 #' @rdname extract-methods
 setMethod(
@@ -390,8 +389,7 @@ setMethod(
 #' @param j variable dims
 #' @param value value
 #'
-#' @name [<-
-#' @aliases [<-,cdb-method
+#' @name `[<-`
 #' @docType methods
 #' @rdname replace-methods
 setMethod(
