@@ -14,7 +14,6 @@
 #' 
 #' @examples db <- cdb()
 #' @export
-#'
 cdb <- setRefClass(
   "cdb",
   fields = list(
@@ -334,6 +333,11 @@ cdb <- setRefClass(
 #' @param x cdb object
 #' @param i variable name
 #' @param j variable dims
+#' 
+#' @name [
+#' @aliases [,cdb-method
+#' @docType methods
+#' @rdname extract-methods
 setMethod(
   f = "[",
   signature = "cdb",
@@ -385,6 +389,11 @@ setMethod(
 #' @param i variable name
 #' @param j variable dims
 #' @param value value
+#'
+#' @name [<-
+#' @aliases [<-,cdb-method
+#' @docType methods
+#' @rdname replace-methods
 setMethod(
   f = "[<-",
   signature = "cdb",

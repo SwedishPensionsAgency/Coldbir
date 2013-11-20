@@ -2,6 +2,7 @@
 \alias{to_yaml}
 \title{Convert doc to yaml}
 \description{
-  Convert doc to yaml
+  Method to convert a docs object to a yaml character
+  string
 }
 
