@@ -34,6 +34,19 @@ test_that("double", {
     expect_equal(x, db["double"])
 })
 
+x <- sample(LETTERS, size, replace = T)
+db["char"] <- x
+test_that("char", {
+  expect_equal(as.factor(x), db["char"])
+})
+
+# Test if escape characters works
+x <- c("a\n", "\tc\v\n", "d\a\vx\ry\f\tz")
+db["escape_char"] <- x
+test_that("escape_char", {
+  expect_equal(as.factor(escape_char(x)), db["escape_char"])
+})
+
 x <- .POSIXct(runif(size) * unclass(Sys.time()))
 db["POSIXct"] <- x
 test_that("POSIXct", {

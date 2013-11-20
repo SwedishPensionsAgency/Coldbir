@@ -9,22 +9,29 @@
 #' 
 #' @export
 #'
-put_lookup <- function(df, name, path = getwd(), create_dir = TRUE) {
+put_lookup <- function(df, name, path = getwd(), create_dir = T) {
     
     if (!is.data.frame(df) || ncol(df) != 2) 
         stop("input must be a two-column data frame")
     
-    colnames(df) <- c("key", "value")
+    if (is.data.table(df)) {
+      setnames(df, c("key", "value"))
+    } else {
+      colnames(df) <- c("key", "value")
+    }
     
-    folder_path <- file_path(name, path, create_dir = create_dir, file_name = FALSE, data_folder = FALSE)
+    # Escape characters
+    df$value <- escape_char(df$value)
+    
+    folder_path <- file_path(name, path, create_dir = create_dir, file_name = F, data_folder = F)
     f <- file.path(folder_path, .lookup_filename)
-
+    
     write_lookup <- function() {
         # Write temporary doc file to disk
-        write.table(df, file = tmp, quote = FALSE, row.names = FALSE, sep = "\t")
+        write.table(df, file = tmp, quote = F, row.names = F, sep = "\t")
         
         # Rename temporary doc to real name (overwrite)
-        file.copy(tmp, f, overwrite = TRUE)
+        file.copy(tmp, f, overwrite = T)
     }    
     
     # Create temporary file

@@ -34,3 +34,4 @@ Collate:
     'Coldbir.r'
     'search-files.r'
     'list-variables.r'
+    'utils.r'
