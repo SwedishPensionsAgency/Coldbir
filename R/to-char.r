@@ -8,7 +8,6 @@
 #'
 #' @export
 to_char <- function(x, ..., factors = FALSE) {
-    
     df <- get_lookup(...)
 
     if (!is.null(df)) {
