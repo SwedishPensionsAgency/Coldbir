@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Coldbir by SthlmR</title>
+    <title>Coldbir by SwedishPensionsAgency</title>
 
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
@@ -18,13 +18,13 @@
         <h1>Coldbir</h1>
         <p>Column database in R</p>
 
-        <p class="view"><a href="https://github.com/SthlmR/Coldbir">View the Project on GitHub <small>SthlmR/Coldbir</small></a></p>
+        <p class="view"><a href="https://github.com/SwedishPensionsAgency/Coldbir">View the Project on GitHub <small>SwedishPensionsAgency/Coldbir</small></a></p>
 
 
         <ul>
-          <li><a href="https://github.com/SthlmR/Coldbir/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/SthlmR/Coldbir/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/SthlmR/Coldbir">View On <strong>GitHub</strong></a></li>
+          <li><a href="https://github.com/SwedishPensionsAgency/Coldbir/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/SwedishPensionsAgency/Coldbir/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/SwedishPensionsAgency/Coldbir">View On <strong>GitHub</strong></a></li>
         </ul>
       </header>
       <section>
@@ -32,28 +32,30 @@
 
 <p>The project is currently maintained by Thomas Reinholdsson (<a href="mailto:reinholdsson@gmail.com">reinholdsson@gmail.com</a>).</p>
 
-<h2>Installation</h2>
+<h2>
+<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h2>
 
-<p>Use <code>devtools</code> for easy installation</p>
+<p>Use <code>devtools</code> for easy installation:</p>
 
-<pre><code>devtools::install_github('Coldbir', 'SthlmR', 'v0.3')
+<pre><code>devtools::install_github('Coldbir', 'SthlmR')
 </code></pre>
 
-<h2>Introduction</h2>
+<h2>
+<a name="introduction" class="anchor" href="#introduction"><span class="octicon octicon-link"></span></a>Introduction</h2>
 
 <p>First, make sure to load the package with <code>library(Coldbir)</code>.</p>
 
-<p>Then the next step is to decide where the database is to be saved, or where it already exists:</p>
+<p>Then, to decide where the database is to be saved, or whether it already exists, do:</p>
 
 <pre><code>a &lt;- cdb('database_path')
 </code></pre>
 
-<p>To save data to the database one simply write:</p>
+<p>To save data to the database, simply write:</p>
 
 <pre><code>a['foo'] &lt;- 1:10
 </code></pre>
 
-<p>and to get the variable:</p>
+<p>and to get a variable:</p>
 
 <pre><code>b &lt;- a['foo']
 </code></pre>
@@ -68,7 +70,8 @@
 <pre><code>b &lt;- a['Pulse']
 </code></pre>
 
-<h3>Data types</h3>
+<h3>
+<a name="data-types" class="anchor" href="#data-types"><span class="octicon octicon-link"></span></a>Data types</h3>
 
 <p>Currently supported data types:</p>
 
@@ -79,9 +82,11 @@
 <li><code>factor</code></li>
 <li><code>Date</code></li>
 <li>
-<code>POSIXct</code> / <code>POSIXlt</code>
-</li>
-</ul><h3>Variable documentation</h3>
+<code>POSIXct</code> / <code>POSIXlt</code> ** <strong>EXPERIMENTAL</strong> **</li>
+</ul><p>Timezones are not supported. All timestamps are written as <code>GMT</code> without timezone conversion. E.g. <code>2013-04-29 01:00:00 CST</code> is stored (and returned) as <code>2013-04-29 01:00:00 GMT</code>. <code>POSIXlt</code> is automatically converted to <code>POSIXct</code>.</p>
+
+<h3>
+<a name="variable-documentation" class="anchor" href="#variable-documentation"><span class="octicon octicon-link"></span></a>Variable documentation</h3>
 
 <p>An additional feature is to add documentation to a variable. </p>
 
@@ -106,7 +111,8 @@ d$Info$Stats
 # [1] "The minimum value is 1"
 </code></pre>
 
-<h3>File structure</h3>
+<h3>
+<a name="file-structure" class="anchor" href="#file-structure"><span class="octicon octicon-link"></span></a>File structure</h3>
 
 <p>The coldbir database consists of folders where each folder represent a variable. 
 Each variable may have several dimensions, e.g. months and years. 
@@ -132,11 +138,14 @@ Below is an example of a database, named <em>mydb</em>, with a couple of variabl
 
 <p>The <code>doc.json</code> includes the variable documentation that is read with <code>get_doc()</code> method. <code>readme.md</code> includes the same information but in markdown.</p>
 
-<h2>Examples</h2>
+<h2>
+<a name="examples" class="anchor" href="#examples"><span class="octicon octicon-link"></span></a>Examples</h2>
 
-<h3>Example: Survey data</h3>
+<h3>
+<a name="example-survey-data" class="anchor" href="#example-survey-data"><span class="octicon octicon-link"></span></a>Example: Survey data</h3>
 
-<h4>Write data and documentation</h4>
+<h4>
+<a name="write-data-and-documentation" class="anchor" href="#write-data-and-documentation"><span class="octicon octicon-link"></span></a>Write data and documentation</h4>
 
 <p>Link to database</p>
 
@@ -163,7 +172,8 @@ a["Pulse"] &lt;- doc(
     )
 </code></pre>
 
-<h4>How to use</h4>
+<h4>
+<a name="how-to-use" class="anchor" href="#how-to-use"><span class="octicon octicon-link"></span></a>How to use</h4>
 
 <p>Scatter plot</p>
 
@@ -179,16 +189,18 @@ a["Pulse"] &lt;- doc(
 hist(a["Pulse"], main = paste("Histogram of", d$title), xlab = d$title, sub = d$description)
 </code></pre>
 
-<h2>Development</h2>
+<h2>
+<a name="development" class="anchor" href="#development"><span class="octicon octicon-link"></span></a>Development</h2>
 
-<p>The <em>master</em> branch is the development branch, and might therefore be a bit instable. Stable releases are marked with tags, e.g. v1.0, where the first number represents a new stable release and the second number imply new bug fixes within the given release version.</p>
+<p>The <em>dev</em> branch is the development branch, and might therefore be a bit instable. Stable releases are marked with tags, e.g. v1.0, where the first number represents a new stable release and the second number imply new bug fixes within the given release version.</p>
 
-<h2>License</h2>
+<h2>
+<a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h2>
 
 <p>Coldbir is licensed under the AGPLv3, the terms of which are included in the file LICENSE.</p>
       </section>
       <footer>
-        <p>This project is maintained by <a href="https://github.com/SthlmR">SthlmR</a></p>
+        <p>This project is maintained by <a href="https://github.com/SwedishPensionsAgency">SwedishPensionsAgency</a></p>
         <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
       </footer>
     </div>
