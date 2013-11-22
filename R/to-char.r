@@ -7,7 +7,6 @@
 #' @param factors If vector should be returned as factors, default is FALSE.
 #'
 #' @export
-#'
 to_char <- function(x, ..., factors = FALSE) {
     
     df <- get_lookup(...)
@@ -18,6 +17,5 @@ to_char <- function(x, ..., factors = FALSE) {
             x <- as.character(x) 
         }
     }
-    
     return(x)
 }
