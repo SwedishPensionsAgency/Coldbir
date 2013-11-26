@@ -13,7 +13,7 @@ install: build
 
 check: build
 	cd ..;\
-	R CMD check $(PKGNAME)_$(PKGVERS).tar.gz --as-cran
+	R CMD check $(PKGNAME)_$(PKGVERS).tar.gz
 
 test:
 	Rscript -e 'library(Coldbir);library(testthat);test_package("Coldbir")'
