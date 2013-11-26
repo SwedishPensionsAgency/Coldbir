@@ -7,7 +7,6 @@
 #' 
 #' @export
 search_files <- function(path = getwd(), ext = "gz") {
-    require(tools)
     files <- list.files(path, recursive = TRUE, full.names = TRUE)
-    Filter(function(x) tolower(file_ext(x)) %in% ext, files)
+    Filter(function(x) tolower(tools::file_ext(x)) %in% ext, files)
 }
