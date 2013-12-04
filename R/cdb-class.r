@@ -359,7 +359,6 @@ setMethod(
       
     } else {
       v <- x$get_variable(name = i, dims = j, na = na)
-      
     }
     
     return(v)

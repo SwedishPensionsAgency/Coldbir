@@ -89,6 +89,20 @@ test_that("non-existing dimensions", {
   expect_error(db["non-existing", dims])
 })
 
+context("REPLACE NA")
+#####################
+x <- c(1, NA, 3)
+db["int_NA"] <- x
+test_that("integer replaces NA", {
+    expect_equal(1:3, db["int_NA", na = 2])
+})
+
+x <- c("a", NA)
+db["char_NA"] <- x
+test_that("character replaces NA", {
+    expect_equal(as.factor(c("a", "b")), db["char_NA", na = "b"])
+})
+
 context("DATASETS")
 ###################
 x <- data.table(MASS::survey)
