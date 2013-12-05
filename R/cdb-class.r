@@ -117,7 +117,7 @@ cdb <- setRefClass(
       close(con)
       
       d <- paste(lns, collapse = "\n")
-      d <- yaml::yaml.load(d)
+      d <- RJSONIO::fromJSON(d)
       return(d)
     },
     
