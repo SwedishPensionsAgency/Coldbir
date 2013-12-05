@@ -51,6 +51,6 @@ setMethod(
     f = "to_json",
     signature = "doc",
     definition = function(object) {
-        RJSONIO::toJSON(object@lst)
+        RJSONIO::toJSON(object@lst, pretty = T, asIs = T)
     }
 )
