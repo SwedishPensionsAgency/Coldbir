@@ -10,11 +10,12 @@
 #' @param na Value representing missing values (default: NA_real_)
 #' @param log_level Log level (default: 4). Available levels: 1-9.
 #' @param log_file Log file. As default log messages will be written to console.
+#' @param compress file compression level
 #' @param encoding set documentation encoding (default: UTF-8)
+#' @param read_only read only (default: T)
 #' 
 #' @examples db <- cdb()
 #' @export
-#'
 cdb <- setRefClass(
   "cdb",
   fields = list(
@@ -25,19 +26,21 @@ cdb <- setRefClass(
     log_file = "character",
     dims = "ANY",
     compress = "numeric",
-    encoding = "character"
+    encoding = "character",
+    read_only = "logical"
   ),
   methods = list(
     initialize = function(
-        path = getwd(),
-        type = "f",
-        na = NA_real_, 
-        log_level = 4,
-        log_file = "",
-        dims = NULL,
-        compress = 5,
-        encoding = "UTF-8"
-      ) {
+      path = getwd(),
+      type = "f",
+      na = NA_real_, 
+      log_level = 4,
+      log_file = "",
+      dims = NULL,
+      compress = 5,
+      encoding = "UTF-8",
+      read_only = T
+    ) {
       
       # Validate
       types <- c("c", "f", "n")
@@ -54,6 +57,7 @@ cdb <- setRefClass(
       .self$dims <- dims
       .self$compress <- compress
       .self$encoding <- encoding
+      .self$read_only <- read_only
       
       # Set futile.logger options
       flog.threshold(log_level)
@@ -124,9 +128,9 @@ cdb <- setRefClass(
     
     # Get variable dimensions
     get_dims = function(name) {
-        x <- list_variables(path = .self$path, dims = T)
-        x <- subset(x, variable == name)
-        return(x$dims)
+      x <- list_variables(path = .self$path, dims = T)
+      x <- subset(x, variable == name)
+      return(x$dims)
     },
     
     # Get variable data
@@ -137,14 +141,14 @@ cdb <- setRefClass(
       
       # Connect to compressed/uncompressed file
       if (file.exists(cdb[1])) {
-          bin_file <- gzfile(cdb[1], "rb")
+        bin_file <- gzfile(cdb[1], "rb")
           
       } else if (file.exists(cdb[2])) {
-          bin_file <- file(cdb[2], "rb")
+        bin_file <- file(cdb[2], "rb")
           
       } else {
-          flog.error("%s - file does not exist", name)
-          stop()
+        flog.error("%s - file does not exist", name)
+        stop()
       }
       
       header_len <- readBin(bin_file, integer(), n = 1, size = 8)
@@ -154,53 +158,58 @@ cdb <- setRefClass(
       vector_len <- readBin(bin_file, integer(), n = 1, size = 8)
       
       if (header$bytes <= 4) {
-          x <- readBin(bin_file, integer(), n = vector_len, size = header$bytes)
+        x <- readBin(bin_file, integer(), n = vector_len, size = header$bytes)
       } else {
-          x <- readBin(bin_file, double(), n = vector_len)
+        x <- readBin(bin_file, double(), n = vector_len)
       }
       
       close(bin_file)
       
       # Check if using an old version of colbir
       if (header$db_ver != as.integer(.database_version)) {
-          flog.error("%s - version of coldbir package and file format does not match", name)
-          stop()
+        flog.error("%s - version of coldbir package and file format does not match", name)
+        stop()
       }
   
       # Prepare data depending on vector type
       
       ## integer or factor
       if (header$type %in% c("integer", "factor")) {
-          if (!is.na(.self$na)) 
-              x[is.na(x)] <- as.integer(.self$na)
+        if (!is.na(.self$na)) 
+          x[is.na(x)] <- as.integer(.self$na)
       
       ## double
       } else if (header$type == "double") {
-          if (!is.null(header$exponent)) 
-              x <- x / 10^header$exponent
-          if (!is.na(.self$na))
-              x[is.na(x)] <- as.double(.self$na)
+        if (!is.null(header$exponent)) 
+          x <- x / 10^header$exponent
+        if (!is.na(.self$na))
+          x[is.na(x)] <- as.double(.self$na)
         
       ## logical
       } else if (header$type == "logical") {
-          x <- (x > 0L)
-          if (!is.na(.self$na)) 
-              x[is.na(x)] <- as.logical(.self$na)
+        # NA's are stored as -1, thus they are replaced with NA
+        x[x == -1L] <- NA
+        
+        # Replace 0/1 with TRUE/FALSE
+        x <- (x > 0L)
+        
+        if (!is.na(.self$na))
+          x[is.na(x)] <- as.logical(.self$na)
           
       ## Date
       } else if (header$type == "Date") {
-          origin <- "1970-01-01"
-          x <- as.Date(x, origin = origin)
-          
+        origin <- "1970-01-01"
+        x <- as.Date(x, origin = origin)
+        
       ## POSIXt
       } else if (header$type %in% c("POSIXct", "POSIXlt")) {
-          origin <- as.POSIXct("1970-01-01 00:00:00", tz = .tzone)
-          x <- as.POSIXct(x, tz = .tzone, origin = origin)
+        origin <- as.POSIXct("1970-01-01 00:00:00", tz = .tzone)
+        x <- as.POSIXct(x, tz = .tzone, origin = origin)
       }
       
       # Add attributes to vector
       if (!is.null(header$attributes)) {
-          attributes(x) <- c(attributes(x), header$attributes)
+        attributes(x) <- c(attributes(x), header$attributes)
       }
       
       return(x)
@@ -208,6 +217,8 @@ cdb <- setRefClass(
     
     # Put variable data
     put_variable = function(x, name = NULL, dims = .self$dims, attrib = NULL, lookup = TRUE) {
+      
+      if (read_only) stop("You're only allowed to read data, to change this use cdb(..., read_only = F)")
       
       # If x is a data frame it will recursively run put_variable over all columns
       if (is.data.frame(x)) {
@@ -268,27 +279,28 @@ cdb <- setRefClass(
         } else if (is.logical(x)) {
           header$type <- "logical"
           header$bytes <- 1L
-          if (any(is.na(x))) {
-            flog.warn("%s - logical vector; NA is converted to FALSE", name)
-          }
-              
+          
+          # Replace integer value with NA,
+          # unless -2147483648 is in the range
+          x[is.na(x)] <- -1L
+          
         } else if ("POSIXt" %in% class(x)) {  # OBS: must be checked before is.double
           header$type <- "POSIXct"
           header$bytes <- 8L  # save as double
-  
+          
           x <- lubridate::force_tz(x, .tzone)  # convert to GMT
           x <- as.double(x)  # convert to double
-  
+          
         } else if ("Date" %in% class(x)) {
           header$type <- "Date"
           header$bytes <- 8L
-  
+          
         } else if (is.factor(x) || is.character(x)) {
           if (is.character(x)) {
             x <- as.factor(x)
             flog.warn("%s - character converted to factor", name)
           }
-              
+          
           if (lookup) {
             values <- levels(x)
             lt <- data.frame(key = 1:length(values), value = values)
@@ -302,7 +314,7 @@ cdb <- setRefClass(
           flog.error("%s - data type is not supported", name)
           stop()
         }
-          
+        
         ext <- if (.self$compress > 0) "cdb.gz" else "cdb"
         
         # Construct file path
@@ -368,8 +380,18 @@ cdb <- setRefClass(
   )
 )
 
-#' "["-method (overloading)
+#' Extract content from variable
 #' 
+#' Function to extract data content from a Coldbir variable.
+#' Overloads the `[`-method.
+#' 
+#' @param x cdb object
+#' @param i variable name
+#' @param j variable dims
+#' 
+#' @name `[`
+#' @docType methods
+#' @rdname extract-methods
 setMethod(
   f = "[",
   signature = "cdb",
@@ -412,13 +434,25 @@ setMethod(
   }
 )
 
-#' "[<-"-method (overloading)
+#' Assign content to variable 
 #' 
+#' Function to assign content, either data or documentation,
+#' to a Coldbir variable. Overloads the `[<-`-method.
+#' 
+#' @param x cdb object
+#' @param i variable name
+#' @param j variable dims
+#' @param value value
+#'
+#' @name `[<-`
+#' @docType methods
+#' @rdname replace-methods
 setMethod(
   f = "[<-",
   signature = "cdb",
   definition = function(x, i, j, value){
     if (missing(j)) j <- x$dims
+    if (x$read_only) stop("You're only allowed to read data, to change this use cdb(..., read_only = F)")
     
     if (all(class(value) == "doc")) {
             
@@ -432,5 +466,3 @@ setMethod(
     return(x)
   }
 )
-
-

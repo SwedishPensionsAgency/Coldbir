@@ -24,8 +24,12 @@
   \item{log_file}{Log file. As default log messages will be
   written to console.}
 
+  \item{compress}{file compression level}
+
   \item{encoding}{set documentation encoding (default:
   UTF-8)}
+
+  \item{read_only}{read only (default: T)}
 }
 \description{
   Method to assign either a new or existing coldbir

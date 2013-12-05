@@ -2,7 +2,7 @@
 \alias{put_lookup}
 \title{Write lookup table to disk}
 \usage{
-  put_lookup(df, name, path = getwd(), create_dir = TRUE)
+  put_lookup(df, name, path = getwd(), create_dir = T)
 }
 \arguments{
   \item{df}{Two-column data frame with keys and values}

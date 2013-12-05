@@ -1,6 +1,6 @@
 path <- tempfile()
 size <- 1e3
-db <- cdb(path, log_level = 1)
+db <- cdb(path, log_level = 1, read_only = F)
 
 context("INITIALIZE DATABASE")
 ##############################
@@ -10,17 +10,41 @@ test_that("init cdb", {
 
 context("VARIABLE TYPES")
 #########################
-x <- sample(c(0, 1, 10000, .Machine$integer.max, NA), size, replace = TRUE)
+x <- sample(c(T, F), size, replace = T)
+db["boolean"] <- x
+test_that("boolean", {
+    expect_equal(x, db["boolean"])
+})
+
+x <- sample(c(T, F, NA), size, replace = T)
+db["boolean_NA"] <- x
+test_that("boolean_NA", {
+    expect_equal(x, db["boolean_NA"])
+})
+
+x <- sample(c(0, 1, 10000, .Machine$integer.max, NA), size, replace = T)
 db["integer"] <- x
 test_that("integer", {
-    expect_error(db["non-existing"])
     expect_equal(x, db["integer"])
 })
 
-x <- sample(c(-100, -50, 0, 50, 100, NA), size, replace = TRUE)
+x <- sample(c(-100, -50, 0, 50, 100, NA), size, replace = T)
 db["double"] <- x
 test_that("double", {
     expect_equal(x, db["double"])
+})
+
+x <- sample(LETTERS, size, replace = T)
+db["char"] <- x
+test_that("char", {
+  expect_equal(as.factor(x), db["char"])
+})
+
+# Test if escape characters works
+x <- c("a\n", "\tc\v\n", "d\a\vx\ry\f\tz")
+db["escape_char"] <- x
+test_that("escape_char", {
+  expect_equal(as.factor(escape_char(x)), db["escape_char"])
 })
 
 x <- .POSIXct(runif(size) * unclass(Sys.time()))
@@ -29,12 +53,15 @@ test_that("POSIXct", {
     expect_equal(as.character(x), as.character(db["POSIXct"]))
 })
 
+test_that("non-existing", {
+    expect_error(db["non-existing"])
+})
+
 context("VARIABLE DOCUMENTATION")
 #################################
 x <- list(a = "text", b = list(c = 1, d = 2), c = "åäö")
 db["x"] <- doc(x)
 test_that("get documentation", {
-    expect_error(db["non-existing"])
     expect_equal(list(x), db$get_doc("x"))
 })
 
@@ -54,9 +81,12 @@ dims <- NULL
 db["x", dims] <- x
 
 test_that("put/get variable with dims = NULL", {
-  expect_error(db["non-existing", dims])
   expect_equal(x, db["x", dims])
   expect_true(file.exists(file.path(db$path, "x", "data", "d.cdb.gz")))
+})
+
+test_that("non-existing dimensions", {
+  expect_error(db["non-existing", dims])
 })
 
 context("DATASETS")
@@ -75,6 +105,17 @@ setcolorder(x, sort(names(x)))
 test_that("get dataset", {
   expect_equal(x, db[, "survey"])
 })
+
+context("READ ONLY")
+####################
+db$read_only <- T
+test_that("put variable", {
+  expect_error({ db["read_only"] <- 1:10})
+})
+test_that("put docs", {
+  expect_error({ db["read_only"] <- doc(a = 1, b = 2) })
+})
+db$read_only <- F
 
 # CLEAN UP
 system(sprintf("rm -r %s", path))

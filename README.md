@@ -158,4 +158,4 @@ The `testthat` package is required to run the package tests and the related test
 
 ## License
 
-Coldbir is licensed under the AGPLv3, the terms of which are included in the file LICENSE.
+Coldbir is licensed under the AGPL-3, for more information on the license please read: [http://www.r-project.org/Licenses/AGPL-3](http://www.r-project.org/Licenses/AGPL-3).
