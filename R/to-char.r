@@ -8,8 +8,8 @@
 #'
 #' @export
 #'
-to_char <- function(x, ..., factors = FALSE) {
-    
+to_char <- function(x, ..., factors = FALSE) {  # The fnction seems to be absolete for the moment. 
+                                                # The corresponding code has been moved to the cbd-class
     df <- get_lookup(...)
 
     if (!is.null(df)) {

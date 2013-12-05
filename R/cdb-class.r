@@ -106,12 +106,33 @@ cdb <- setRefClass(
       # Prepare data depending on vector type
       
       ## integer or factor
-      if (header$type %in% c("integer", "factor")) {
-        if (!is.na(na)) 
-          x[is.na(x)] <- as.integer(na)
+            
+      if (header$type == "integer") {
         
-        if (header$type == "factor") {
-          x <- to_char(x = x, name = name, path = .self$path, factors = T)
+        if (!is.na(na))   x[is.na(x)] <- as.integer(na)
+        
+      } else if (header$type == "factor") {
+    
+        df <- get_lookup(name = name, path = .self$path)
+        if (!is.null(df)) {
+            
+          
+            includesNAp <-any(is.na(x)) && !any(is.na(df[[2]]))
+            
+            lengthOfLeveles <- max(df[[1]])+as.integer(includesNAp)
+            
+            if(includesNAp) x[which(is.na(x))] <- lengthOfLeveles   # NA values by leveles
+  
+            #create factor
+            L <- rep(NA_character_,lengthOfLeveles)                 # assert odd cases 
+                                                                    # (usually 1:nrow(df) + accasional NA)
+            L[df[[1]]]   <- df[[2]]
+            if(!is.na(na)) L[is.na(L)] <- na
+  
+            levels(x)    <- L
+            class(x)     <- "factor"
+
+            
         }
       
       ## double

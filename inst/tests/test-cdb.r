@@ -1,4 +1,4 @@
-path <- tempfile()
+path <- tempfile()   #cygwin warning:MS-DOS style path detected: ....Preferred POSIX equivalent is:... ????
 size <- 1e3
 db <- cdb(path, log_level = 1, read_only = F)
 
@@ -18,7 +18,7 @@ test_that("boolean", {
 
 x <- sample(c(T, F, NA), size, replace = T)
 db["boolean_NA"] <- x
-test_that("boolean_NA", {
+test_that("boolean_NA", { 
     expect_equal(x, db["boolean_NA"])
 })
 
@@ -44,7 +44,7 @@ test_that("char", {
 x <- c("a\n", "\tc\v\n", "d\a\vx\ry\f\tz")
 db["escape_char"] <- x
 test_that("escape_char", {
-  expect_equal(as.factor(escape_char(x)), db["escape_char"])
+  expect_equal(escape_char(x), as.character(db["escape_char"]))
 })
 
 x <- .POSIXct(runif(size) * unclass(Sys.time()))
