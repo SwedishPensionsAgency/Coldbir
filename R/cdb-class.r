@@ -106,35 +106,37 @@ cdb <- setRefClass(
       # Prepare data depending on vector type
       
       ## integer or factor
-            
+      
       if (header$type == "integer") {
         
-        if (!is.na(na))   x[is.na(x)] <- as.integer(na)
+        if (!is.na(na)) x[is.na(x)] <- as.integer(na)
         
       } else if (header$type == "factor") {
-    
+        
+        # Get lookup table, where values are to be used as levels
         df <- get_lookup(name = name, path = .self$path)
+        
         if (!is.null(df)) {
-            
           
-            includesNAp <-any(is.na(x)) && !any(is.na(df[[2]]))
-            
-            lengthOfLeveles <- max(df[[1]])+as.integer(includesNAp)
-            
-            if(includesNAp) x[which(is.na(x))] <- lengthOfLeveles   # NA values by leveles
-  
-            #create factor
-            L <- rep(NA_character_,lengthOfLeveles)                 # assert odd cases 
-                                                                    # (usually 1:nrow(df) + accasional NA)
-            L[df[[1]]]   <- df[[2]]
-            if(!is.na(na)) L[is.na(L)] <- na
-  
-            levels(x)    <- L
-            class(x)     <- "factor"
-
-            
+          # Check whether variable has any NA
+          has_na <- any(is.na(x)) && !any(is.na(df[[2]]))
+          
+          # Add one level for NA
+          levels_len <- max(df[[1]]) + as.integer(has_na)
+          
+          # Replace NA in data with factor level
+          if(has_na) x[which(is.na(x))] <- levels_len   # NA values by leveles
+          
+          # Create factor levels
+          levels <- rep(NA_character_, levels_len)  # assert odd cases, usually 1:nrow(df) + occasional NA
+          levels[df[[1]]] <- df[[2]]
+          if(!is.na(na)) levels[is.na(levels)] <- na
+          
+          # Convert to factor variable
+          levels(x) <- levels
+          class(x) <- "factor"
         }
-      
+        
       ## double
       } else if (header$type == "double") {
         if (!is.null(header$exponent)) 
@@ -216,7 +218,7 @@ cdb <- setRefClass(
           if (is.integer(x)) {
             header$type <- "integer"
             header$bytes <- 4L  # H_itemSize, note: NA for integers is already -2147483648 in R
-                    
+            
           } else if (is.double(x)) {
             header$type <- "double"
             header$exponent <- find_exp(x)

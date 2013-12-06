@@ -8,16 +8,6 @@
   \item{path}{Database path (the location of the coldbir
   database)}
 
-  \item{dims}{Set default dimensions}
-
-  \item{type}{Return type of variable. Possible values: 'c'
-  = character, 'f' = factor and 'n' = numeric (default).
-  Character conversion might be a bit slow; hence numeric
-  or factor is recommended.}
-
-  \item{na}{Value representing missing values (default:
-  NA_real_)}
-
   \item{log_level}{Log level (default: 4). Available
   levels: 1-9.}
 
