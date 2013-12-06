@@ -11,6 +11,7 @@
 #' @param log_level Log level (default: 4). Available levels: 1-9.
 #' @param log_file Log file. As default log messages will be written to console.
 #' @param compress file compression level
+#' @param encoding set documentation encoding (default: UTF-8)
 #' @param read_only read only (default: T)
 #' 
 #' @examples db <- cdb()
@@ -25,6 +26,7 @@ cdb <- setRefClass(
     log_file = "character",
     dims = "ANY",
     compress = "numeric",
+    encoding = "character",
     read_only = "logical"
   ),
   methods = list(
@@ -36,6 +38,7 @@ cdb <- setRefClass(
       log_file = "",
       dims = NULL,
       compress = 5,
+      encoding = "UTF-8",
       read_only = T
     ) {
       
@@ -53,6 +56,7 @@ cdb <- setRefClass(
       .self$log_file <- log_file
       .self$dims <- dims
       .self$compress <- compress
+      .self$encoding <- encoding
       .self$read_only <- read_only
       
       # Set futile.logger options
@@ -65,10 +69,55 @@ cdb <- setRefClass(
       }
     },
     
-    # Get variable documentation
+    #' Put variable documentation to disk
+    #'
+    #' Write documentation of a variable to disk.
+    #'
+    #' @param x documentation string
+    #' @param name Variable name
+    #' 
+    put_doc = function(x, name) {
+      
+      f <- file_path(name, .self$path, create_dir = T, file_name = F, data_folder = F)
+      f <- file.path(f, .doc_file)
+      
+      # Create temporary file
+      tmp <- create_temp_file(f)
+      
+      tryCatch(
+        {
+          con <- file(tmp, encoding = .self$encoding)
+          writeLines(x, con)
+          close(con)
+          
+          file.copy(tmp, f, overwrite = T)
+        },
+        finally = file.remove(tmp),
+        error = function(e) {
+          flog.fatal("%s - writing failed; rollback! (%s)", name, e)
+        }
+      )
+      
+      flog.info(f)
+      return(T)
+    },
+    
+    #' Get variable documentation from disk
+    #'
+    #' Read documentation of a variable from disk.
+    #'
+    #' @param name Variable name
     get_doc = function(name) {
-      d <- get_variable_doc(name = name, path = .self$path, file_name = .doc_file)
-      d <- yaml::yaml.load(d)
+      
+      f <- file_path(name, .self$path, create_dir = F, file_name = F, data_folder = F)
+      f <- file.path(f, .doc_file)
+      
+      con <- file(f, "r", encoding = .self$encoding)
+      lns <- readLines(con, n = -1, warn = FALSE)
+      close(con)
+      
+      d <- paste(lns, collapse = "\n")
+      d <- RJSONIO::fromJSON(d)
       return(d)
     },
     
@@ -406,9 +455,9 @@ setMethod(
     if (x$read_only) stop("You're only allowed to read data, to change this use cdb(..., read_only = F)")
     
     if (all(class(value) == "doc")) {
-      
+            
       # Create readme.json
-      put_variable_doc(x = to_yaml(value), name = i, path = x$path, file_name = .doc_file)
+      x$put_doc(x = to_json(value), name = i)
       
     } else {
       x$put_variable(x = value, name = i, dims = j)

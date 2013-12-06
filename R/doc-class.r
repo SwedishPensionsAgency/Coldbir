@@ -42,15 +42,15 @@ doc <- function(...) {
   new(Class = "doc", ...)
 }
 
-#' Convert doc to yaml
+#' Convert doc to json
 #' 
-#' Method to convert a docs object to a yaml character string
-#' 
-setGeneric("to_yaml", function(object){ standardGeneric("to_yaml") })
+#' Method to convert a docs object to a json character string
+#' @rdname doc-methods
+setGeneric("to_json", function(object){ standardGeneric("to_json") })
 setMethod(
-  f = "to_yaml",
-  signature = "doc",
-  definition = function(object) {
-    yaml::as.yaml(object@lst)
-  }
+    f = "to_json",
+    signature = "doc",
+    definition = function(object) {
+        RJSONIO::toJSON(object@lst, pretty = T, asIs = T)
+    }
 )

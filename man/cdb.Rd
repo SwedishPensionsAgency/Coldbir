@@ -26,6 +26,9 @@
 
   \item{compress}{file compression level}
 
+  \item{encoding}{set documentation encoding (default:
+  UTF-8)}
+
   \item{read_only}{read only (default: T)}
 }
 \description{

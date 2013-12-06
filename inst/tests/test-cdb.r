@@ -59,7 +59,7 @@ test_that("non-existing", {
 
 context("VARIABLE DOCUMENTATION")
 #################################
-x <- list(a = "text", b = list(c = 1, d = 2))
+x <- list(a = "text", b = list(c = 1:3, d = 4), c = "åäö")
 db["x"] <- doc(x)
 test_that("get documentation", {
     expect_equal(list(x), db$get_doc("x"))

@@ -28,8 +28,6 @@ Collate:
     '0-constants.r'
     'to-char.r'
     'doc-class.r'
-    'get-variable-doc.r'
-    'put-variable-doc.r'
     'create-temp-file.r'
     'Coldbir.r'
     'search-files.r'
