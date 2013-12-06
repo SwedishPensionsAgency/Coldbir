@@ -460,7 +460,7 @@ setMethod(
     if (all(class(value) == "doc")) {
             
       # Create readme.json
-      x$put_doc(x = to_json(value), name = i)
+      x$put_doc(x = value$to_json(), name = i)
       
     } else {
       x$put_variable(x = value, name = i, dims = j)
