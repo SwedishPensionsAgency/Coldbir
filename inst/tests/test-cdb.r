@@ -118,4 +118,4 @@ test_that("put docs", {
 db$read_only <- F
 
 # CLEAN UP
-system(sprintf("rm -r %s", path))
+unlink(path, recursive = T)
