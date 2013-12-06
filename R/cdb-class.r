@@ -4,10 +4,6 @@
 #' The current working directory is set as the default path.
 #' 
 #' @param path Database path (the location of the coldbir database)
-#' @param dims Set default dimensions
-#' @param type Return type of variable. Possible values: 'c' = character, 'f' = factor and 'n' = numeric (default).
-#' Character conversion might be a bit slow; hence numeric or factor is recommended.
-#' @param na Value representing missing values (default: NA_real_)
 #' @param log_level Log level (default: 4). Available levels: 1-9.
 #' @param log_file Log file. As default log messages will be written to console.
 #' @param compress file compression level
@@ -20,11 +16,8 @@ cdb <- setRefClass(
   "cdb",
   fields = list(
     path = "character",
-    type = "character",
-    na = "numeric",
     log_level = "numeric",
     log_file = "character",
-    dims = "ANY",
     compress = "numeric",
     encoding = "character",
     read_only = "logical"
@@ -32,29 +25,17 @@ cdb <- setRefClass(
   methods = list(
     initialize = function(
       path = getwd(),
-      type = "f",
-      na = NA_real_, 
       log_level = 4,
       log_file = "",
-      dims = NULL,
       compress = 5,
       encoding = "UTF-8",
       read_only = T
     ) {
-      
-      # Validate
-      types <- c("c", "f", "n")
-      if (!(type %in% types)) {
-        stop("wrong type argument; only '", paste(types, collapse = "'/'"), "' are allowed")
-      }
-      
+        
       # Set parameters
       .self$path <- path
-      .self$type <- type
-      .self$na <- na
       .self$log_level <- log_level
       .self$log_file <- log_file
-      .self$dims <- dims
       .self$compress <- compress
       .self$encoding <- encoding
       .self$read_only <- read_only
@@ -134,7 +115,7 @@ cdb <- setRefClass(
     },
     
     # Get variable data
-    get_variable = function(name, dims = .self$dims) {
+    get_variable = function(name, dims = NULL, na = NA) {
   
       # Get file path
       cdb <- file_path(name, .self$path, dims, ext = c("cdb.gz", "cdb"), create_dir = FALSE)
@@ -174,16 +155,43 @@ cdb <- setRefClass(
       # Prepare data depending on vector type
       
       ## integer or factor
-      if (header$type %in% c("integer", "factor")) {
-        if (!is.na(.self$na)) 
-          x[is.na(x)] <- as.integer(.self$na)
       
+      if (header$type == "integer") {
+        
+        if (!is.na(na)) x[is.na(x)] <- as.integer(na)
+        
+      } else if (header$type == "factor") {
+        
+        # Get lookup table, where values are to be used as levels
+        df <- get_lookup(name = name, path = .self$path)
+        
+        if (!is.null(df)) {
+          
+          # Check whether variable has any NA
+          has_na <- any(is.na(x)) && !any(is.na(df[[2]]))
+          
+          # Add one level for NA
+          levels_len <- max(df[[1]]) + as.integer(has_na)
+          
+          # Replace NA in data with factor level
+          if(has_na) x[which(is.na(x))] <- levels_len   # NA values by leveles
+          
+          # Create factor levels
+          levels <- rep(NA_character_, levels_len)  # assert odd cases, usually 1:nrow(df) + occasional NA
+          levels[df[[1]]] <- df[[2]]
+          if(!is.na(na)) levels[is.na(levels)] <- na
+          
+          # Convert to factor variable
+          levels(x) <- levels
+          class(x) <- "factor"
+        }
+        
       ## double
       } else if (header$type == "double") {
         if (!is.null(header$exponent)) 
           x <- x / 10^header$exponent
-        if (!is.na(.self$na))
-          x[is.na(x)] <- as.double(.self$na)
+        if (!is.na(na))
+          x[is.na(x)] <- as.double(na)
         
       ## logical
       } else if (header$type == "logical") {
@@ -193,8 +201,8 @@ cdb <- setRefClass(
         # Replace 0/1 with TRUE/FALSE
         x <- (x > 0L)
         
-        if (!is.na(.self$na))
-          x[is.na(x)] <- as.logical(.self$na)
+        if (!is.na(na))
+          x[is.na(x)] <- as.logical(na)
           
       ## Date
       } else if (header$type == "Date") {
@@ -216,7 +224,7 @@ cdb <- setRefClass(
     },
     
     # Put variable data
-    put_variable = function(x, name = NULL, dims = .self$dims, attrib = NULL, lookup = TRUE) {
+    put_variable = function(x, name = NULL, dims = NULL, attrib = NULL, lookup = TRUE) {
       
       if (read_only) stop("You're only allowed to read data, to change this use cdb(..., read_only = F)")
       
@@ -259,7 +267,7 @@ cdb <- setRefClass(
           if (is.integer(x)) {
             header$type <- "integer"
             header$bytes <- 4L  # H_itemSize, note: NA for integers is already -2147483648 in R
-                    
+            
           } else if (is.double(x)) {
             header$type <- "double"
             header$exponent <- find_exp(x)
@@ -388,6 +396,7 @@ cdb <- setRefClass(
 #' @param x cdb object
 #' @param i variable name
 #' @param j variable dims
+#' @param na NA value (default: NA)
 #' 
 #' @name `[`
 #' @docType methods
@@ -395,9 +404,9 @@ cdb <- setRefClass(
 setMethod(
   f = "[",
   signature = "cdb",
-  definition = function(x, i, j){
+  definition = function(x, i, j, na = NA){
     
-    if (missing(j)) j <- x$dims
+    if (missing(j)) j <- NULL
     
     if (missing(i) || is.vector(i) && length(i) > 1){
       if (missing(i)){
@@ -407,7 +416,7 @@ setMethod(
       }
       
       # Create data.table with first variable
-      v <- data.table(first = x[i[1], j])
+      v <- data.table(first = x[i[1], j, na = na])
       setnames(v, "first", i[1])
       
       # Add all other variables
@@ -415,19 +424,13 @@ setMethod(
         for(var in i[2:length(i)]){
           # Use function call below since the data.table (`:=`) otherwise
           # interprets `x` as a column name, if it exists (see issue 49).
-          read_var <- function() x[var, j]
+          read_var <- function() x[var, j, na = na]
           v[ , var := read_var(), with = F]
         }
       }
       
     } else {
-      v <- x$get_variable(name = i, dims = j)
-      
-      # Convert to character or factor (if requested)
-      if (x$type %in% c("c", "f")) {
-        factors <- if (x$type == "f") TRUE else FALSE
-        v <- to_char(x = v, name = i, path = x$path, factors = factors)
-      }
+      v <- x$get_variable(name = i, dims = j, na = na)
     }
     
     return(v)
@@ -451,7 +454,7 @@ setMethod(
   f = "[<-",
   signature = "cdb",
   definition = function(x, i, j, value){
-    if (missing(j)) j <- x$dims
+    if (missing(j)) j <- NULL
     if (x$read_only) stop("You're only allowed to read data, to change this use cdb(..., read_only = F)")
     
     if (all(class(value) == "doc")) {

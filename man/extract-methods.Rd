@@ -8,6 +8,8 @@
   \item{i}{variable name}
 
   \item{j}{variable dims}
+
+  \item{na}{NA value (default: NA)}
 }
 \description{
   Function to extract data content from a Coldbir variable.
