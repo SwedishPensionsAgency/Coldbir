@@ -21,7 +21,6 @@ Collate:
     'find-exp.r'
     'file-name.r'
     'file-path.r'
-    'list-to-md.r'
     'get-lookup.r'
     'put-lookup.r'
     'cdb-class.r'

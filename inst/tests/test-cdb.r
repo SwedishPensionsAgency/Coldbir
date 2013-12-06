@@ -59,21 +59,32 @@ test_that("non-existing", {
 
 context("VARIABLE DOCUMENTATION")
 #################################
+db["x"] <- doc(a = 1, b = "c")
+test_that("add docs as parameters", {
+  expect_equal(list(a = 1, b = "c"), db$get_doc("x"))
+})
+
 x <- list(a = "text", b = list(c = 1:3, d = 4), c = "åäö")
 db["x"] <- doc(x)
-test_that("get documentation", {
-    expect_equal(list(x), db$get_doc("x"))
+test_that("add docs as a list", {
+    expect_equal(x, db$get_doc("x"))
+})
+
+x <- list(b = 1, c = 2)
+db["x"] <- doc(a = x)  # special case
+test_that("add docs as one parameter that includes a list", {
+  expect_equal(list(a = x), db$get_doc("x"))
 })
 
 context("VARIABLE DIMENSIONS")
 ##############################
 x <- sample(1:5, size, replace = T)
-dims <- c(2012, "test")
+dims <- c(2012, "a")
 db["x", dims] <- x
 test_that("put/get variable with dimensions", {
   expect_error(db["non-existing", dims])
   expect_equal(x, db["x", dims])
-  expect_true(file.exists(file.path(db$path, "x", "data", "d[2012][test].cdb.gz")))
+  expect_true(file.exists(file.path(db$path, "x", "data", "d[2012][a].cdb.gz")))
 })
 
 x <- sample(1:5, size, replace = T)
