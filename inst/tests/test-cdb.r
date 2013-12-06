@@ -5,56 +5,56 @@ db <- cdb(path, log_level = 1, read_only = F)
 context("INITIALIZE DATABASE")
 ##############################
 test_that("init cdb", {
-    expect_equal(path, db$path)
+  expect_equal(path, db$path)
 })
 
 context("VARIABLE TYPES")
 #########################
 x <- sample(c(T, F), size, replace = T)
-db["boolean"] <- x
-test_that("boolean", {
-    expect_equal(x, db["boolean"])
+db["x"] <- x
+test_that("logical", {
+  expect_equal(x, db["x"])
 })
 
 x <- sample(c(T, F, NA), size, replace = T)
-db["boolean_NA"] <- x
-test_that("boolean_NA", {
-    expect_equal(x, db["boolean_NA"])
+db["x"] <- x
+test_that("logical na", {
+  expect_equal(x, db["x"])
 })
 
 x <- sample(c(0, 1, 10000, .Machine$integer.max, NA), size, replace = T)
-db["integer"] <- x
+db["x"] <- x
 test_that("integer", {
-    expect_equal(x, db["integer"])
+  expect_equal(x, db["x"])
 })
 
 x <- sample(c(-100, -50, 0, 50, 100, NA), size, replace = T)
-db["double"] <- x
+db["x"] <- x
 test_that("double", {
-    expect_equal(x, db["double"])
+  expect_equal(x, db["x"])
 })
 
 x <- sample(LETTERS, size, replace = T)
-db["char"] <- x
-test_that("char", {
-  expect_equal(as.factor(x), db["char"])
+db["x"] <- x
+test_that("character", {
+  expect_equal(as.factor(x), db["x"])
 })
 
 # Test if escape characters works
 x <- c("a\n", "\tc\v\n", "d\a\vx\ry\f\tz")
-db["escape_char"] <- x
+db["x"] <- x
 test_that("escape_char", {
-  expect_equal(as.factor(escape_char(x)), db["escape_char"])
+  expect_equal(escape_char(x), as.character(db["x"]))
 })
 
 x <- .POSIXct(runif(size) * unclass(Sys.time()))
-db["POSIXct"] <- x
+db["x"] <- x
 test_that("POSIXct", {
-    expect_equal(as.character(x), as.character(db["POSIXct"]))
+  expect_equal(as.character(x), as.character(db["x"]))
 })
 
 test_that("non-existing", {
-    expect_error(db["non-existing"])
+  expect_error(db["non-existing"])
 })
 
 context("VARIABLE DOCUMENTATION")
@@ -100,6 +100,26 @@ test_that("non-existing dimensions", {
   expect_error(db["non-existing", dims])
 })
 
+context("REPLACE NA")
+#####################
+x <- c(T, F, NA, F, T)
+db["x"] <- x
+test_that("logical replaces NA", {
+  expect_equal(sum(x, na.rm = T), sum(db["x", na = F]))
+})
+
+x <- c(1, NA, 3)
+db["x"] <- x
+test_that("integer replaces NA", {
+  expect_equal(1:3, db["x", na = 2])
+})
+
+x <- c("a", NA)
+db["x"] <- x
+test_that("character replaces NA", {
+  expect_equal(as.factor(c("a", "b")), db["x", na = "b"])
+})
+
 context("DATASETS")
 ###################
 x <- data.table(MASS::survey)
@@ -121,10 +141,10 @@ context("READ ONLY")
 ####################
 db$read_only <- T
 test_that("put variable", {
-  expect_error({ db["read_only"] <- 1:10})
+  expect_error({ db["x"] <- 1:10})
 })
 test_that("put docs", {
-  expect_error({ db["read_only"] <- doc(a = 1, b = 2) })
+  expect_error({ db["x"] <- doc(a = 1, b = 2) })
 })
 db$read_only <- F
 
