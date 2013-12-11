@@ -43,7 +43,7 @@ cdb <- setRefClass(
       .self$compress  <- compress
       .self$encoding  <- encoding
       
-      f <- file.path(path, "config.json")
+      f <- file.path(path, "config.dat")
       if(file.exists(f))
       {
         
@@ -57,12 +57,7 @@ cdb <- setRefClass(
           
           .self$read_only  <- read_only
           .self$db_version <- new_time_stamp()
-          
-          variable1 <- existingVars[1,]$variable
-          dims1 <- existingVars[1,]$dims
-          if(length(dims1) == 0L) dims1 <- NULL
-          
-          .self$n_row      <- length(get_variable(variable1,dims1))
+          .self$n_row      <- guess_db_nrow()
           
           write_cofig_info(get_config())
           
@@ -88,6 +83,20 @@ cdb <- setRefClass(
       }
     },
     
+    guess_db_nrow = function() {
+      
+      if(is.na(file.info(.self$path)$isdir)) return(0L)
+      existingVars <- list_variables(path = .self$path, dims = TRUE)
+      if(nrow(existingVars) == 0L)  return(0L)
+      
+      variable1 <- existingVars[1,]$variable
+      dims1 <- existingVars[1,]$dims
+      if(length(dims1) == 0L) dims1 <- NULL
+      
+      return(length(get_variable(variable1,dims1)))  
+      #Coldbir colud have a special function looking in the header instead for length (above)
+      
+    },
     
     get_config = function()
     { 
