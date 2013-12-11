@@ -2,12 +2,18 @@ path <- tempfile()   # chartr("\\","/",path)
 size <- 1e3
 db <- cdb(path, log_level = 1, read_only = F)
 
-# system.time(db$read_cofig_info())
+
 
 context("INITIALIZE DATABASE")
 ##############################
 test_that("init cdb", {
   expect_equal(path, db$path)
+})
+
+context("GUESSING NROW")
+#########################
+test_that("nrow when database is empty", {
+  expect_equal(db$guess_db_nrow(), 0L)
 })
 
 context("VARIABLE TYPES")
@@ -16,6 +22,12 @@ x <- sample(c(T, F), size, replace = T)
 db["x"] <- x
 test_that("logical", {
   expect_equal(x, db["x"])
+})
+
+context("GUESSING NROW")
+#########################
+test_that("nrow when database contains one variable without any dimentions", {
+  expect_equal(db$guess_db_nrow(), size)
 })
 
 x <- sample(c(T, F, NA), size, replace = T)

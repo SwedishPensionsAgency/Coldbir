@@ -90,8 +90,9 @@ cdb <- setRefClass(
       if(nrow(existingVars) == 0L)  return(0L)
       
       variable1 <- existingVars[1,]$variable
-      dims1 <- existingVars[1,]$dims
+      dims1 <- unlist(existingVars[1,]$dims)
       if(length(dims1) == 0L) dims1 <- NULL
+      
       
       return(length(get_variable(variable1,dims1)))  
       #Coldbir colud have a special function looking in the header instead for length (above)
