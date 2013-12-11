@@ -43,13 +43,13 @@ cdb <- setRefClass(
       .self$compress  <- compress
       .self$encoding  <- encoding
       
-      f <- file.path(path, "config.dat")
+      f <- file.path(path, .config_filename)
       if(file.exists(f))
       {
         
         if(!is.null(dta <- set_config(read_cofig_info()))) set_config(dta)
         
-      } else { # config.json doesn't exist 
+      } else { # config.dat doesn't exist 
         
         existingVars <- list_variables(path = .self$path, dims = TRUE)
         
@@ -129,7 +129,7 @@ cdb <- setRefClass(
    write_cofig_info = function(dta){
       
         if(is.na(file.info(.self$path)$isdir)) dir.create(pa.self$pathth, recursive = TRUE)
-        f <- file.path(.self$path, "config.dat")
+        f <- file.path(.self$path, .config_filename)
         saveRDS(dta,file=f) 
         
     },
@@ -140,7 +140,7 @@ cdb <- setRefClass(
     #'    
     read_cofig_info = function(){
 
-      f <- file.path(.self$path, "config.json")      
+      f <- file.path(.self$path, .config_filename)      
       if(file.exists(f)) {
         
         dta <- readRDS(file=f)
