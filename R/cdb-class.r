@@ -9,36 +9,74 @@
 #' @param compress file compression level
 #' @param encoding set documentation encoding (default: UTF-8)
 #' @param read_only read only (default: T)
+#' @param db_version instance-attribute for sycronisation of current list of variables
+#' @param n_row the common length of vecrors in the database
 #' 
 #' @examples db <- cdb()
 #' @export
 cdb <- setRefClass(
   "cdb",
   fields = list(
-    path = "character",
-    log_level = "numeric",
-    log_file = "character",
-    compress = "numeric",
-    encoding = "character",
-    read_only = "logical"
+    path       = "character",
+    log_level  = "numeric",
+    log_file   = "character",
+    compress   = "integer",
+    encoding   = "character",
+    read_only  = "logical",
+    db_version = "numeric",
+    n_row      = "integer"
   ),
   methods = list(
     initialize = function(
-      path = getwd(),
+      path      = getwd(),
       log_level = 4,
-      log_file = "",
-      compress = 5,
-      encoding = "UTF-8",
-      read_only = T
+      log_file  = "",
+      compress  = 5L,
+      encoding  = "UTF-8",
+      read_only = F
     ) {
         
       # Set parameters
-      .self$path <- path
+      .self$path      <- path
       .self$log_level <- log_level
-      .self$log_file <- log_file
-      .self$compress <- compress
-      .self$encoding <- encoding
-      .self$read_only <- read_only
+      .self$log_file  <- log_file
+      .self$compress  <- compress
+      .self$encoding  <- encoding
+      
+      f <- file.path(path, "config.json")
+      if(file.exists(f))
+      {
+        
+        set_config(read_cofig_info())
+        
+      } else { # config.json doesn't exist 
+        
+        existingVars <- list_variables(path = .self$path, dims = TRUE)
+        
+        if(nrow(existingVars) > 0L) { #data exist bunt not the config file => create the file
+          
+          .self$read_only  <- read_only
+          .self$db_version <- as.double(lubridate::force_tz(Sys.time(), .tzone))
+          
+          variable1 <- existingVars[1,]$variable
+          dims1 <- existingVars[1,]$dims
+          if(length(dims1) == 0L) dims1 <- NULL
+          
+          .self$n_row      <- length(get_variable(variable1,dims1))
+          
+          write_cofig_info(get_config())
+          
+          
+        } else { # no data = > postpone the creation of the config file until something is done in the directory
+          
+          .self$read_only  <- read_only
+          .self$db_version <- NA_real_
+          .self$n_row      <- NA_integer_
+          
+        }
+        
+      }
+      
       
       # Set futile.logger options
       flog.threshold(log_level)
@@ -48,6 +86,58 @@ cdb <- setRefClass(
       } else {
         flog.appender(appender.console())
       }
+    },
+    
+    get_config = function()
+    { 
+      return(list(   
+                     read_only   = .self$read_only,
+                     db_version  = .self$db_version,
+                     n_row       = .self$n_row
+                    )
+              )
+      
+    },
+    
+    set_config = function(dta)
+    {
+      if(!is.null(dta)) {
+        .self$read_only   = dta$read_only
+        .self$db_version  = dta$db_version
+        .self$n_row       = dta$n_row
+      }
+    },
+    
+    
+    #' Save configuration setings on the disk
+    #'
+    #' the configuration is saved in JSON format
+    #'
+    #' @param dta 
+    #' 
+   write_cofig_info = function(dta){
+      
+        if(is.na(file.info(.self$path)$isdir)) dir.create(pa.self$pathth, recursive = TRUE)
+        f <- file.path(.self$path, "config.dat")
+        saveRDS(dta,file=f) 
+        
+    },
+ 
+    #' read configuration setings from the disk
+    #'
+    #' the configuration is saved in JSON format
+    #'    
+    read_cofig_info = function(){
+
+      f <- file.path(.self$path, "config.json")      
+      if(file.exists(f)) {
+        
+        dta <- readRDS(file=f)
+        
+        return(dta) 
+        
+      } else return (NULL)
+  
     },
     
     #' Put variable documentation to disk
@@ -88,6 +178,7 @@ cdb <- setRefClass(
     #' Read documentation of a variable from disk.
     #'
     #' @param name Variable name
+    #' 
     get_doc = function(name) {
       
       f <- file_path(name, .self$path, create_dir = F, file_name = F, data_folder = F)
@@ -103,11 +194,17 @@ cdb <- setRefClass(
     },
     
     # List all variables
+    #'
+    #' @param dims tells if column with dimensions is required
+    #'
     get_vars = function(dims = F) {
       list_variables(path = .self$path, dims = dims)
     },
     
     # Get variable dimensions
+    #'    
+    #' @param name variable name
+    #'
     get_dims = function(name) {
       x <- list_variables(path = .self$path, dims = T)
       x <- subset(x, variable == name)
@@ -115,6 +212,11 @@ cdb <- setRefClass(
     },
     
     # Get variable data
+    #'    
+    #' @param name variable name
+    #' @param dims the specified observation in the space of dimensions 
+    #' @param na the value of missing values. NA by default. 
+    #'     
     get_variable = function(name, dims = NULL, na = NA) {
   
       # Get file path
@@ -224,6 +326,13 @@ cdb <- setRefClass(
     },
     
     # Put variable data
+    #'    
+    #' @param x vector of values. Thelentnht should be the same for each vector in for the Coldbir data set
+    #' @param name variable name
+    #' @param dims the specified observation in the space of dimensions 
+    #' @param attrib additional attributes to be saved  
+    #' @param lookup idicates if there is a need of lookup table  
+    #' 
     put_variable = function(x, name = NULL, dims = NULL, attrib = NULL, lookup = TRUE) {
       
       if (read_only) stop("You're only allowed to read data, to change this use cdb(..., read_only = F)")
@@ -366,7 +475,7 @@ cdb <- setRefClass(
           # Write binary file
           writeBin(header_len, bin_file, size = 8)
           writeBin(header_raw, bin_file)
-          writeBin(length(x), bin_file, size = 8)
+          writeBin(length(x),  bin_file, size = 8)
           writeBin(x, bin_file, size = header$bytes)  # write each vector element to bin_file
           close(bin_file)
   
