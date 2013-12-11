@@ -47,7 +47,7 @@ cdb <- setRefClass(
       if(file.exists(f))
       {
         
-        set_config(read_cofig_info())
+        if(!is.null(dta <- set_config(read_cofig_info()))) set_config(dta)
         
       } else { # config.json doesn't exist 
         
@@ -56,7 +56,7 @@ cdb <- setRefClass(
         if(nrow(existingVars) > 0L) { #data exist bunt not the config file => create the file
           
           .self$read_only  <- read_only
-          .self$db_version <- as.double(lubridate::force_tz(Sys.time(), .tzone))
+          .self$db_version <- new_time_stamp()
           
           variable1 <- existingVars[1,]$variable
           dims1 <- existingVars[1,]$dims
@@ -87,6 +87,7 @@ cdb <- setRefClass(
         flog.appender(appender.console())
       }
     },
+    
     
     get_config = function()
     { 
