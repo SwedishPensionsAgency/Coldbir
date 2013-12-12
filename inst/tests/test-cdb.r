@@ -140,15 +140,13 @@ db$read_only <- F
 
 context("LOOKUP TABLES")
 ########################
-dim_1 <- c("a", "b", "c")
-dim_2 <- c("b", "c")
-db["x", 1] <- dim_1
-db["x", 2] <- dim_2
-test_that("dim_1", {
-  expect_equal(dim_1, as.character(db["x", 1]))
-})
-test_that("dim_2", {
-  expect_equal(dim_2, as.character(db["x", 2]))
+a <- c("a", "b", "c")
+b <- c("b", "c")
+db["x", "a"] <- a
+db["x", "b"] <- b
+test_that("Different lookup tables between dimensions", {
+  expect_equal(a, as.character(db["x", "a"]))
+  expect_equal(b, as.character(db["x", "b"]))
 })
 
 # CLEAN UP
