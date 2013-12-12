@@ -184,6 +184,14 @@ cdb <- setRefClass(
           # Convert to factor variable
           levels(x) <- levels
           class(x) <- "factor"
+
+        } else {
+          
+          # This is outside the `if (!is.null(df))` due to the 
+          # odd case of a factor variable with only NA-values
+          levels(x) <- character(0)
+          class(x) <- "factor"
+          
         }
         
       ## double
@@ -260,7 +268,6 @@ cdb <- setRefClass(
         header <- list()
           
         # Check/set vector type and number of bytes
-          
         if (is.numeric(x)) {
               
           if (is.integer(x)) {
@@ -333,8 +340,9 @@ cdb <- setRefClass(
           
           # Convert variable (TODO: rewrite this part)
           if (!is.null(lookup)) {
-          x_data <- data.table(keys = as.integer(x), values = x, order = 1:length(x))
-          x <- merge(x_data, lookup, by = "values", all.x = T)[order(order)]$keys.y
+            x_data <- data.table(keys = as.integer(x), values = x, order = 1:length(x))
+            x <- merge(x_data, lookup, by = "values", all.x = T)
+            x <- x$keys.y[order(x$order)]
           }
           
           header$type <- "factor"
