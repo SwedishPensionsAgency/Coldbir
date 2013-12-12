@@ -1,7 +1,7 @@
-path <- tempfile()   # chartr("\\","/",path)
+path <- tempfile()   # chartr("\\","/",path) ; cat(path)
 size <- 1e3
-db <- cdb(path, log_level = 1, read_only = F)
 
+db <- cdb(path, log_level = 1, read_only = F)
 
 
 context("INITIALIZE DATABASE")
@@ -10,10 +10,12 @@ test_that("init cdb", {
   expect_equal(path, db$path)
 })
 
+db$clean()
+
 context("GUESSING NROW")
 #########################
 test_that("nrow when database is empty", {
-  expect_equal(db$guess_db_nrow(), 0L)
+  expect_true(is.na(db$guess_db_nrow()))
 })
 
 context("VARIABLE TYPES")
@@ -23,6 +25,8 @@ db["x"] <- x
 test_that("logical", {
   expect_equal(x, db["x"])
 })
+
+if(FALSE) {#************************************
 
 context("GUESSING NROW")
 #########################
@@ -54,17 +58,21 @@ test_that("character", {
   expect_equal(as.factor(x), db["x"])
 })
 
-# Test if escape characters works
-x <- c("a\n", "\tc\v\n", "d\a\vx\ry\f\tz")
-db["x"] <- x
-test_that("escape_char", {
-  expect_equal(escape_char(x), as.character(db["x"]))
-})
 
 x <- .POSIXct(runif(size) * unclass(Sys.time()))
 db["x"] <- x
 test_that("POSIXct", {
   expect_equal(as.character(x), as.character(db["x"]))
+})
+
+
+db$clean()
+
+# Test if escape characters works
+x <- c("a\n", "\tc\v\n", "d\a\vx\ry\f\tz")
+db["x"] <- x
+test_that("escape_char", {
+  expect_equal(escape_char(x), as.character(db["x"]))
 })
 
 test_that("non-existing", {
@@ -92,6 +100,8 @@ test_that("add docs as one parameter that includes a list", {
 
 context("VARIABLE DIMENSIONS")
 ##############################
+db$clean()
+
 x <- sample(1:5, size, replace = T)
 dims <- c(2012, "a")
 db["x", dims] <- x
@@ -114,13 +124,19 @@ test_that("non-existing dimensions", {
   expect_error(db["non-existing", dims])
 })
 
+} #************************************************************
+
 context("REPLACE NA")
 #####################
+db$clean()
+
 x <- c(T, F, NA, F, T)
 db["x"] <- x
 test_that("logical replaces NA", {
   expect_equal(sum(x, na.rm = T), sum(db["x", na = F]))
 })
+
+db$clean()
 
 x <- c(1, NA, 3)
 db["x"] <- x
@@ -128,23 +144,27 @@ test_that("integer replaces NA", {
   expect_equal(1:3, db["x", na = 2])
 })
 
+db$clean()
+
 x <- c("a", NA)
 db["x"] <- x
 test_that("character replaces NA", {
   expect_equal(as.factor(c("a", "b")), db["x", na = "b"])
 })
 
+
 context("DATASETS")
 ###################
+db$clean()
+
 x <- data.table(MASS::survey)
 
 # In addition we change the column names
 # to specifically test issue 49.
 setnames(x, c("Wr.Hnd", "NW.Hnd", "Pulse"), c("var", "x", "z"))
 
-db[, "survey"] <- x
+db[, c("survey")] <- x
 
-# Order columns by name since the folders in the database
 setcolorder(x, sort(names(x)))
 
 test_that("get dataset", {
@@ -153,14 +173,26 @@ test_that("get dataset", {
 
 context("READ ONLY")
 ####################
-db$read_only <- T
+
+db$clean()
+
+db$set_db_as_read_only(T)
+
 test_that("put variable", {
   expect_error({ db["x"] <- 1:10})
 })
+
+
+test_that("clean", {
+  expect_error({ db$clean() })
+})
+
+
 test_that("put docs", {
   expect_error({ db["x"] <- doc(a = 1, b = 2) })
 })
-db$read_only <- F
+
+db$set_db_as_read_only(F)
 
 # CLEAN UP
-unlink(path, recursive = T)
+db$clean()

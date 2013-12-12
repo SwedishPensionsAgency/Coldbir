@@ -17,14 +17,16 @@
 cdb <- setRefClass(
   "cdb",
   fields = list(
-    path       = "character",
-    log_level  = "numeric",
-    log_file   = "character",
-    compress   = "integer",
-    encoding   = "character",
-    read_only  = "logical",
-    db_version = "numeric",
-    n_row      = "integer"
+    path         = "character",
+    log_level    = "numeric",
+    log_file     = "character",
+    compress     = "integer",
+    encoding     = "character",
+    read_only    = "logical",
+    db_version   = "numeric",
+    n_row        = "integer",
+    curr_var_tab = "ANY"
+    
   ),
   methods = list(
     initialize = function(
@@ -43,17 +45,19 @@ cdb <- setRefClass(
       .self$compress  <- compress
       .self$encoding  <- encoding
       
+      .self$curr_var_tab <- list_variables(path = .self$path, dims = TRUE) 
+      
       f <- file.path(path, .config_filename)
       if(file.exists(f))
       {
         
-        if(!is.null(dta <- set_config(read_cofig_info()))) set_config(dta)
+        if(!is.null(dta <- read_cofig_info())) set_config(dta)
         
       } else { # config.dat doesn't exist 
         
-        existingVars <- list_variables(path = .self$path, dims = TRUE)
+
         
-        if(nrow(existingVars) > 0L) { #data exist bunt not the config file => create the file
+        if(nrow(.self$curr_var_tab) > 0L) { #data exist bunt not the config file => create the file
           
           .self$read_only  <- read_only
           .self$db_version <- new_time_stamp()
@@ -83,18 +87,14 @@ cdb <- setRefClass(
       }
     },
     
-    guess_db_nrow = function() {
+    guess_db_nrow = function() {   
+
+      if(nrow(.self$curr_var_tab ) == 0L)  return(NA_integer_)
       
-      if(is.na(file.info(.self$path)$isdir)) return(0L)
-      existingVars <- list_variables(path = .self$path, dims = TRUE)
-      if(nrow(existingVars) == 0L)  return(0L)
-      
-      variable1 <- existingVars[1,]$variable
-      dims1 <- unlist(existingVars[1,]$dims)
+      dims1 <- unlist(.self$curr_var_tab[1,]$dims)
       if(length(dims1) == 0L) dims1 <- NULL
-      
-      
-      return(length(get_variable(variable1,dims1)))  
+         
+      return(length(get_variable(.self$curr_var_tab[1,]$variable,dims1)))  
       #Coldbir colud have a special function looking in the header instead for length (above)
       
     },
@@ -119,6 +119,14 @@ cdb <- setRefClass(
       }
     },
     
+    set_db_as_read_only = function(st = FALSE)
+    {
+      if(.self$read_only != st) {
+        .self$read_only  = st
+        write_cofig_info(get_config())
+      }
+    },
+    
     
     #' Save configuration setings on the disk
     #'
@@ -128,7 +136,7 @@ cdb <- setRefClass(
     #' 
    write_cofig_info = function(dta){
       
-        if(is.na(file.info(.self$path)$isdir)) dir.create(pa.self$pathth, recursive = TRUE)
+        if(is.na(file.info(.self$path)$isdir)) dir.create(.self$path, recursive = TRUE)
         f <- file.path(.self$path, .config_filename)
         saveRDS(dta,file=f) 
         
@@ -193,7 +201,16 @@ cdb <- setRefClass(
     get_doc = function(name) {
       
       f <- file_path(name, .self$path, create_dir = F, file_name = F, data_folder = F)
-      f <- file.path(f, .doc_file)
+      if(is.na(f)){
+        error("%s - no such data base", .self$path)
+        return(NULL)
+      }
+      
+      f <- file.path(f, .doc_file)      
+      if(!file.exists(f)){
+        error("%s - no documantation for this variable", paste(.self$path,name,sep=" : "))
+        return(NULL)
+      }
       
       con <- file(f, "r", encoding = .self$encoding)
       lns <- readLines(con, n = -1, warn = FALSE)
@@ -346,7 +363,7 @@ cdb <- setRefClass(
     #' 
     put_variable = function(x, name = NULL, dims = NULL, attrib = NULL, lookup = TRUE) {
       
-      if (read_only) stop("You're only allowed to read data, to change this use cdb(..., read_only = F)")
+      if (read_only) error("You're only allowed to read data, to change this use  ...$set_db_as_read_only(F)")
       
       # If x is a data frame it will recursively run put_variable over all columns
       if (is.data.frame(x)) {
@@ -376,7 +393,19 @@ cdb <- setRefClass(
         if (all(is.na(x))) {
           flog.info("%s - all values are missing", name)
         }
+        
+        
+        if(is.na(.self$n_row)){
           
+          .self$n_row <- length(x)
+          
+        } else if(.self$n_row != length(x)) { 
+          
+          flog.warn("%s - length of variable doesn't match the size of the other columns; nothing will be written", name)
+          return(FALSE) 
+          
+        }
+        
         # Create empty header
         header <- list()
           
@@ -492,6 +521,11 @@ cdb <- setRefClass(
   
           # Rename temporary variable to real name (overwrite)
           file.copy(tmp, cdb, overwrite = TRUE)
+          
+          #bookkeeping of the internal info
+          .self$curr_var_tab <- rbind(.self$curr_var_tab ,list(variable = name, dims = list(dims)))
+          .self$db_version <- new_time_stamp()
+          write_cofig_info(get_config())
               
           },
           finally = file.remove(tmp),
@@ -504,6 +538,18 @@ cdb <- setRefClass(
         flog.info(cdb)
         return(TRUE)
       }
+    },
+    
+    clean = function() {
+      if (read_only) stop("Read only, to change this use ...$set_db_as_read_only(F)")
+      
+      
+      
+      unlink(path, recursive = T)
+      .self$read_only  <- read_only
+      .self$db_version <- NA_real_
+      .self$n_row      <- NA_integer_
+      .self$curr_var_tab <- list_variables(path = .self$path, dims = TRUE) # Empty data.table with colnames
     }
   )
 )
@@ -533,8 +579,13 @@ setMethod(
         vars <- x$get_vars(dims = T)
         fun <- function(x) isTRUE(all.equal(x, as.character(j)))
         i <- vars[sapply(vars$dims, fun)]$variable
+        
+        if(length(i) == 0L) {
+          flog.error("%s - file does not exist", name)
+          return(NULL)
+        }
       }
-      
+
       # Create data.table with first variable
       v <- data.table(first = x[i[1], j, na = na])
       setnames(v, "first", i[1])
@@ -574,8 +625,9 @@ setMethod(
   f = "[<-",
   signature = "cdb",
   definition = function(x, i, j, value){
+    
     if (missing(j)) j <- NULL
-    if (x$read_only) stop("You're only allowed to read data, to change this use cdb(..., read_only = F)")
+    if (x$read_only) error("Read only, to change this use ...$set_db_as_read_only(F)")
     
     if (all(class(value) == "doc")) {
             
