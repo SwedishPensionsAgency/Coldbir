@@ -8,27 +8,20 @@
 #' @param create_dir If folder should be created when missing
 #' 
 #' @export
-#'
 put_lookup <- function(df, name, path = getwd(), create_dir = T) {
     
     if (!is.data.frame(df) || ncol(df) != 2) 
         stop("input must be a two-column data frame")
     
-    if (is.data.table(df)) {
-      setnames(df, c("keys", "values"))
-    } else {
-      colnames(df) <- c("keys", "values")
-    }
-    
     # Escape characters
-    df$values <- escape_char(df$values)
+    df[[2]] <- escape_char(df[[2]])
     
     folder_path <- file_path(name, path, create_dir = create_dir, file_name = F, data_folder = F)
     f <- file.path(folder_path, .lookup_filename)
     
     write_lookup <- function() {
         # Write temporary doc file to disk
-        write.table(df, file = tmp, quote = F, row.names = F, sep = "\t")
+        write.table(df, file = tmp, quote = F, col.names = F, row.names = F, sep = "\t")
         
         # Rename temporary doc to real name (overwrite)
         file.copy(tmp, f, overwrite = T)
