@@ -1,3 +1,4 @@
+require(Coldbir)
 path <- tempfile()
 size <- 1e3
 db <- cdb(path, log_level = 1, read_only = F)
@@ -136,6 +137,19 @@ test_that("put docs", {
   expect_error({ db["x"] <- doc(a = 1, b = 2) })
 })
 db$read_only <- F
+
+context("LOOKUP TABLES")
+########################
+dim_1 <- c("a", "b", "c")
+dim_2 <- c("b", "c")
+db["x", 1] <- dim_1
+db["x", 2] <- dim_2
+test_that("dim_1", {
+  expect_equal(dim_1, as.character(db["x", 1]))
+})
+test_that("dim_2", {
+  expect_equal(dim_2, as.character(db["x", 2]))
+})
 
 # CLEAN UP
 unlink(path, recursive = T)
