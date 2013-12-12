@@ -235,8 +235,7 @@ cdb <- setRefClass(
             x = x[[i]],
             name = i,
             dims = dims,
-            attrib = attrib,
-            lookup = lookup
+            attrib = attrib
           )
         })
         return(TRUE)
@@ -310,18 +309,33 @@ cdb <- setRefClass(
           }
           
           # Get previous lookup table
-          prev_lt <- get_lookup(name = name, path = path)
+          lookup <- get_lookup(name = name, path = path)
           
-          if (!is.null(prev_lt)) {
-            # Todo:
-            # - (if needed) extend previous lookup
-            # - convert levels in factor variable
+          # Get new levels (compared to lookup table)
+          lvl <- levels(x)[!levels(x) %in% lookup$values]
+          
+          # Add new levels (if there are any)
+          if (length(lvl) > 0) {
+            
+            # Set previous lookup table length              
+            len <- nrow(lookup)
+            if (is.null(len)) len <- 0
+            
+            # Create new lookup table or add to existing
+            lookup <- rbind(lookup, data.table(
+              keys = (len + 1):(len + length(lvl)),
+              values = lvl
+            ))
+            
+            # Write lookup table
+            put_lookup(lookup, name = name, path = path)
           }
           
-          # Lookup table (don't write unless it needs to be updated)
-          values <- levels(x)
-          lt <- data.frame(key = 1:length(values), value = values)
-          put_lookup(lt, name = name, path = path)
+          # Convert variable (TODO: rewrite this part)
+          if (!is.null(lookup)) {
+          x_data <- data.table(keys = as.integer(x), values = x, order = 1:length(x))
+          x <- merge(x_data, lookup, by = "values", all.x = T)[order(order)]$keys.y
+          }
           
           header$type <- "factor"
           header$bytes <- 4L

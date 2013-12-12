@@ -41,6 +41,12 @@ test_that("character", {
   expect_equal(as.factor(x), db["x"])
 })
 
+x <- as.factor(c(NA, NA))
+db["x"] <- x
+test_that("factor with only na", {
+  expect_equal(x, db["x"])
+})
+
 # Test if escape characters works
 x <- c("a\n", "\tc\v\n", "d\a\vx\ry\f\tz")
 db["x"] <- x
@@ -140,13 +146,17 @@ db$read_only <- F
 
 context("LOOKUP TABLES")
 ########################
-a <- c("a", "b", "c")
-b <- c("b", "c")
-db["x", "a"] <- a
-db["x", "b"] <- b
+a <- c("b", "c"); db["x", "a"] <- a
+b <- c("a", "b", NA); db["x", "b"] <- b
+c <- c("d", "c", NA, "c"); db["x", "c"] <- c
+d <- "c"; db["x", "d"] <- d
+e <- NA; db["x", "e"] <- e
 test_that("Different lookup tables between dimensions", {
   expect_equal(a, as.character(db["x", "a"]))
   expect_equal(b, as.character(db["x", "b"]))
+  expect_equal(c, as.character(db["x", "c"]))
+  expect_equal(d, as.character(db["x", "d"]))
+  expect_equal(e, as.character(db["x", "e"]))
 })
 
 # CLEAN UP

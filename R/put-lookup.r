@@ -15,13 +15,13 @@ put_lookup <- function(df, name, path = getwd(), create_dir = T) {
         stop("input must be a two-column data frame")
     
     if (is.data.table(df)) {
-      setnames(df, c("key", "value"))
+      setnames(df, c("keys", "values"))
     } else {
-      colnames(df) <- c("key", "value")
+      colnames(df) <- c("keys", "values")
     }
     
     # Escape characters
-    df$value <- escape_char(df$value)
+    df$values <- escape_char(df$values)
     
     folder_path <- file_path(name, path, create_dir = create_dir, file_name = F, data_folder = F)
     f <- file.path(folder_path, .lookup_filename)
