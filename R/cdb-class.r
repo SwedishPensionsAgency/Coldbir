@@ -309,6 +309,16 @@ cdb <- setRefClass(
             flog.warn("%s - character converted to factor", name)
           }
           
+          # Get previous lookup table
+          prev_lt <- get_lookup(name = name, path = path)
+          
+          if (!is.null(prev_lt)) {
+            # Todo:
+            # - (if needed) extend previous lookup
+            # - convert levels in factor variable
+          }
+          
+          # Lookup table (don't write unless it needs to be updated)
           values <- levels(x)
           lt <- data.frame(key = 1:length(values), value = values)
           put_lookup(lt, name = name, path = path)
