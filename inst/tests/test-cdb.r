@@ -16,58 +16,50 @@ test_that("init cdb", {
 context("VARIABLE TYPES")
 #########################
 db <- new_db()
-x <- sample(c(T, F), size, replace = T)
-db["x"] <- x
+db["x"] <- x <- sample(c(T, F), size, replace = T)
 test_that("logical", {
   expect_equal(x, db["x"])
 })
 
 db <- new_db()
-x <- sample(c(T, F, NA), size, replace = T)
-db["x"] <- x
+db["x"] <- x <- sample(c(T, F, NA), size, replace = T)
 test_that("logical na", {
   expect_equal(x, db["x"])
 })
 
 db <- new_db()
-x <- sample(c(0, 1, 10000, .Machine$integer.max, NA), size, replace = T)
-db["x"] <- x
+db["x"] <- x <- sample(c(0, 1, 10000, .Machine$integer.max, NA), size, replace = T)
 test_that("integer", {
   expect_equal(x, db["x"])
 })
 
 db <- new_db()
-x <- sample(c(-100, -50, 0, 50, 100, NA), size, replace = T)
-db["x"] <- x
+db["x"] <- x <- sample(c(-100, -50, 0, 50, 100, NA), size, replace = T)
 test_that("double", {
   expect_equal(x, db["x"])
 })
 
 db <- new_db()
-x <- sample(LETTERS, size, replace = T)
-db["x"] <- x
+db["x"] <- x <- sample(LETTERS, size, replace = T)
 test_that("character", {
   expect_equal(as.factor(x), db["x"])
 })
 
 db <- new_db()
-x <- as.factor(c(NA, NA))
-db["x"] <- x
+db["x"] <- x <- as.factor(c(NA, NA))
 test_that("factor with only na", {
   expect_equal(x, db["x"])
 })
 
 db <- new_db()
 # Test if escape characters works
-x <- c("a\n", "\tc\v\n", "d\a\vx\ry\f\tz")
-db["x"] <- x
+db["x"] <- x <- c("a\n", "\tc\v\n", "d\a\vx\ry\f\tz")
 test_that("escape_char", {
   expect_equal(escape_char(x), as.character(db["x"]))
 })
 
 db <- new_db()
-x <- .POSIXct(runif(size) * unclass(Sys.time()))
-db["x"] <- x
+db["x"] <- x <- .POSIXct(runif(size) * unclass(Sys.time()))
 test_that("POSIXct", {
   expect_equal(as.character(x), as.character(db["x"]))
 })
@@ -102,9 +94,8 @@ test_that("add docs as one parameter that includes a list", {
 context("VARIABLE DIMENSIONS")
 ##############################
 db <- new_db()
-x <- sample(1:5, size, replace = T)
 dims <- c(2012, "a")
-db["x", dims] <- x
+db["x", dims] <- x <- sample(1:5, size, replace = T)
 test_that("put/get variable with dimensions", {
   expect_error(db["non-existing", dims])
   expect_equal(x, db["x", dims])
@@ -112,10 +103,8 @@ test_that("put/get variable with dimensions", {
 })
 
 db <- new_db()
-x <- sample(1:5, size, replace = T)
 dims <- NULL
-db["x", dims] <- x
-
+db["x", dims] <- x <- sample(1:5, size, replace = T)
 test_that("put/get variable with dims = NULL", {
   expect_equal(x, db["x", dims])
   expect_true(file.exists(file.path(db$path, "x", "data", "d.cdb.gz")))
@@ -128,22 +117,19 @@ test_that("non-existing dimensions", {
 context("REPLACE NA")
 #####################
 db <- new_db()
-x <- c(T, F, NA, F, T)
-db["x"] <- x
+db["x"] <- x <- c(T, F, NA, F, T)
 test_that("logical replaces NA", {
   expect_equal(sum(x, na.rm = T), sum(db["x", na = F]))
 })
 
 db <- new_db()
-x <- c(1, NA, 3)
-db["x"] <- x
+db["x"] <- x <- c(1, NA, 3)
 test_that("integer replaces NA", {
   expect_equal(1:3, db["x", na = 2])
 })
 
 db <- new_db()
-x <- c("a", NA)
-db["x"] <- x
+db["x"] <- x <- c("a", NA)
 test_that("character replaces NA", {
   expect_equal(as.factor(c("a", "b")), db["x", na = "b"])
 })
@@ -181,11 +167,11 @@ db$read_only <- F
 context("LOOKUP TABLES")
 ########################
 db <- new_db()
-a <- c("b", "c"); db["x", "a"] <- a
-b <- c("a", "b", NA); db["x", "b"] <- b
-c <- c("d", "c", NA, "c"); db["x", "c"] <- c
-d <- "c"; db["x", "d"] <- d
-e <- as.character(NA); db["x", "e"] <- e
+db["x", "a"] <- a <- c("b", "c")
+db["x", "b"] <- b <- c("a", "b", NA)
+db["x", "c"] <- c <- c("d", "c", NA, "c")
+db["x", "d"] <- d <- "c"
+db["x", "e"] <- e <- as.character(NA)
 test_that("Different lookup tables between dimensions", {
   expect_equal(a, as.character(db["x", "a"]))
   expect_equal(b, as.character(db["x", "b"]))
