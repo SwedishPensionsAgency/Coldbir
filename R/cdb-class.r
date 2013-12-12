@@ -224,7 +224,7 @@ cdb <- setRefClass(
     },
     
     # Put variable data
-    put_variable = function(x, name = NULL, dims = NULL, attrib = NULL, lookup = TRUE) {
+    put_variable = function(x, name = NULL, dims = NULL, attrib = NULL) {
       
       if (read_only) stop("You're only allowed to read data, to change this use cdb(..., read_only = F)")
       
@@ -309,11 +309,9 @@ cdb <- setRefClass(
             flog.warn("%s - character converted to factor", name)
           }
           
-          if (lookup) {
-            values <- levels(x)
-            lt <- data.frame(key = 1:length(values), value = values)
-            put_lookup(lt, name = name, path = path)
-          }
+          values <- levels(x)
+          lt <- data.frame(key = 1:length(values), value = values)
+          put_lookup(lt, name = name, path = path)
           
           header$type <- "factor"
           header$bytes <- 4L
