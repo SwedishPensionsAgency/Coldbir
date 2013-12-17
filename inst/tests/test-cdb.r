@@ -1,8 +1,6 @@
-path <- tempfile()   # chartr("\\","/",path) ; cat(path)
+path <- tempfile()
 size <- 1e3
-
 db <- cdb(path, log_level = 1, read_only = F)
-
 
 context("INITIALIZE DATABASE")
 ##############################
@@ -18,20 +16,20 @@ test_that("nrow when database is empty", {
   expect_true(is.na(db$guess_db_nrow()))
 })
 
+x <- sample(1:5, size, replace = T)
+db["x"] <- x
+test_that("nrow when database contains one variable without any dimentions", {
+  expect_equal(db$guess_db_nrow(), size)
+})
+
+db$clean()
+
 context("VARIABLE TYPES")
 #########################
 x <- sample(c(T, F), size, replace = T)
 db["x"] <- x
 test_that("logical", {
   expect_equal(x, db["x"])
-})
-
-if(FALSE) {#************************************
-
-context("GUESSING NROW")
-#########################
-test_that("nrow when database contains one variable without any dimentions", {
-  expect_equal(db$guess_db_nrow(), size)
 })
 
 x <- sample(c(T, F, NA), size, replace = T)
@@ -58,18 +56,14 @@ test_that("character", {
   expect_equal(as.factor(x), db["x"])
 })
 
-
 x <- .POSIXct(runif(size) * unclass(Sys.time()))
 db["x"] <- x
 test_that("POSIXct", {
   expect_equal(as.character(x), as.character(db["x"]))
 })
 
-
-db$clean()
-
 # Test if escape characters works
-x <- c("a\n", "\tc\v\n", "d\a\vx\ry\f\tz")
+x <- sample(c("a\n", "\tc\v\n", "d\a\vx\ry\f\tz"), size, replace = T)
 db["x"] <- x
 test_that("escape_char", {
   expect_equal(escape_char(x), as.character(db["x"]))
@@ -78,6 +72,8 @@ test_that("escape_char", {
 test_that("non-existing", {
   expect_error(db["non-existing"])
 })
+
+db$clean()
 
 context("VARIABLE DOCUMENTATION")
 #################################
@@ -98,10 +94,10 @@ test_that("add docs as one parameter that includes a list", {
   expect_equal(list(a = x), db$get_doc("x"))
 })
 
-context("VARIABLE DIMENSIONS")
-##############################
 db$clean()
 
+context("VARIABLE DIMENSIONS")
+##############################
 x <- sample(1:5, size, replace = T)
 dims <- c(2012, "a")
 db["x", dims] <- x
@@ -124,12 +120,10 @@ test_that("non-existing dimensions", {
   expect_error(db["non-existing", dims])
 })
 
-} #************************************************************
+db$clean()
 
 context("REPLACE NA")
 #####################
-db$clean()
-
 x <- c(T, F, NA, F, T)
 db["x"] <- x
 test_that("logical replaces NA", {
@@ -152,11 +146,10 @@ test_that("character replaces NA", {
   expect_equal(as.factor(c("a", "b")), db["x", na = "b"])
 })
 
+db$clean()
 
 context("DATASETS")
 ###################
-db$clean()
-
 x <- data.table(MASS::survey)
 
 # In addition we change the column names
@@ -171,28 +164,24 @@ test_that("get dataset", {
   expect_equal(x, db[, "survey"])
 })
 
-context("READ ONLY")
-####################
-
 db$clean()
 
-db$set_db_as_read_only(T)
+context("READ ONLY")
+####################
+db$read_only <- T
 
 test_that("put variable", {
   expect_error({ db["x"] <- 1:10})
 })
 
-
 test_that("clean", {
   expect_error({ db$clean() })
 })
-
 
 test_that("put docs", {
   expect_error({ db["x"] <- doc(a = 1, b = 2) })
 })
 
-db$set_db_as_read_only(F)
+db$read_only <- F
 
-# CLEAN UP
 db$clean()

@@ -610,7 +610,7 @@ setMethod(
     if (x$read_only) error("Read only, to change this use ...$set_db_as_read_only(F)")
     
     if (all(class(value) == "doc")) {
-            
+      
       # Create readme.json
       x$put_doc(x = value$to_json(), name = i)
       
