@@ -48,14 +48,12 @@ cdb <- setRefClass(
       .self$curr_var_tab <- list_variables(path = .self$path, dims = TRUE) 
       
       f <- file.path(path, .config_filename)
-      if(file.exists(f))
-      {
+      
+      if(file.exists(f)) {
         
-        if(!is.null(dta <- read_cofig_info())) set_config(dta)
+        get_config()
         
       } else { # config.dat doesn't exist 
-        
-
         
         if(nrow(.self$curr_var_tab) > 0L) { #data exist bunt not the config file => create the file
           
@@ -63,8 +61,7 @@ cdb <- setRefClass(
           .self$db_version <- new_time_stamp()
           .self$n_row      <- guess_db_nrow()
           
-          write_cofig_info(get_config())
-          
+          put_config()
           
         } else { # no data = > postpone the creation of the config file until something is done in the directory
           
@@ -73,9 +70,7 @@ cdb <- setRefClass(
           .self$n_row      <- NA_integer_
           
         }
-        
       }
-      
       
       # Set futile.logger options
       flog.threshold(log_level)
@@ -89,74 +84,60 @@ cdb <- setRefClass(
     
     guess_db_nrow = function() {   
 
-      if(nrow(.self$curr_var_tab ) == 0L)  return(NA_integer_)
+      if (nrow(.self$curr_var_tab ) == 0L)  return(NA_integer_)
       
       dims1 <- unlist(.self$curr_var_tab[1,]$dims)
-      if(length(dims1) == 0L) dims1 <- NULL
+      if (length(dims1) == 0L) dims1 <- NULL
          
       return(length(get_variable(.self$curr_var_tab[1,]$variable,dims1)))  
       #Coldbir colud have a special function looking in the header instead for length (above)
       
     },
     
-    get_config = function()
-    { 
-      return(list(   
-                     read_only   = .self$read_only,
-                     db_version  = .self$db_version,
-                     n_row       = .self$n_row
-                    )
-              )
-      
-    },
-    
-    set_config = function(dta)
-    {
-      if(!is.null(dta)) {
-        .self$read_only   = dta$read_only
-        .self$db_version  = dta$db_version
-        .self$n_row       = dta$n_row
-      }
-    },
-    
-    set_db_as_read_only = function(st = FALSE)
-    {
-      if(.self$read_only != st) {
-        .self$read_only  = st
-        write_cofig_info(get_config())
-      }
-    },
-    
-    
     #' Save configuration setings on the disk
-    #'
-    #' the configuration is saved in JSON format
-    #'
-    #' @param dta 
-    #' 
-   write_cofig_info = function(dta){
-      
-        if(is.na(file.info(.self$path)$isdir)) dir.create(.self$path, recursive = TRUE)
-        f <- file.path(.self$path, .config_filename)
-        saveRDS(dta,file=f) 
+    put_config = function() {
+      if (!.self$read_only) {
+        if (is.na(file.info(.self$path)$isdir)) {
+          dir.create(.self$path, recursive = T)
+        }
         
+        f <- file.path(.self$path, .config_filename)
+        
+        dta <- list(
+          read_only <- .self$read_only,
+          db_version <- .self$db_version,
+          n_row <- .self$n_row
+        )
+        
+        saveRDS(dta,file = f)
+        
+      } else {
+        
+        if (read_only) stop("Read only, to change this set db$read_only <- F")
+        
+      }
     },
- 
+    
     #' read configuration setings from the disk
     #'
     #' the configuration is saved in JSON format
     #'    
-    read_cofig_info = function(){
+    get_config = function(){
 
-      f <- file.path(.self$path, .config_filename)      
-      if(file.exists(f)) {
+      f <- file.path(.self$path, .config_filename)
+      
+      if (file.exists(f)) {
         
-        dta <- readRDS(file=f)
+        dta <- readRDS(file = f)
         
-        return(dta) 
+        # Set field values
+        .self$read_only <- dta$read_only
+        .self$db_version <- dta$db_version
+        .self$n_row <- dta$n_row
+        
+        return(T)
         
       } else return (NULL)
-  
     },
     
     #' Put variable documentation to disk
@@ -523,17 +504,18 @@ cdb <- setRefClass(
           file.copy(tmp, cdb, overwrite = TRUE)
           
           #bookkeeping of the internal info
-          .self$curr_var_tab <- rbind(.self$curr_var_tab ,list(variable = name, dims = list(dims)))
+          .self$curr_var_tab <- rbind(.self$curr_var_tab , list(variable = name, dims = list(dims)))
           .self$db_version <- new_time_stamp()
-          write_cofig_info(get_config())
-              
+          
+          put_config()
+          
           },
           finally = file.remove(tmp),
           error = function(e) {
             flog.fatal("%s - writing failed; rollback! (%s)", name, e)
           }
         )
-            
+        
         # Return TRUE and message if variable is successfully written
         flog.info(cdb)
         return(TRUE)
@@ -541,9 +523,7 @@ cdb <- setRefClass(
     },
     
     clean = function() {
-      if (read_only) stop("Read only, to change this use ...$set_db_as_read_only(F)")
-      
-      
+      if (read_only) stop("Read only, to change this set db$read_only <- F")
       
       unlink(path, recursive = T)
       .self$read_only  <- read_only
@@ -585,7 +565,7 @@ setMethod(
           return(NULL)
         }
       }
-
+      
       # Create data.table with first variable
       v <- data.table(first = x[i[1], j, na = na])
       setnames(v, "first", i[1])
