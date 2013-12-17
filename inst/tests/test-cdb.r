@@ -10,8 +10,23 @@ test_that("init cdb", {
 
 db$clean()
 
+context("DATABASE CONFIG")
+##########################
+db$put_config()
+rds <- file.path(db$path, Coldbir:::.config_filename)
+test_that("create config file in an empty database", {
+  expect_true(file.exists(rds))
+  expect_identical(readRDS(rds), list(
+    read_only = F,
+    db_version = NA_real_,
+    n_row = NA_integer_
+  ))
+})
+
+db$clean()
+
 context("GUESSING NROW")
-#########################
+########################
 test_that("nrow when database is empty", {
   expect_true(is.na(db$guess_db_nrow()))
 })

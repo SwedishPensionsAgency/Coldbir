@@ -44,12 +44,13 @@ cdb <- setRefClass(
       .self$log_file  <- log_file
       .self$compress  <- compress
       .self$encoding  <- encoding
+      .self$read_only <- read_only
       
       .self$curr_var_tab <- list_variables(path = .self$path, dims = TRUE) 
       
       f <- file.path(path, .config_filename)
       
-      if(file.exists(f)) {
+      if (file.exists(f)) {
         
         get_config()
         
@@ -57,15 +58,12 @@ cdb <- setRefClass(
         
         if(nrow(.self$curr_var_tab) > 0L) { #data exist bunt not the config file => create the file
           
-          .self$read_only  <- read_only
           .self$db_version <- new_time_stamp()
           .self$n_row      <- guess_db_nrow()
-          
           put_config()
           
         } else { # no data = > postpone the creation of the config file until something is done in the directory
           
-          .self$read_only  <- read_only
           .self$db_version <- NA_real_
           .self$n_row      <- NA_integer_
           
@@ -104,12 +102,12 @@ cdb <- setRefClass(
         f <- file.path(.self$path, .config_filename)
         
         dta <- list(
-          read_only <- .self$read_only,
-          db_version <- .self$db_version,
-          n_row <- .self$n_row
+          read_only = .self$read_only,
+          db_version = .self$db_version,
+          n_row = .self$n_row
         )
         
-        saveRDS(dta,file = f)
+        saveRDS(dta, file = f)
         
       } else {
         
