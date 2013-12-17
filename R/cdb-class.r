@@ -277,7 +277,7 @@ cdb <- setRefClass(
       close(bin_file)
       
       # Check if using an old version of colbir
-      if (header$db_ver != as.integer(.database_version)) {
+      if (header$db_ver != as.integer(.cdb_file_version)) {
         flog.error("%s - version of coldbir package and file format does not match", name)
         stop()
       }
@@ -484,7 +484,7 @@ cdb <- setRefClass(
         )
         
         # File header
-        header$db_ver <- as.integer(.database_version)
+        header$db_ver <- as.integer(.cdb_file_version)
           
         # Add attributes
         header$attributes <- attrib
