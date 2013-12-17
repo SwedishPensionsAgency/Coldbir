@@ -96,6 +96,9 @@ cdb <- setRefClass(
     },
     
     #' Save configuration settings to disk
+    #' 
+    #' Note: The config file can be updated even if the database is read only,
+    #' as it would otherwise be more difficult to actually change the same option.
     put_config = function() {
       if (.self$read_only) {
         warning("Config file updated, although `db$read_only` is set to TRUE")
