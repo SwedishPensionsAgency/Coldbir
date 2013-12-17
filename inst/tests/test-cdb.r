@@ -189,14 +189,17 @@ test_that("put variable", {
   expect_error({ db["x"] <- 1:10})
 })
 
-test_that("clean", {
-  expect_error({ db$clean() })
-})
-
 test_that("put docs", {
   expect_error({ db["x"] <- doc(a = 1, b = 2) })
 })
 
-db$read_only <- F
+test_that("put config", {
+  expect_warning(db$put_config())
+})
 
+test_that("clean", {
+  expect_error(db$clean())
+})
+
+db$read_only <- F
 db$clean()
