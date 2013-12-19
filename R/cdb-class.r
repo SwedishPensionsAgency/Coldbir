@@ -27,7 +27,6 @@ cdb <- setRefClass(
     db_version   = "numeric",
     n_row        = "integer",
     curr_var_tab = "ANY"
-    
   ),
   methods = list(
     initialize = function(
@@ -38,7 +37,7 @@ cdb <- setRefClass(
       encoding  = "UTF-8",
       read_only = F
     ) {
-        
+      
       # Set parameters
       .self$path      <- path
       .self$log_level <- log_level
@@ -46,7 +45,6 @@ cdb <- setRefClass(
       .self$compress  <- compress
       .self$encoding  <- encoding
       .self$read_only <- read_only
-      
       .self$curr_var_tab <- list_variables(path = .self$path, dims = T) 
       
       f <- file.path(path, .config_filename)
