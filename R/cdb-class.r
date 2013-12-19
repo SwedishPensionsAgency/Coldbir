@@ -163,22 +163,22 @@ cdb <- setRefClass(
       } else if (header$type == "factor") {
         
         # Get lookup table, where values are to be used as levels
-        df <- .self$get_lookup(name = name)
+        lt <- .self$get_lookup(name = name)
         
-        if (!is.null(df)) {
+        if (!is.null(lt)) {
           
           # Check whether variable has any NA
-          has_na <- any(is.na(x)) && !any(is.na(df[[2]]))
+          has_na <- any(is.na(x)) && !any(is.na(lt[[2]]))
           
           # Add one level for NA
-          levels_len <- max(df[[1]]) + as.integer(has_na)
+          levels_len <- max(lt[[1]]) + as.integer(has_na)
           
           # Replace NA in data with factor level
           if(has_na) x[which(is.na(x))] <- levels_len   # NA values by leveles
           
           # Create factor levels
-          levels <- rep(NA_character_, levels_len)  # assert odd cases, usually 1:nrow(df) + occasional NA
-          levels[df[[1]]] <- df[[2]]
+          levels <- rep(NA_character_, levels_len)  # assert odd cases, usually 1:nrow(lt) + occasional NA
+          levels[lt[[1]]] <- lt[[2]]
           if(!is.na(na)) levels[is.na(levels)] <- na
           
           # Convert to factor variable
