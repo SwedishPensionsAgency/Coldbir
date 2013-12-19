@@ -335,7 +335,7 @@ cdb <- setRefClass(
             ))
             
             # Write lookup table
-            put_lookup(name = name, table = lookup)
+            .self$put_lookup(name = name, table = lookup)
           }
           
           # Convert variable (TODO: rewrite this part)
