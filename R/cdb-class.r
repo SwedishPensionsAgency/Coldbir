@@ -275,27 +275,35 @@ cdb <- setRefClass(
       } else if (header$type == "factor") {
         
         # Get lookup table, where values are to be used as levels
-        df <- get_lookup(name = name, path = .self$path)
+        lt <- .self$get_lookup(name = name)
         
-        if (!is.null(df)) {
+        if (!is.null(lt)) {
           
           # Check whether variable has any NA
-          has_na <- any(is.na(x)) && !any(is.na(df[[2]]))
+          has_na <- any(is.na(x)) && !any(is.na(lt[[2]]))
           
           # Add one level for NA
-          levels_len <- max(df[[1]]) + as.integer(has_na)
+          levels_len <- max(lt[[1]]) + as.integer(has_na)
           
           # Replace NA in data with factor level
           if(has_na) x[which(is.na(x))] <- levels_len   # NA values by leveles
           
           # Create factor levels
-          levels <- rep(NA_character_, levels_len)  # assert odd cases, usually 1:nrow(df) + occasional NA
-          levels[df[[1]]] <- df[[2]]
+          levels <- rep(NA_character_, levels_len)  # assert odd cases, usually 1:nrow(lt) + occasional NA
+          levels[lt[[1]]] <- lt[[2]]
           if(!is.na(na)) levels[is.na(levels)] <- na
           
           # Convert to factor variable
           levels(x) <- levels
           class(x) <- "factor"
+
+        } else {
+          
+          # This is outside the `if (!is.null(df))` due to the 
+          # odd case of a factor variable with only NA-values
+          levels(x) <- character(0)
+          class(x) <- "factor"
+          
         }
         
       ## double
@@ -335,15 +343,14 @@ cdb <- setRefClass(
       return(x)
     },
     
-    # Put variable data
-    #'    
-    #' @param x vector of values. Thelentnht should be the same for each vector in for the Coldbir data set
+    #' Put variable data
+    #' 
+    #' @param x vector of values. Should be of the same length as all the other variables in the database.
     #' @param name variable name
     #' @param dims the specified observation in the space of dimensions 
     #' @param attrib additional attributes to be saved  
-    #' @param lookup idicates if there is a need of lookup table  
     #' 
-    put_variable = function(x, name = NULL, dims = NULL, attrib = NULL, lookup = T) {
+    put_variable = function(x, name = NULL, dims = NULL, attrib = NULL) {
       
       if (read_only) error("You're only allowed to read data, to change this use  ...$set_db_as_read_only(F)")
       
@@ -354,8 +361,7 @@ cdb <- setRefClass(
             x = x[[i]],
             name = i,
             dims = dims,
-            attrib = attrib,
-            lookup = lookup
+            attrib = attrib
           )
         })
         return(T)
@@ -381,17 +387,13 @@ cdb <- setRefClass(
           .self$n_row <- length(x)
           
         } else if(.self$n_row != length(x)) { 
-          
-          flog.warn("%s - length of variable doesn't match the size of the other columns; nothing will be written", name)
-          return(F) 
-          
+          stop(sprintf("%s - length of variable doesn't match the size of the other columns; nothing will be written", name))
         }
         
         # Create empty header
         header <- list()
           
         # Check/set vector type and number of bytes
-          
         if (is.numeric(x)) {
               
           if (is.integer(x)) {
@@ -439,10 +441,35 @@ cdb <- setRefClass(
             flog.warn("%s - character converted to factor", name)
           }
           
-          if (lookup) {
-            values <- levels(x)
-            lt <- data.frame(key = 1:length(values), value = values)
-            put_lookup(lt, name = name, path = path)
+          # Get previous lookup table
+          lookup <- .self$get_lookup(name = name)
+          
+          # Get new levels (compared to lookup table)
+          lvl <- levels(x)[!levels(x) %in% lookup[[2]]]
+          
+          # Add new levels (if there are any)
+          if (length(lvl) > 0) {
+            
+            # Set previous lookup table length              
+            len <- nrow(lookup)
+            if (is.null(len)) len <- 0
+            
+            # Create new lookup table or add to existing (cols: key, value)
+            lookup <- rbindlist(list(
+              lookup, 
+              data.table((len + 1):(len + length(lvl)), lvl)
+            ))
+            
+            # Write lookup table
+            .self$put_lookup(name = name, table = lookup)
+          }
+          
+          # Convert variable (TODO: rewrite this part)
+          if (!is.null(lookup)) {
+            setnames(lookup, c("k", "v"))
+            x_data <- data.table(k = as.integer(x), v = x, order = 1:length(x))
+            x <- merge(x_data, lookup, by = "v", all.x = T, all.y = F)
+            x <- x$k.y[order(x$order)]
           }
           
           header$type <- "factor"
@@ -522,6 +549,73 @@ cdb <- setRefClass(
       }
     },
     
+    #' Write lookup table to disk
+    #'
+    #' Write lookup table that represents variable data to disk.
+    #'
+    #' @param name Variable name
+    #' @param table Two-column data table with keys and values
+    put_lookup = function(name, table) {
+      
+      if (read_only) stop("You're only allowed to read data, to change this use cdb(..., read_only = F)")
+      
+      if (!is.data.frame(table) || ncol(table) != 2) 
+        stop("input must be a two-column data frame")
+      
+      # Escape characters
+      table[[2]] <- escape_char(table[[2]])
+      
+      folder_path <- file_path(name, .self$path, create_dir = T, file_name = F, data_folder = F)
+      f <- file.path(folder_path, .lookup_filename)
+      
+      write_lookup <- function() {
+        # Write temporary doc file to disk
+        write.table(table, file = tmp, quote = F, col.names = F, row.names = F, sep = "\t")
+        
+        # Rename temporary doc to real name (overwrite)
+        file.copy(tmp, f, overwrite = T)
+      }
+      
+      # Create temporary file
+      tmp <- create_temp_file(f)
+      
+      # Try to write doc file to disk
+      tryCatch(
+        write_lookup(),
+        finally = file.remove(tmp),
+        error = function(e) {
+          flog.fatal("%s - writing failed; rollback! (%s)", name, e)
+        }
+      )
+      
+      flog.info(f)
+      return(TRUE)
+    },
+    
+    #' Read dictionary from disk
+    #'
+    #' Read dictionary that represents variable data from disk.
+    #'
+    #' @param name Variable name
+    get_lookup = function(name) {
+      if (file.exists(file.path(.self$path, name))) {
+        folder_path <- file_path(name, .self$path, create_dir = F, file_name = F, data_folder = F)
+        file <- file.path(folder_path, .lookup_filename)
+        
+        if (file.exists(file)) {
+          table <- read.table(file = file, header = F, quote = "", sep = "\t", stringsAsFactors = F)
+          if (!is.data.frame(table) || ncol(table) != 2) {
+            stop("lookup must be a two-column data frame")
+          }
+          return(as.data.table(table))
+        } else { 
+          return(NULL)
+        }
+      } else {
+        return(NULL)
+      }
+    },
+    #' Remove all content in database
     clean = function() {
       if (read_only) stop("Read only, to change this set db$read_only <- F")
       
