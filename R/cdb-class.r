@@ -387,10 +387,8 @@ cdb <- setRefClass(
           .self$n_row <- length(x)
           
         } else if(.self$n_row != length(x)) { 
-          
-          flog.warn("%s - length of variable doesn't match the size of the other columns; nothing will be written", name)
-          return(F) 
-          
+          flog.error("%s - length of variable doesn't match the size of the other columns; nothing will be written", name)
+          stop()
         }
         
         # Create empty header
