@@ -23,3 +23,8 @@ get_args <- function(...) {
     return(args)
   }
 }
+
+
+new_time_stamp <- function(){
+  return(as.double(lubridate::force_tz(Sys.time(), .tzone))) 
+}

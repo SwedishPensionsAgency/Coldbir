@@ -5,42 +5,73 @@
 #' 
 #' @param path Database path (the location of the coldbir database)
 #' @param log_level Log level (default: 4). Available levels: 1-9.
+#' This option can only be set upon initialization using `cdb(...)`.
 #' @param log_file Log file. As default log messages will be written to console.
 #' @param compress file compression level
 #' @param encoding set documentation encoding (default: UTF-8)
 #' @param read_only read only (default: T)
+#' @param db_version instance-attribute for sycronisation of current list of variables
+#' @param n_row the common length of vecrors in the database
 #' 
 #' @examples db <- cdb()
 #' @export
 cdb <- setRefClass(
   "cdb",
   fields = list(
-    path = "character",
-    log_level = "numeric",
-    log_file = "character",
-    compress = "numeric",
-    encoding = "character",
-    read_only = "logical"
+    path         = "character",
+    log_level    = "numeric",
+    log_file     = "character",
+    compress     = "integer",
+    encoding     = "character",
+    read_only    = "logical",
+    db_version   = "numeric",
+    n_row        = "integer",
+    curr_var_tab = "ANY"
   ),
   methods = list(
     initialize = function(
-      path = getwd(),
-      log_level = 4,
-      log_file = "",
-      compress = 5,
-      encoding = "UTF-8",
-      read_only = T
+      path      = getwd(),
+      log_level = 4L,
+      log_file  = "",
+      compress  = 5L,
+      encoding  = "UTF-8",
+      read_only = F
     ) {
-        
-      # Set parameters
-      .self$path <- path
-      .self$log_level <- log_level
-      .self$log_file <- log_file
-      .self$compress <- compress
-      .self$encoding <- encoding
-      .self$read_only <- read_only
       
-      # Set futile.logger options
+      # Set parameters
+      .self$path      <- path
+      .self$log_level <- log_level
+      .self$log_file  <- log_file
+      .self$compress  <- compress
+      .self$encoding  <- encoding
+      .self$read_only <- read_only
+      .self$curr_var_tab <- list_variables(path = .self$path, dims = T) 
+      
+      f <- file.path(path, .config_filename)
+      
+      if (file.exists(f)) {
+        
+        get_config()
+        
+      } else { # config.dat doesn't exist 
+        
+        if(nrow(.self$curr_var_tab) > 0L) { #data exist bunt not the config file => create the file
+          
+          .self$db_version <- new_time_stamp()
+          .self$n_row      <- guess_db_nrow()
+          put_config()
+          
+        } else { # no data = > postpone the creation of the config file until something is done in the directory
+          
+          .self$db_version <- NA_real_
+          .self$n_row      <- NA_integer_
+          
+        }
+      }
+      
+      # Set futile.logger options;
+      #   since this option is set during initialization,
+      #   it cannot be changed later, e.g. `db$log_level <- 9`.
       flog.threshold(log_level)
       
       if (log_file != "") {
@@ -48,6 +79,66 @@ cdb <- setRefClass(
       } else {
         flog.appender(appender.console())
       }
+    },
+    
+    #' Get database variable length
+    #' - Currently it compares with the first variable in the database
+    guess_db_nrow = function() {
+      
+      if (nrow(.self$curr_var_tab) == 0L) return(NA_integer_)
+      
+      # Get variable dimension
+      dim <- unlist(.self$curr_var_tab[1,]$dim)
+      if (length(dim) == 0L) dim <- NULL
+      
+      # Get variable length
+      # - Could have a special function looking in the header instead for length
+      len <- length(get_variable(.self$curr_var_tab[1,]$variable, dim))
+      
+      return(len)
+    },
+    
+    #' Save configuration settings to disk
+    #' 
+    #' Note: The config file can be updated even if the database is read only,
+    #' as it would otherwise be more difficult to actually change the same option.
+    put_config = function() {
+      if (.self$read_only) {
+        warning("Config file updated, although `db$read_only` is set to TRUE")
+      }
+      
+      if (is.na(file.info(.self$path)$isdir)) {
+        dir.create(.self$path, recursive = T)
+      }
+      
+      f <- file.path(.self$path, .config_filename)
+      
+      dta <- list(
+        read_only = .self$read_only,
+        db_version = .self$db_version,
+        n_row = .self$n_row
+      )
+      
+      saveRDS(dta, file = f)
+    },
+    
+    #' Get configuration settings from disk
+    get_config = function(){
+      
+      f <- file.path(.self$path, .config_filename)
+      
+      if (file.exists(f)) {
+        
+        dta <- readRDS(file = f)
+        
+        # Set field values
+        .self$read_only <- dta$read_only
+        .self$db_version <- dta$db_version
+        .self$n_row <- dta$n_row
+        
+        return(T)
+        
+      } else return (NULL)
     },
     
     #' Put variable documentation to disk
@@ -88,13 +179,23 @@ cdb <- setRefClass(
     #' Read documentation of a variable from disk.
     #'
     #' @param name Variable name
+    #' 
     get_doc = function(name) {
       
       f <- file_path(name, .self$path, create_dir = F, file_name = F, data_folder = F)
-      f <- file.path(f, .doc_file)
+      if(is.na(f)){
+        error("%s - no such data base", .self$path)
+        return(NULL)
+      }
+      
+      f <- file.path(f, .doc_file)      
+      if(!file.exists(f)){
+        error("%s - no documantation for this variable", paste(.self$path,name,sep=" : "))
+        return(NULL)
+      }
       
       con <- file(f, "r", encoding = .self$encoding)
-      lns <- readLines(con, n = -1, warn = FALSE)
+      lns <- readLines(con, n = -1, warn = F)
       close(con)
       
       d <- paste(lns, collapse = "\n")
@@ -103,11 +204,17 @@ cdb <- setRefClass(
     },
     
     # List all variables
+    #'
+    #' @param dims tells if column with dimensions is required
+    #'
     get_vars = function(dims = F) {
       list_variables(path = .self$path, dims = dims)
     },
     
     # Get variable dimensions
+    #'    
+    #' @param name variable name
+    #'
     get_dims = function(name) {
       x <- list_variables(path = .self$path, dims = T)
       x <- subset(x, variable == name)
@@ -115,10 +222,15 @@ cdb <- setRefClass(
     },
     
     # Get variable data
+    #'    
+    #' @param name variable name
+    #' @param dims the specified observation in the space of dimensions 
+    #' @param na the value of missing values. NA by default. 
+    #'     
     get_variable = function(name, dims = NULL, na = NA) {
   
       # Get file path
-      cdb <- file_path(name, .self$path, dims, ext = c("cdb.gz", "cdb"), create_dir = FALSE)
+      cdb <- file_path(name, .self$path, dims, ext = c("cdb.gz", "cdb"), create_dir = F)
       
       # Connect to compressed/uncompressed file
       if (file.exists(cdb[1])) {
@@ -134,7 +246,7 @@ cdb <- setRefClass(
       
       header_len <- readBin(bin_file, integer(), n = 1, size = 8)
       header_str <- rawToChar(readBin(bin_file, raw(), n = header_len))
-      header <- fromJSON(header_str, simplifyWithNames = FALSE)
+      header <- fromJSON(header_str, simplifyWithNames = F)
       
       vector_len <- readBin(bin_file, integer(), n = 1, size = 8)
       
@@ -147,7 +259,7 @@ cdb <- setRefClass(
       close(bin_file)
       
       # Check if using an old version of colbir
-      if (header$db_ver != as.integer(.database_version)) {
+      if (header$db_ver != as.integer(.cdb_file_version)) {
         flog.error("%s - version of coldbir package and file format does not match", name)
         stop()
       }
@@ -224,9 +336,16 @@ cdb <- setRefClass(
     },
     
     # Put variable data
-    put_variable = function(x, name = NULL, dims = NULL, attrib = NULL, lookup = TRUE) {
+    #'    
+    #' @param x vector of values. Thelentnht should be the same for each vector in for the Coldbir data set
+    #' @param name variable name
+    #' @param dims the specified observation in the space of dimensions 
+    #' @param attrib additional attributes to be saved  
+    #' @param lookup idicates if there is a need of lookup table  
+    #' 
+    put_variable = function(x, name = NULL, dims = NULL, attrib = NULL, lookup = T) {
       
-      if (read_only) stop("You're only allowed to read data, to change this use cdb(..., read_only = F)")
+      if (read_only) error("You're only allowed to read data, to change this use  ...$set_db_as_read_only(F)")
       
       # If x is a data frame it will recursively run put_variable over all columns
       if (is.data.frame(x)) {
@@ -239,7 +358,7 @@ cdb <- setRefClass(
             lookup = lookup
           )
         })
-        return(TRUE)
+        return(T)
         
       } else {
   
@@ -249,14 +368,25 @@ cdb <- setRefClass(
         # if null => exit
         if (is.null(x)) {
           flog.warn("%s - variable is NULL; nothing to write", name)
-          return(FALSE)
+          return(F)
         }
         
         # Info
         if (all(is.na(x))) {
           flog.info("%s - all values are missing", name)
         }
+        
+        if(is.na(.self$n_row)){
           
+          .self$n_row <- length(x)
+          
+        } else if(.self$n_row != length(x)) { 
+          
+          flog.warn("%s - length of variable doesn't match the size of the other columns; nothing will be written", name)
+          return(F) 
+          
+        }
+        
         # Create empty header
         header <- list()
           
@@ -335,7 +465,7 @@ cdb <- setRefClass(
         )
         
         # File header
-        header$db_ver <- as.integer(.database_version)
+        header$db_ver <- as.integer(.cdb_file_version)
           
         # Add attributes
         header$attributes <- attrib
@@ -366,24 +496,40 @@ cdb <- setRefClass(
           # Write binary file
           writeBin(header_len, bin_file, size = 8)
           writeBin(header_raw, bin_file)
-          writeBin(length(x), bin_file, size = 8)
+          writeBin(length(x),  bin_file, size = 8)
           writeBin(x, bin_file, size = header$bytes)  # write each vector element to bin_file
           close(bin_file)
   
           # Rename temporary variable to real name (overwrite)
-          file.copy(tmp, cdb, overwrite = TRUE)
-              
+          file.copy(tmp, cdb, overwrite = T)
+          
+          #bookkeeping of the internal info
+          .self$curr_var_tab <- rbind(.self$curr_var_tab , list(variable = name, dims = list(dims)))
+          .self$db_version <- new_time_stamp()
+          
+          put_config()
+          
           },
           finally = file.remove(tmp),
           error = function(e) {
             flog.fatal("%s - writing failed; rollback! (%s)", name, e)
           }
         )
-            
+        
         # Return TRUE and message if variable is successfully written
         flog.info(cdb)
-        return(TRUE)
+        return(T)
       }
+    },
+    
+    clean = function() {
+      if (read_only) stop("Read only, to change this set db$read_only <- F")
+      
+      unlink(path, recursive = T)
+      .self$read_only  <- read_only
+      .self$db_version <- NA_real_
+      .self$n_row      <- NA_integer_
+      .self$curr_var_tab <- list_variables(path = .self$path, dims = T) # Empty data.table with colnames
     }
   )
 )
@@ -413,6 +559,11 @@ setMethod(
         vars <- x$get_vars(dims = T)
         fun <- function(x) isTRUE(all.equal(x, as.character(j)))
         i <- vars[sapply(vars$dims, fun)]$variable
+        
+        if(length(i) == 0L) {
+          flog.error("%s - file does not exist", name)
+          return(NULL)
+        }
       }
       
       # Create data.table with first variable
@@ -454,11 +605,12 @@ setMethod(
   f = "[<-",
   signature = "cdb",
   definition = function(x, i, j, value){
+    
     if (missing(j)) j <- NULL
-    if (x$read_only) stop("You're only allowed to read data, to change this use cdb(..., read_only = F)")
+    if (x$read_only) error("Read only, to change this use ...$set_db_as_read_only(F)")
     
     if (all(class(value) == "doc")) {
-            
+      
       # Create readme.json
       x$put_doc(x = value$to_json(), name = i)
       
