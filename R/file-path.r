@@ -24,7 +24,7 @@ file_path <- function(name, path, dims = NULL, ext = NULL, create_dir = F, file_
         if (create_dir) {
             dir.create(folder_path, recursive = TRUE)
         } else {
-            stop("Variable folder does not exist")
+            return(NA_character_)
         }
     }
     
