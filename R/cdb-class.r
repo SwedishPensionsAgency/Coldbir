@@ -81,16 +81,21 @@ cdb <- setRefClass(
       }
     },
     
+    #' Get database variable length
+    #' - Currently it compares with the first variable in the database
     guess_db_nrow = function() {
       
-      if (nrow(.self$curr_var_tab ) == 0L)  return(NA_integer_)
+      if (nrow(.self$curr_var_tab) == 0L) return(NA_integer_)
       
-      dims1 <- unlist(.self$curr_var_tab[1,]$dims)
-      if (length(dims1) == 0L) dims1 <- NULL
-         
-      return(length(get_variable(.self$curr_var_tab[1,]$variable,dims1)))  
-      #Coldbir colud have a special function looking in the header instead for length (above)
+      # Get variable dimension
+      dim <- unlist(.self$curr_var_tab[1,]$dim)
+      if (length(dim) == 0L) dim <- NULL
       
+      # Get variable length
+      # - Could have a special function looking in the header instead for length
+      len <- length(get_variable(.self$curr_var_tab[1,]$variable, dim))
+      
+      return(len)
     },
     
     #' Save configuration settings to disk
@@ -117,12 +122,9 @@ cdb <- setRefClass(
       saveRDS(dta, file = f)
     },
     
-    #' read configuration setings from the disk
-    #'
-    #' the configuration is saved in JSON format
-    #'    
+    #' Get configuration settings from disk
     get_config = function(){
-
+      
       f <- file.path(.self$path, .config_filename)
       
       if (file.exists(f)) {
