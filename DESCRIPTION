@@ -22,7 +22,6 @@ Collate:
     'file-name.r'
     'file-path.r'
     'get-lookup.r'
-    'put-lookup.r'
     'cdb-class.r'
     '0-constants.r'
     'to-char.r'

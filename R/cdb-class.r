@@ -335,7 +335,7 @@ cdb <- setRefClass(
             ))
             
             # Write lookup table
-            put_lookup(lookup, name = name, path = path)
+            put_lookup(name = name, table = lookup)
           }
           
           # Convert variable (TODO: rewrite this part)
@@ -415,6 +415,49 @@ cdb <- setRefClass(
         flog.info(cdb)
         return(TRUE)
       }
+    },
+    
+    #' Write lookup table to disk
+    #'
+    #' Write lookup table that represents variable data to disk.
+    #'
+    #' @param name Variable name
+    #' @param table Two-column data table with keys and values
+    put_lookup = function(name, table) {
+      
+      if (read_only) stop("You're only allowed to read data, to change this use cdb(..., read_only = F)")
+      
+      if (!is.data.frame(table) || ncol(table) != 2) 
+        stop("input must be a two-column data frame")
+      
+      # Escape characters
+      table[[2]] <- escape_char(table[[2]])
+      
+      folder_path <- file_path(name, .self$path, create_dir = T, file_name = F, data_folder = F)
+      f <- file.path(folder_path, .lookup_filename)
+      
+      write_lookup <- function() {
+        # Write temporary doc file to disk
+        write.table(table, file = tmp, quote = F, col.names = F, row.names = F, sep = "\t")
+        
+        # Rename temporary doc to real name (overwrite)
+        file.copy(tmp, f, overwrite = T)
+      }
+      
+      # Create temporary file
+      tmp <- create_temp_file(f)
+      
+      # Try to write doc file to disk
+      tryCatch(
+        write_lookup(),
+        finally = file.remove(tmp),
+        error = function(e) {
+          flog.fatal("%s - writing failed; rollback! (%s)", name, e)
+        }
+      )
+      
+      flog.info(f)
+      return(TRUE)
     }
   )
 )
