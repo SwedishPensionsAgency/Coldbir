@@ -39,6 +39,7 @@ test_that("throw error if assigning non-allowed variable length", {
   expect_error({db["x"] <- 1:2})
   expect_error({db["y"] <- 1:2})
 })
+db$clean()
 
 context("VARIABLE TYPES")
 #########################
