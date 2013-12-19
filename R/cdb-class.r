@@ -163,7 +163,7 @@ cdb <- setRefClass(
       } else if (header$type == "factor") {
         
         # Get lookup table, where values are to be used as levels
-        df <- get_lookup(name = name, path = .self$path)
+        df <- .self$get_lookup(name = name)
         
         if (!is.null(df)) {
           
@@ -316,7 +316,7 @@ cdb <- setRefClass(
           }
           
           # Get previous lookup table
-          lookup <- get_lookup(name = name, path = path)
+          lookup <- .self$get_lookup(name = name)
           
           # Get new levels (compared to lookup table)
           lvl <- levels(x)[!levels(x) %in% lookup[[2]]]
@@ -458,6 +458,30 @@ cdb <- setRefClass(
       
       flog.info(f)
       return(TRUE)
+    },
+    
+    #' Read dictionary from disk
+    #'
+    #' Read dictionary that represents variable data from disk.
+    #'
+    #' @param name Variable name
+    get_lookup = function(name) {
+      if (file.exists(file.path(.self$path, name))) {
+        folder_path <- file_path(name, .self$path, create_dir = F, file_name = F, data_folder = F)
+        file <- file.path(folder_path, .lookup_filename)
+        
+        if (file.exists(file)) {
+          table <- read.table(file = file, header = F, quote = "", sep = "\t", stringsAsFactors = F)
+          if (!is.data.frame(table) || ncol(table) != 2) {
+            stop("lookup must be a two-column data frame")
+          }
+          return(as.data.table(table))
+        } else { 
+          return(NULL)
+        }
+      } else {
+        return(NULL)
+      }
     }
   )
 )
