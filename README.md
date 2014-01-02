@@ -1,7 +1,5 @@
 # Coldbir
 
-## Introduction
-
 The Coldbir package is a column database in R. The main purpose of this package is to simplify the workflow with panel data on disk, including features such as:
 
 - Simple syntax to work with data
@@ -28,7 +26,7 @@ Below is an example of a database, named *mydb*, including variables on `income`
         documentation.yml
         lookup.txt
         
-### Getting started
+## Getting started
 
 The package is currently not available on `CRAN`, therefore make sure to use `devtools` when installing the package:
 
@@ -45,19 +43,6 @@ Then the package use `get` and `put` methods to read and write data from/to disk
 - get: `a[]`
 
 where `x` is some data. The `[]` notation is used for data selection, e.g. to define which variable and dimensions to read.
-
-### Supported data types
-
-The package currently support the following data types:
-
-- `integer`
-- `double`
-- `logical`
-- `factor`
-- `Date`
-- `POSIXct` / `POSIXlt` ** **EXPERIMENTAL** **
-
-Timezones are not supported. All timestamps are written as `GMT` without timezone conversion. E.g. `2013-04-29 01:00:00 CST` is stored (and returned) as `2013-04-29 01:00:00 GMT`. `POSIXlt` is automatically converted to `POSIXct`.
 
 ## API
 
@@ -101,6 +86,19 @@ d <- a$get_doc("foo")
 d$Info$Stats
 # [1] "The minimum value is 1"
 ```
+
+## Supported data types
+
+The package currently support the following data types:
+
+- `integer`
+- `double`
+- `logical`
+- `factor`
+- `Date`
+- `POSIXct` / `POSIXlt` ** **EXPERIMENTAL** **
+
+Timezones are not supported. All timestamps are written as `GMT` without timezone conversion. E.g. `2013-04-29 01:00:00 CST` is stored (and returned) as `2013-04-29 01:00:00 GMT`. `POSIXlt` is automatically converted to `POSIXct`.
 
 ## Development
 
