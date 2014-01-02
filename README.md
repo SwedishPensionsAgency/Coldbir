@@ -46,26 +46,32 @@ where `x` is some data. The `[]` notation is used for data selection, e.g. to de
 
 ## API
 
-First, make sure to load the package with `library(Coldbir)`. Below follow a list of all methods:
+First, make sure to load the package with `library(Coldbir)`. Below follows some example of the available methods:
 
-Method                                  | Example query                                     | Return value
---------------------------------------- | ------------------------------------------------- | ------------
-Initialize database                     | `a <- cdb('mydb')`                                | 
-Put variable                            | `a['foo'] <- 1:10`                                | 
-Put variable with dimension             | `a['foo', 2013] <- 1:10`                          | 
-Put variable with multiple dimensions   | `a['foo', c(2013, 12)] <- 1:10`                   | 
-Put data.frame                          | `a[] <- MASS::survey`                             | 
-Put data.frame with dimensions          | `a[, c(2013, 12)] <- MASS::survey`                | 
-Put variable documentation              | `a['foo'] <- doc(title = "Foo", desc = "Bar")`    | 
-Get variable                            | `a['foo']`                                        | `vector`
-Get multiple variables                  | `a[c('foo', 'bar')]`                              | `data.table`
-Get all data                            | `a[]`                                             | `data.table`
-Get variable documentation              | `a$get_doc("foo")$Info$Stats`                     | `list`
-Put config file                         | `a$put_config()`                                  |
-Clean database (delete all content)     | `a$clean()`                                       |
-Unlock read only                        | `a$read_only <- FALSE`                            |
-Delete variable                         | `a['foo'] <- NULL`                                |
-Delete specific dimension               | `a['foo', c(2013, 12)] <- NULL`                   |
+Method                                  | Query example
+--------------------------------------- | -------------
+Initialize database                     | `a <- cdb('mydb')`
+Unlock read only                        | `a$read_only <- FALSE`
+Get database path                       | `a$path`
+                                        | 
+Put variable                            | `a['foo'] <- 1:10`
+Put variable with dimension             | `a['foo', 2013] <- 1:10`
+Put variable with multiple dimensions   | `a['foo', c(2013, 12)] <- 1:10`
+Put data.frame                          | `a[] <- MASS::survey`
+Put data.frame with dimensions          | `a[, c(2013, 12)] <- MASS::survey`
+Put variable documentation              | `a['foo'] <- doc(title = "Foo", desc = "Bar")`
+Put config file                         | `a$put_config()`
+                                        | 
+Get variable                            | `a['foo']`
+Get multiple variables                  | `a[c('foo', 'bar')]`
+Get variable with specific dimensions   | `a['foo', c(.ANY, 12)]`
+Get data of dimensionality of two       | `a['foo', c(.ANY, .ANY)]`
+Get all data                            | `a[]`
+Get variable documentation              | `a$get_doc("foo")$Info$Stats`
+                                        | 
+Delete variable                         | `a['foo'] <- NULL`
+Delete specific dimension               | `a['foo', c(2013, 12)] <- NULL`
+Delete all database content             | `a$clean()`
 
 The documentation object has its own class `doc` and is constructed as a list.
 
