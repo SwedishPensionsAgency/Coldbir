@@ -86,20 +86,24 @@ The documentation object has its own class `doc` and is constructed as a list.
 
 - put:
 
-    a['foo'] <- doc(
-      'Foo' = 'This is a variable', 
-      'Info' = list(
-        'Stats' = paste('The minimum value is', min(1:10)),
-        'Source' = "Some db"
-      )
-    )
+```r
+a['foo'] <- doc(
+  'Foo' = 'This is a variable', 
+  'Info' = list(
+    'Stats' = paste('The minimum value is', min(1:10)),
+    'Source' = "Some db"
+  )
+)
+```
 
 - get:
 
-    d <- a$get_doc("foo")
-    
-    d$Info$Stats
-    # [1] "The minimum value is 1"
+```r
+d <- a$get_doc("foo")
+
+d$Info$Stats
+# [1] "The minimum value is 1"
+```
 
 ## Development
 
