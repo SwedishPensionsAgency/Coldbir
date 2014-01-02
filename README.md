@@ -1,6 +1,6 @@
 # Coldbir
 
-The Coldbir package is a **col**umn **d**ata**b**ase **i**n **R**. The main purpose of this package is to simplify the workflow with panel data on disk, including features such as:
+The Coldbir package is a column database in R. The main purpose of this package is to simplify the workflow with panel data on disk, including features such as:
 
 - Simple syntax to work with data
 - Small storage size
@@ -42,10 +42,10 @@ To access or create a database, one has to first initialize a connection:
 
     a <- cdb('mydb')
     
-Then the package use `get` and `put` methods to read and write data from/to disk, which could be simplied as:
+Then the package use `get` and `put` methods to read and write data from/to disk, which could be somewhat simplied as:
 
-- **put**: `a[] <- x`
-- **get**: `a[]`
+- put: `a[] <- x`
+- get: `a[]`
 
 where `x` is some data. The `[]` notation is used for data selection, e.g. to define which variable and dimensions to read.
 
@@ -87,12 +87,12 @@ The documentation object has its own class `doc` and is constructed as a list.
 - put:
 
     a['foo'] <- doc(
-          'Foo' = 'This is a variable', 
-          'Info' = list(
-            'Stats' = paste('The minimum value is', min(1:10)),
-            'Source' = "Some db"
-            )
-          )
+      'Foo' = 'This is a variable', 
+      'Info' = list(
+        'Stats' = paste('The minimum value is', min(1:10)),
+        'Source' = "Some db"
+      )
+    )
 
 - get:
 
