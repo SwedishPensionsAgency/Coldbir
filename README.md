@@ -1,43 +1,57 @@
 # Coldbir
------------------------
 
-The Coldbir package is a column-oriented DBMS in R.
+The Coldbir package is a **col**umn **d**ata**b**ase **i**n **R**. The main purpose of this package is to simplify the workflow with panel data on disk, including features such as:
 
-The project is currently maintained by Thomas Reinholdsson (<reinholdsson@gmail.com>).
+- Simple syntax to work with data
+- Small storage size
+- Impressive read and write speed
+- Variable documentation
+- Support for various data types
 
-## Installation
+## Get started
 
-Use `devtools` for easy installation:
+### Installation
 
-    devtools::install_github('Coldbir', 'SthlmR')
+The package is currently not available on `CRAN`, therefore make sure to use `devtools` when installing the package:
 
-## Introduction
+    devtools::install_github('Coldbir', 'SwedishPensionsAgency')
+    
+Then you are read to go with `library(Coldbir)`.
 
-First, make sure to load the package with `library(Coldbir)`.
+### Introduction
 
-Then, to decide where the database is to be saved, or whether it already exists, do:
+The Coldbir database could be seen as a large table including a lot of columns. The data itself is stored as a [column-oriented DBMS](http://en.wikipedia.org/wiki/Column-oriented_DBMS), where each individual column, also called `variable`, has its own folder including data, documentation and lookup files. A variable data could also be divided into different dimensions (e.g. months and years), hence making it possible to store time series data. *As a notation, this feature could also be used to improve read performance by pre-aggreggating values into years, when data is originally divided into months.*
 
-    a <- cdb('database_path')
+Below is an example of a database, named *mydb*, including variables on `income` and `unemployment` and year-month as dimensions:
 
-To save data to the database, simply write:
+    mydb/
+      income/
+        data/
+          d[2012][12].cdb.gz
+          d[2013][12].cdb.gz
+        documentation.json
+        lookup.txt
+      unemployment/
+        data/
+          d[2012][12].cdb.gz
+          d[2013][12].cdb.gz
+        documentation.yml
+        lookup.txt
 
-    a['foo'] <- 1:10
+To access or create a database, one has to first initialize a connection:
 
-and to get a variable:
+    a <- cdb('mydb')
+    
+Then the package use `get` and `put` methods to read and write data from/to disk, which could be simplied as:
 
-    b <- a['foo']
+- **put**: `a[] <- x`
+- **get**: `a[]`
 
-It is also possible to put a data frame to the coldbir database - each column will then represent one variable each;
-
-    a[] <- MASS::survey
-
-However, since they are all saved as variables one cannot get all of them back at once. Their names are the same as their previous column names. For example:
-
-    b <- a['Pulse']
+where `x` is some data. The `[]` notation is used for data selection, e.g. to define which variable and dimensions to read.
 
 ### Data types
 
-Currently supported data types:
+The package currently support the following data types:
 
 - `integer`
 - `double`
@@ -48,11 +62,29 @@ Currently supported data types:
 
 Timezones are not supported. All timestamps are written as `GMT` without timezone conversion. E.g. `2013-04-29 01:00:00 CST` is stored (and returned) as `2013-04-29 01:00:00 GMT`. `POSIXlt` is automatically converted to `POSIXct`.
 
-### Variable documentation
+### API
 
-An additional feature is to add documentation to a variable. 
+First, make sure to load the package with `library(Coldbir)`.
 
-Create an object of the `doc` class and add it to a variable:
+#### Initialize database
+
+    a <- cdb('mydb')
+    
+#### Read/write a vector
+
+- put: `a['foo'] <- 1:10`
+- get: `a['foo']`
+
+#### Read/write a data frame
+
+- put: `a[] <- MASS::survey`
+- get: `a[]`
+
+#### Variable documentation
+
+The documentation object has its own class `doc` and is constructed as a list.
+
+- put:
 
     a['foo'] <- doc(
           'Foo' = 'This is a variable', 
@@ -62,82 +94,12 @@ Create an object of the `doc` class and add it to a variable:
             )
           )
 
-*As one may notice, the doc object is build up as a list. Thus it makes it possible to e.g. include variable statistics that updates automatically.* 
-
-To get the documentation (as a list):
+- get:
 
     d <- a$get_doc("foo")
     
     d$Info$Stats
     # [1] "The minimum value is 1"
-
-### File structure
-
-The coldbir database consists of folders where each folder represent a variable. 
-Each variable may have several dimensions, e.g. months and years. 
-The data is stored as a [column-oriented DBMS](http://en.wikipedia.org/wiki/Column-oriented_DBMS). 
-Below is an example of a database, named *mydb*, with a couple of variables:
-
-    mydb/
-      income/
-        data/
-          d[2011].cdb.gz
-          d[2012].cdb.gz
-        documentation.yml
-        lookup.txt
-        readme.md
-      unemployment/
-        data/
-          d[2011].cdb.gz
-          d[2012].cdb.gz
-        documentation.yml
-        lookup.txt
-        readme.md
-
-The `doc.json` includes the variable documentation that is read with `get_doc()` method. `readme.md` includes the same information but in markdown.
-
-
-## Examples
-
-### Example: Survey data
-
-#### Write data and documentation
-
-Link to database
-
-    a <- cdb()
-
-Add survey data to database
-
-    require(MASS)
-    a["Age"] <- survey$Age
-    a["Pulse"] <- survey$Pulse
-
-Add documentation for `Age` and `Pulse`
-
-    a["Age"] <- doc(
-        title = "Age",
-        description = "Age of the student in years."
-        )
-
-    a["Pulse"] <- doc(
-        title = "Pulse",
-        description = "Pulse rate of student (beats per minute)."
-        )
-        
-#### How to use
-
-Scatter plot
-
-    plot(a["Age"], a["Pulse"],
-         xlab = a$get_doc("Age")$description, 
-         ylab = a$get_doc("Pulse")$description
-         )
-
-Histogram
-
-    d <- a$get_doc("Pulse")
-    hist(a["Pulse"], main = paste("Histogram of", d$title), xlab = d$title, sub = d$description)
 
 ## Development
 
@@ -155,6 +117,11 @@ Use the `makefile` to run tests and to build the package:
 - `make test`: to run the package tests
 
 The `testthat` package is required to run the package tests and the related test code is available in `inst/tests/testthat/`. The build/test structure of this package takes a lot of inspiration from the [pander](https://github.com/Rapporter/pander) package - many thanks to its developers!
+
+## See also
+
+- [bigmemory](http://www.bigmemory.org/)
+- [ff](http://ff.r-forge.r-project.org/)
 
 ## License
 
