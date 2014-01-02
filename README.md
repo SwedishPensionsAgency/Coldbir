@@ -54,39 +54,25 @@ First, make sure to load the package with `library(Coldbir)`.
 
 #### Write data
 
-- put variable: `a['foo'] <- 1:10`
-- put variable with dimension: `a['foo', 2013] <- 1:10`
-- put variable with multiple dimension: `a['foo', c(2013, 12)] <- 1:10`
-- put data.frame: `a[] <- MASS::survey`
-- put data.frame with dimensions: `a[, c(2013, 12)] <- MASS::survey`
-- put variable documentation:
+Method                                  | Syntax
+--------------------------------------- | ------
+put variable                            | `a['foo'] <- 1:10`
+put variable with dimension             | `a['foo', 2013] <- 1:10`
+put variable with multiple dimensions   | `a['foo', c(2013, 12)] <- 1:10`
+put data.frame                          | `a[] <- MASS::survey`
+put data.frame with dimensions          | `a[, c(2013, 12)] <- MASS::survey`
+put variable documentation              | `a['foo'] <- doc(title = "Foo", desc = "Bar")`
 
-```
-# The documentation object has its own class `doc`
-# and is constructed as a list.
-
-a['foo'] <- doc(
-  'Foo' = 'This is a variable', 
-  'Info' = list(
-    'Stats' = paste('The minimum value is', min(1:10)),
-    'Source' = "Some db"
-  )
-)
-```
+The documentation object has its own class `doc` and is constructed as a list.
 
 #### Read data
 
-- get variable: `a['foo']`
-- get multiple variables: `a[c('foo', 'bar')]`
-- get all data: `a[]` (returned as a data table)
-- get variable documentation:
-
-```
-d <- a$get_doc("foo")
-
-d$Info$Stats
-# [1] "The minimum value is 1"
-```
+Method                      | Syntax                            | Return
+--------------------------- | --------------------------------- | ------
+get variable                | `a['foo']`                        | vector
+get multiple variables      | `a[c('foo', 'bar')]`              | data.table
+get all data                | `a[]`                             | data.table
+get variable documentation  | `a$get_doc("foo")$Info$Stats`     | list
 
 ## Supported data types
 
