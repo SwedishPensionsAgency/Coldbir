@@ -55,8 +55,11 @@ First, make sure to load the package with `library(Coldbir)`.
 #### Write data
 
 - put variable: `a['foo'] <- 1:10`
-- put data frame: `a[] <- MASS::survey`
-- put variable documentation
+- put variable with dimension: `a['foo', 2013] <- 1:10`
+- put variable with multiple dimension: `a['foo', c(2013, 12)] <- 1:10`
+- put data.frame: `a[] <- MASS::survey`
+- put data.frame with dimensions: `a[, c(2013, 12)] <- MASS::survey`
+- put variable documentation:
 
 ```
 # The documentation object has its own class `doc`
