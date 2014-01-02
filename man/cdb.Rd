@@ -8,18 +8,18 @@
   \item{path}{Database path (the location of the coldbir
   database)}
 
-  \item{log_level}{Log level (default: 4). Available
-  levels: 1-9.}
-
-  \item{log_file}{Log file. As default log messages will be
-  written to console.}
-
   \item{compress}{file compression level}
 
   \item{encoding}{set documentation encoding (default:
   UTF-8)}
 
   \item{read_only}{read only (default: T)}
+
+  \item{db_version}{instance-attribute for sycronisation of
+  current list of variables}
+
+  \item{n_row}{the common length of vecrors in the
+  database}
 }
 \description{
   Method to assign either a new or existing coldbir
