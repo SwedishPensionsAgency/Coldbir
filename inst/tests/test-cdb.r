@@ -1,6 +1,6 @@
 path <- tempfile()
 size <- 1e3
-db <- cdb(path, log_level = 1, read_only = F)
+db <- cdb(path, read_only = F)
 
 context("INITIALIZE DATABASE")
 ##############################
