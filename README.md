@@ -41,8 +41,6 @@ The package make use of `get` and `put` methods to read and write data, somewhat
 
 ## API
 
-First, make sure to load the package with `library(Coldbir)`.
-
 Method                                  | Query example
 --------------------------------------- | -------------
 Initialize database                     | `a <- cdb('mydb')`
