@@ -46,33 +46,28 @@ where `x` is some data. The `[]` notation is used for data selection, e.g. to de
 
 ## API
 
-First, make sure to load the package with `library(Coldbir)`.
+First, make sure to load the package with `library(Coldbir)`. Below follow a list of all methods:
 
-#### Initialize database
-
-    a <- cdb('mydb')
-
-#### Write data
-
-Method                                  | Syntax
---------------------------------------- | ------
-put variable                            | `a['foo'] <- 1:10`
-put variable with dimension             | `a['foo', 2013] <- 1:10`
-put variable with multiple dimensions   | `a['foo', c(2013, 12)] <- 1:10`
-put data.frame                          | `a[] <- MASS::survey`
-put data.frame with dimensions          | `a[, c(2013, 12)] <- MASS::survey`
-put variable documentation              | `a['foo'] <- doc(title = "Foo", desc = "Bar")`
+Method                                  | Example query                                     | Return value
+--------------------------------------- | ------------------------------------------------- | ------------
+Initialize database                     | `a <- cdb('mydb')`                                | 
+Put variable                            | `a['foo'] <- 1:10`                                | 
+Put variable with dimension             | `a['foo', 2013] <- 1:10`                          | 
+Put variable with multiple dimensions   | `a['foo', c(2013, 12)] <- 1:10`                   | 
+Put data.frame                          | `a[] <- MASS::survey`                             | 
+Put data.frame with dimensions          | `a[, c(2013, 12)] <- MASS::survey`                | 
+Put variable documentation              | `a['foo'] <- doc(title = "Foo", desc = "Bar")`    | 
+Get variable                            | `a['foo']`                                        | `vector`
+Get multiple variables                  | `a[c('foo', 'bar')]`                              | `data.table`
+Get all data                            | `a[]`                                             | `data.table`
+Get variable documentation              | `a$get_doc("foo")$Info$Stats`                     | `list`
+Put config file                         | `a$put_config()`                                  |
+Clean database (delete all content)     | `a$clean()`                                       |
+Unlock read only                        | `a$read_only <- FALSE`                            |
+Delete variable                         | `a['foo'] <- NULL`                                |
+Delete specific dimension               | `a['foo', c(2013, 12)] <- NULL`                   |
 
 The documentation object has its own class `doc` and is constructed as a list.
-
-#### Read data
-
-Method                      | Syntax                            | Return
---------------------------- | --------------------------------- | ------
-get variable                | `a['foo']`                        | vector
-get multiple variables      | `a[c('foo', 'bar')]`              | data.table
-get all data                | `a[]`                             | data.table
-get variable documentation  | `a$get_doc("foo")$Info$Stats`     | list
 
 ## Supported data types
 
