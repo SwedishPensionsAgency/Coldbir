@@ -1,5 +1,7 @@
 # Coldbir
 
+## Introduction
+
 The Coldbir package is a column database in R. The main purpose of this package is to simplify the workflow with panel data on disk, including features such as:
 
 - Simple syntax to work with data
@@ -7,18 +9,6 @@ The Coldbir package is a column database in R. The main purpose of this package 
 - Impressive read and write speed
 - Variable documentation
 - Support for various data types
-
-## Get started
-
-### Installation
-
-The package is currently not available on `CRAN`, therefore make sure to use `devtools` when installing the package:
-
-    devtools::install_github('Coldbir', 'SwedishPensionsAgency')
-    
-Then you are read to go with `library(Coldbir)`.
-
-### Introduction
 
 The Coldbir database could be seen as a large table including a lot of columns. The data itself is stored as a [column-oriented DBMS](http://en.wikipedia.org/wiki/Column-oriented_DBMS), where each individual column, also called `variable`, has its own folder including data, documentation and lookup files. A variable data could also be divided into different dimensions (e.g. months and years), hence making it possible to store time series data. *As a notation, this feature could also be used to improve read performance by pre-aggreggating values into years, when data is originally divided into months.*
 
@@ -37,9 +27,16 @@ Below is an example of a database, named *mydb*, including variables on `income`
           d[2013][12].cdb.gz
         documentation.yml
         lookup.txt
+        
+### Getting started
 
-To access or create a database, one has to first initialize a connection:
+The package is currently not available on `CRAN`, therefore make sure to use `devtools` when installing the package:
 
+    devtools::install_github('Coldbir', 'SwedishPensionsAgency')
+
+Then, to access or create a database, one has to first initialize a connection:
+
+    library(Coldbir)
     a <- cdb('mydb')
     
 Then the package use `get` and `put` methods to read and write data from/to disk, which could be somewhat simplied as:
@@ -49,7 +46,7 @@ Then the package use `get` and `put` methods to read and write data from/to disk
 
 where `x` is some data. The `[]` notation is used for data selection, e.g. to define which variable and dimensions to read.
 
-### Data types
+### Supported data types
 
 The package currently support the following data types:
 
@@ -62,25 +59,25 @@ The package currently support the following data types:
 
 Timezones are not supported. All timestamps are written as `GMT` without timezone conversion. E.g. `2013-04-29 01:00:00 CST` is stored (and returned) as `2013-04-29 01:00:00 GMT`. `POSIXlt` is automatically converted to `POSIXct`.
 
-### API
+## API
 
 First, make sure to load the package with `library(Coldbir)`.
 
-#### Initialize database
+### Initialize database
 
     a <- cdb('mydb')
     
-#### Read/write a vector
+### Read/write a vector
 
 - put: `a['foo'] <- 1:10`
 - get: `a['foo']`
 
-#### Read/write a data frame
+### Read/write a data frame
 
 - put: `a[] <- MASS::survey`
 - get: `a[]`
 
-#### Variable documentation
+### Variable documentation
 
 The documentation object has its own class `doc` and is constructed as a list.
 
