@@ -60,6 +60,7 @@ Put variable with multiple dimensions   | `a['foo', c(2013, 12)] <- 1:10`
 Put data.frame                          | `a[] <- MASS::survey`
 Put data.frame with dimensions          | `a[, c(2013, 12)] <- MASS::survey`
 Put variable documentation              | `a['foo'] <- doc(title = "Foo", desc = "Bar")`
+Put variable documentation (list)       | `a['foo'] <- doc(list(title = "Foo"))`
 Put config file                         | `a$put_config()`
                                         | 
 Get variable                            | `a['foo']`
@@ -67,7 +68,7 @@ Get multiple variables                  | `a[c('foo', 'bar')]`
 Get variable with specific dimensions   | `a['foo', c(.ANY, 12)]`
 Get data of dimensionality of two       | `a['foo', c(.ANY, .ANY)]`
 Get all data                            | `a[]`
-Get variable documentation              | `a$get_doc("foo")$Info$Stats`
+Get variable documentation              | `a$get_doc("foo")`
                                         | 
 Delete variable                         | `a['foo'] <- NULL`
 Delete specific dimension               | `a['foo', c(2013, 12)] <- NULL`
