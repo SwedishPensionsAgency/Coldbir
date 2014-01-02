@@ -86,7 +86,7 @@ The documentation object has its own class `doc` and is constructed as a list.
 
 - put:
 
-```r
+```
 a['foo'] <- doc(
   'Foo' = 'This is a variable', 
   'Info' = list(
@@ -98,7 +98,7 @@ a['foo'] <- doc(
 
 - get:
 
-```r
+```
 d <- a$get_doc("foo")
 
 d$Info$Stats
