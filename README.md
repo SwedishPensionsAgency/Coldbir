@@ -1,6 +1,6 @@
 # Coldbir
 
-The Coldbir package is a column database in R. The main purpose of this package is to simplify the workflow with panel data on disk, including features such as:
+Coldbir is a column database in R. The main purpose of this package is to simplify the workflow with panel data on disk, including features such as:
 
 - Simple syntax to work with data
 - Small storage size
@@ -37,16 +37,11 @@ Then, to access or create a database, one has to first initialize a connection:
     library(Coldbir)
     a <- cdb('mydb')
     
-Then the package use `get` and `put` methods to read and write data from/to disk, which could be somewhat simplied as:
-
-- put: `a[] <- x`
-- get: `a[]`
-
-where `x` is some data. The `[]` notation is used for data selection, e.g. to define which variable and dimensions to read.
+The package make use of `get` and `put` methods to read and write data, somewhat simplied the syntax is `a[] <- x` to put data `x` on to disk and then `a[]` to read from disk. The `[]` notation is used for data selection, e.g. to define which variable and dimensions to read, see the API section below for more details.
 
 ## API
 
-First, make sure to load the package with `library(Coldbir)`. Below follows some example of the available methods:
+First, make sure to load the package with `library(Coldbir)`.
 
 Method                                  | Query example
 --------------------------------------- | -------------
