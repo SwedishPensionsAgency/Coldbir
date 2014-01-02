@@ -48,27 +48,20 @@ where `x` is some data. The `[]` notation is used for data selection, e.g. to de
 
 First, make sure to load the package with `library(Coldbir)`.
 
-**Initialize database**
+#### init
 
     a <- cdb('mydb')
-    
-**Read/write a vector**
 
-- put: `a['foo'] <- 1:10`
-- get: `a['foo']`
+#### put
 
-**Read/write a data frame**
-
-- put: `a[] <- MASS::survey`
-- get: `a[]`
-
-**Variable documentation**
-
-The documentation object has its own class `doc` and is constructed as a list.
-
-- put:
+- put vector: `a['foo'] <- 1:10`
+- put data frame: `a[] <- MASS::survey`
+- put variable documentation
 
 ```
+# The documentation object has its own class `doc`
+# and is constructed as a list.
+
 a['foo'] <- doc(
   'Foo' = 'This is a variable', 
   'Info' = list(
@@ -78,7 +71,12 @@ a['foo'] <- doc(
 )
 ```
 
-- get:
+#### get
+
+- get variable: `a['foo']`
+- get multiple variables: `a[c('foo', 'bar')]`
+- get database as a data table: `a[]`
+- get variable documentation:
 
 ```
 d <- a$get_doc("foo")
