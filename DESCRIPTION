@@ -15,18 +15,3 @@ Depends:
     yaml (>= 2.1.7),
     tools,
     methods
-Collate:
-    'check-repr.r'
-    'find-exp.r'
-    'file-name.r'
-    'file-path.r'
-    'cdb-class.r'
-    '0-constants.r'
-    'to-char.r'
-    'doc-class.r'
-    'create-temp-file.r'
-    'Coldbir.r'
-    'search-files.r'
-    'list-variables.r'
-    'utils.r'
-    'messages.r'
