@@ -3,3 +3,5 @@
 .lookup_filename <- "lookup.txt"
 .config_filename <- "config.dat"
 .tzone <- "GMT"
+._     <- NA
+.all   <- NULL
