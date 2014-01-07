@@ -41,12 +41,18 @@ The package make use of `get` and `put` methods to read and write data, somewhat
 
 ## API
 
-Method                                  | Query example
+### General
+
+Method                                  | Example
 --------------------------------------- | -------------
 Initialize database                     | `a <- cdb('mydb')`
 Unlock read only                        | `a$read_only <- FALSE`
 Get database path                       | `a$path`
-                                        | 
+
+### Put
+
+Method                                  | Example
+--------------------------------------- | -------------
 Put variable                            | `a['foo'] <- 1:10`
 Put variable with dimension             | `a['foo', 2013] <- 1:10`
 Put variable with multiple dimensions   | `a['foo', c(2013, 12)] <- 1:10`
@@ -55,14 +61,22 @@ Put data.frame with dimensions          | `a[, c(2013, 12)] <- MASS::survey`
 Put variable documentation              | `a['foo'] <- doc(title = "Foo", desc = "Bar")`
 Put variable documentation (list)       | `a['foo'] <- doc(list(title = "Foo"))`
 Put config file                         | `a$put_config()`
-                                        | 
+
+### Get
+
+Method                                  | Example
+--------------------------------------- | -------------
 Get variable                            | `a['foo']`
 Get multiple variables                  | `a[c('foo', 'bar')]`
 Get variable with specific dimensions   | `a['foo', c(.ANY, 12)]`
 Get data of dimensionality of two       | `a['foo', c(.ANY, .ANY)]`
 Get all data                            | `a[]`
 Get variable documentation              | `a$get_doc("foo")`
-                                        | 
+
+### Delete
+
+Method                                  | Example
+--------------------------------------- | -------------
 Delete variable                         | `a['foo'] <- NULL`
 Delete specific dimension               | `a['foo', c(2013, 12)] <- NULL`
 Delete all database content             | `a$clean()`
