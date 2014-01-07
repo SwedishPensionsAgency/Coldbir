@@ -1,6 +1,6 @@
 #' Generate coldbir file path
 #'
-#' ...
+#' Function that constructs a cdb file path (and creates the folder)
 #'
 #' @param name Variable name
 #' @param path Variable path

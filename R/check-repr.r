@@ -1,11 +1,11 @@
 #' Check representation
 #'
-#' ...
+#' The function returns the amount of bytes that is required to store a specific number.
+#' It is primarily used by the `put_variable`-method in the cdb class.
 #'
 #' @param x Number
 #' 
 #' @export
-#'
 check_repr <- function(x) {
     
     xmax <- max(x, na.rm = TRUE)

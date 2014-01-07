@@ -12,6 +12,6 @@
   \item{ext}{File extension}
 }
 \description{
-  ...
+  Function that constructs a cdb file name
 }
 

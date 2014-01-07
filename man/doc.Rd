@@ -5,7 +5,7 @@
   doc(...)
 }
 \arguments{
-  \item{...}{documentation list}
+  \item{...}{Documentation list}
 }
 \description{
   Create a documentation list. Used for variable

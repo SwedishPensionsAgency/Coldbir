@@ -10,6 +10,6 @@
   \item{ext}{Allowed extensions}
 }
 \description{
-  ...
+  List all files in a path matching a specific extension
 }
 

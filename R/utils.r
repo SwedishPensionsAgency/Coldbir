@@ -24,7 +24,9 @@ get_args <- function(...) {
   }
 }
 
-
+#' Create new time stamp
+#' 
+#' Creates a time stamp of the current system time.
 new_time_stamp <- function(){
-  return(as.double(lubridate::force_tz(Sys.time(), .tzone))) 
+  return(as.double(lubridate::force_tz(Sys.time(), .tzone)))
 }

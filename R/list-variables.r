@@ -1,6 +1,6 @@
-#' Get all variables
+#' List all variables
 #'
-#' ...
+#' Get a list of all variables (including dimensions) available in the database.
 #'
 #' @param path Path
 #' @param dims If dims should be included (returns a data table)

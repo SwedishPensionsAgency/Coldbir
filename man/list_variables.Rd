@@ -1,6 +1,6 @@
 \name{list_variables}
 \alias{list_variables}
-\title{Get all variables}
+\title{List all variables}
 \usage{
   list_variables(path = getwd(), dims = F, ...)
 }
@@ -13,6 +13,7 @@
   \item{...}{search_files() arguments}
 }
 \description{
-  ...
+  Get a list of all variables (including dimensions)
+  available in the database.
 }
 

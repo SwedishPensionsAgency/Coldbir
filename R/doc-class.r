@@ -3,7 +3,7 @@
 #' Create a documentation list. Used for variable documentation
 #' that is saved as a json-file in the variable folder.
 #' 
-#' @param ... documentation list
+#' @param ... Documentation list
 #' @export
 doc <- setRefClass(
   "doc",

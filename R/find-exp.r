@@ -1,11 +1,11 @@
 #' Find exponent
 #'
-#' ...
-#'
+#' An internal helper function used by the cdb class, that finds the exponent,
+#' in order to make it possible to store a double as an integer.
+#' 
 #' @param x Number
 #' 
 #' @export
-#'
 find_exp <- function(x) {
     F <- 1
     exponent <- 0L
