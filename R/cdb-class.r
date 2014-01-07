@@ -630,63 +630,50 @@ setMethod(
     # ._     ==  NA
     # .all   ==  NULL
     
-    if(doBrowse) browser()
     if(nrow(x$curr_var_tab) == 0){
-      
-      # WARNING
-      return(NULL)                          # the database table is empty, DO NOTHING!      
-      
+      wrn(17,x$path) # the database table is empty,
+      return(NULL)   
     }
     
     # at first: fast track for a simple vector output
     if(!missing(i) && !is.null(i) && !is.na(i) && length(i) == 1L) { # special case 1
-      if(missing(j)) { # db["var1"]
-        
-        #ASSERT? 
+      if(missing(j)) {
         v <- x$get_variable(name = i, dims = NULL, na = na)
         return(v)
-        
       } else if(!is.null(j) && !is.na(j) && length(j) > 0L && all(!is.na(j)) ) { # special case 2
-        
-        #ASSERT? 
         v <- x$get_variable(name = i, dims = j, na = na)
         return(v)
-        
       }  # else: pass
     } # else: pass
     
     toRead  <- copy(x$curr_var_tab)
     toRead[,len:= unlist(lapply(dims, FUN= length))]
     
-    
-    if(!missing(i) || !missing(j)){  # all except the simple case db[]
-      
-      
-      # determine all varibles to be read
-      if(missing(i) || is.na(i) ){ # all varibles db[, ?] or db[._ , ? ]
-        i       <- unique(toRead$variable)      
-        i2      <- i
+      if(!missing(i) || !missing(j)){   # all cases except db[]
+
+        if(missing(i) || is.na(i) ){      # all existing db[, ...] or db[._ , ...]
+          
+          i       <- unique(toRead$variable)      
+          i2      <- i
+          
+        } else if(is.vector(i) && length(i) == 0L){ 
+          
+          wrn(18);return(NULL)                          # reading with an empty vector of variable names"
+          
+        } else { 
+          
+          toRead   <- toRead[variable %in% i,]          # matching variables in data base
+          i2       <- unique(toRead$variable)
+          
+        }
         
-      } else if(is.vector(i) && length(i) == 0L){ # i.e. db[character(0),] 
+        if(length(i2) == 0L){
+          wrn(19,i);return(NULL)                        # the database doesn't match required variables                     
+        }
         
-        # WARNING
-        return(NULL)                                    # no (more?) variables to read, DO NOTHING!
-        
-      } else { #db[c("var1",...), ? ]
-        
-        toRead   <- toRead[variable %in% i,]            # matching variables in data base
-        i2       <- unique(toRead$variable)
-        
-      }
-      
-      if(length(i2) == 0L){
-        # WARNING
-        return(NULL)                          # the database doesn't match required variables , DO NOTHING!
-      }
-      
-      if(length(i_diff <- setdiff(i, i2))>0) {
-        # WARNING        
-      }
+        if(length(i_diff <- setdiff(i, i2))>0) {
+          wrn(20,i_diff)                                # i_diff not found
+        }
       
       
       if(!missing(j)){ # selection based on dimension
@@ -695,8 +682,7 @@ setMethod(
           
           if(length(j) > 0){  # i.e. db[,]
             
-            toRead <- toRead[len == length(j)]
-            
+            toRead <- toRead[len == length(j)]            
             toRead <- toRead[unlist(lapply(dims, FUN=function(a){all(a==j | is.na(j))}))]        
           } 
           
@@ -712,8 +698,7 @@ setMethod(
     
     
     if(nrow(toRead)==0) {
-      #WARNING?
-      return(NULL)
+      wrn(21,ifelse(!missing(j),j,""));return(NULL)  # nothing to get, probably missmatching dimensions
     }
     
     k <- 1L
