@@ -608,6 +608,7 @@ cdb <- setRefClass(
   )
 )
 
+
 #' Extract content from variable
 #' 
 #' Function to extract data content from a Coldbir variable.
@@ -626,38 +627,117 @@ setMethod(
   signature = "cdb",
   definition = function(x, i, j, na = NA){
     
-    if (missing(j)) j <- NULL
+    # ._     ==  NA
+    # .all   ==  NULL
     
-    if (missing(i) || is.vector(i) && length(i) > 1){
-      if (missing(i)){
-        vars <- x$get_vars(dims = T)
-        fun <- function(x) isTRUE(all.equal(x, as.character(j)))
-        i <- vars[sapply(vars$dims, fun)]$variable
-        
-        if(length(i) == 0L) err(6, name)
-      }
+    if(doBrowse) browser()
+    if(nrow(x$curr_var_tab) == 0){
       
-      # Create data.table with first variable
-      v <- data.table(first = x[i[1], j, na = na])
-      setnames(v, "first", i[1])
+      # WARNING
+      return(NULL)                          # the database table is empty, DO NOTHING!      
       
-      # Add all other variables
-      if (length(i) > 1) {
-        for(var in i[2:length(i)]){
-          # Use function call below since the data.table (`:=`) otherwise
-          # interprets `x` as a column name, if it exists (see issue 49).
-          read_var <- function() x[var, j, na = na]
-          v[ , var := read_var(), with = F]
-        }
-      }
-      
-    } else {
-      v <- x$get_variable(name = i, dims = j, na = na)
     }
     
-    return(v)
+    # at first: fast track for a simple vector output
+    if(!missing(i) && !is.null(i) && !is.na(i) && length(i) == 1L) { # special case 1
+      if(missing(j)) { # db["var1"]
+        
+        #ASSERT? 
+        v <- x$get_variable(name = i, dims = NULL, na = na)
+        return(v)
+        
+      } else if(!is.null(j) && !is.na(j) && length(j) > 0L && all(!is.na(j)) ) { # special case 2
+        
+        #ASSERT? 
+        v <- x$get_variable(name = i, dims = j, na = na)
+        return(v)
+        
+      }  # else: pass
+    } # else: pass
+    
+    toRead  <- copy(x$curr_var_tab)
+    toRead[,len:= unlist(lapply(dims, FUN= length))]
+    
+    
+    if(!missing(i) || !missing(j)){  # all except the simple case db[]
+      
+      
+      # determine all varibles to be read
+      if(missing(i) || is.na(i) ){ # all varibles db[, ?] or db[._ , ? ]
+        i       <- unique(toRead$variable)      
+        i2      <- i
+        
+      } else if(is.vector(i) && length(i) == 0L){ # i.e. db[character(0),] 
+        
+        # WARNING
+        return(NULL)                                    # no (more?) variables to read, DO NOTHING!
+        
+      } else { #db[c("var1",...), ? ]
+        
+        toRead   <- toRead[variable %in% i,]            # matching variables in data base
+        i2       <- unique(toRead$variable)
+        
+      }
+      
+      if(length(i2) == 0L){
+        # WARNING
+        return(NULL)                          # the database doesn't match required variables , DO NOTHING!
+      }
+      
+      if(length(i_diff <- setdiff(i, i2))>0) {
+        # WARNING        
+      }
+      
+      
+      if(!missing(j)){ # selection based on dimension
+        
+        if(is.vector(j)) {
+          
+          if(length(j) > 0){  # i.e. db[,]
+            
+            toRead <- toRead[len == length(j)]
+            
+            toRead <- toRead[unlist(lapply(dims, FUN=function(a){all(a==j | is.na(j))}))]        
+          } 
+          
+        } # else is.null(j) => .all => read all dimensions
+        
+        
+      } else {  # missing(j)  
+        
+        toRead   <- toRead[len==0L,]            # matching zero-dim variables in thr data base table
+      }
+      
+    } # else sepecial case 3) db[], etire data base table 
+    
+    
+    if(nrow(toRead)==0) {
+      #WARNING?
+      return(NULL)
+    }
+    
+    k <- 1L
+    variable <- toRead[k,]$variable
+    varName  <- toRead[k,paste(variable,paste(dims[[1]],collapse="."),
+                               sep=ifelse(length(dims[[1]])>0,"_",""))]
+    
+    resOut <- data.table(x$get_variable(name = variable, dims = x$curr_var_tab[k,dims[[1]]], na = na))
+    setnames(resOut,names(resOut),varName)
+    
+    if(nrow(x$curr_var_tab) == 1) return(resOut)  # one entry only thus ready!
+    
+    for(k in 2:nrow(toRead)) {
+      variable <- toRead[k,]$variable
+      varName  <- toRead[k,paste(variable,paste(dims[[1]],collapse="."),
+                                 sep=ifelse(length(dims[[1]])>0,"_",""))]  
+      resOut[,eval(varName):= x$get_variable(name = variable, dims = x$curr_var_tab[k,dims[[1]]], na = na)]
+      
+    }
+    
+    return(resOut)
   }
-)
+) 
+
 
 #' Assign content to variable 
 #' 
