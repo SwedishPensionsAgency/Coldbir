@@ -4,9 +4,6 @@
 #' The current working directory is set as the default path.
 #' 
 #' @param path Database path (the location of the coldbir database)
-#' @param log_level Log level (default: 4). Available levels: 1-9.
-#' This option can only be set upon initialization using `cdb(...)`.
-#' @param log_file Log file. As default log messages will be written to console.
 #' @param compress file compression level
 #' @param encoding set documentation encoding (default: UTF-8)
 #' @param read_only read only (default: T)
@@ -19,8 +16,6 @@ cdb <- setRefClass(
   "cdb",
   fields = list(
     path         = "character",
-    log_level    = "numeric",
-    log_file     = "character",
     compress     = "integer",
     encoding     = "character",
     read_only    = "logical",
@@ -31,8 +26,6 @@ cdb <- setRefClass(
   methods = list(
     initialize = function(
       path      = getwd(),
-      log_level = 4L,
-      log_file  = "",
       compress  = 5L,
       encoding  = "UTF-8",
       read_only = F
@@ -40,8 +33,6 @@ cdb <- setRefClass(
       
       # Set parameters
       .self$path      <- path
-      .self$log_level <- log_level
-      .self$log_file  <- log_file
       .self$compress  <- compress
       .self$encoding  <- encoding
       .self$read_only <- read_only
@@ -68,17 +59,6 @@ cdb <- setRefClass(
           
         }
       }
-      
-      # Set futile.logger options;
-      #   since this option is set during initialization,
-      #   it cannot be changed later, e.g. `db$log_level <- 9`.
-      flog.threshold(log_level)
-      
-      if (log_file != "") {
-        flog.appender(appender.file(log_file))
-      } else {
-        flog.appender(appender.console())
-      }
     },
     
     #' Get database variable length
@@ -103,9 +83,7 @@ cdb <- setRefClass(
     #' Note: The config file can be updated even if the database is read only,
     #' as it would otherwise be more difficult to actually change the same option.
     put_config = function() {
-      if (.self$read_only) {
-        warning("Config file updated, although `db$read_only` is set to TRUE")
-      }
+      if (.self$read_only) wrn(1)
       
       if (is.na(file.info(.self$path)$isdir)) {
         dir.create(.self$path, recursive = T)
@@ -166,11 +144,10 @@ cdb <- setRefClass(
         },
         finally = file.remove(tmp),
         error = function(e) {
-          flog.fatal("%s - writing failed; rollback! (%s)", name, e)
+          msg(2, name, e)
         }
       )
       
-      flog.info(f)
       return(T)
     },
     
@@ -183,16 +160,10 @@ cdb <- setRefClass(
     get_doc = function(name) {
       
       f <- file_path(name, .self$path, create_dir = F, file_name = F, data_folder = F)
-      if(is.na(f)){
-        error("%s - no such data base", .self$path)
-        return(NULL)
-      }
+      if (is.na(f)) stp(3, .self$path)
       
-      f <- file.path(f, .doc_file)      
-      if(!file.exists(f)){
-        error("%s - no documantation for this variable", paste(.self$path,name,sep=" : "))
-        return(NULL)
-      }
+      f <- file.path(f, .doc_file)
+      if (!file.exists(f)) stp(4, .self$path, name)
       
       con <- file(f, "r", encoding = .self$encoding)
       lns <- readLines(con, n = -1, warn = F)
@@ -238,11 +209,8 @@ cdb <- setRefClass(
           
       } else if (file.exists(cdb[2])) {
         bin_file <- file(cdb[2], "rb")
-          
-      } else {
-        flog.error("%s - file does not exist", name)
-        stop()
-      }
+        
+      } else err(6, name)
       
       header_len <- readBin(bin_file, integer(), n = 1, size = 8)
       header_str <- rawToChar(readBin(bin_file, raw(), n = header_len))
@@ -259,11 +227,8 @@ cdb <- setRefClass(
       close(bin_file)
       
       # Check if using an old version of colbir
-      if (header$db_ver != as.integer(.cdb_file_version)) {
-        flog.error("%s - version of coldbir package and file format does not match", name)
-        stop()
-      }
-  
+      if (header$db_ver != as.integer(.cdb_file_version)) err(7, name)
+      
       # Prepare data depending on vector type
       
       ## integer or factor
@@ -352,7 +317,7 @@ cdb <- setRefClass(
     #' 
     put_variable = function(x, name = NULL, dims = NULL, attrib = NULL) {
       
-      if (read_only) error("You're only allowed to read data, to change this use  ...$set_db_as_read_only(F)")
+      if (read_only) err(8)
       
       # If x is a data frame it will recursively run put_variable over all columns
       if (is.data.frame(x)) {
@@ -373,26 +338,19 @@ cdb <- setRefClass(
         
         # if null => exit
         if (is.null(x)) {
-          flog.warn("%s - variable is NULL; nothing to write", name)
+          wrn(9, name)
           return(F)
-        }
-        
-        # Info
-        if (all(is.na(x))) {
-          flog.info("%s - all values are missing", name)
         }
         
         if(is.na(.self$n_row)){
           
           .self$n_row <- length(x)
           
-        } else if(.self$n_row != length(x)) { 
-          stop(sprintf("%s - length of variable doesn't match the size of the other columns; nothing will be written", name))
-        }
+        } else if(.self$n_row != length(x)) err(11, name)
         
         # Create empty header
         header <- list()
-          
+        
         # Check/set vector type and number of bytes
         if (is.numeric(x)) {
               
@@ -437,8 +395,7 @@ cdb <- setRefClass(
           
         } else if (is.factor(x) || is.character(x)) {
           if (is.character(x)) {
-            x <- as.factor(x)
-            flog.warn("%s - character converted to factor", name)
+            x <- as.factor(x)  # convert to factor
           }
           
           # Get previous lookup table
@@ -475,10 +432,7 @@ cdb <- setRefClass(
           header$type <- "factor"
           header$bytes <- 4L
               
-        } else {
-          flog.error("%s - data type is not supported", name)
-          stop()
-        }
+        } else err(13, name)
         
         ext <- if (.self$compress > 0) "cdb.gz" else "cdb"
         
@@ -539,12 +493,11 @@ cdb <- setRefClass(
           },
           finally = file.remove(tmp),
           error = function(e) {
-            flog.fatal("%s - writing failed; rollback! (%s)", name, e)
+            err(14, name, e)
           }
         )
         
-        # Return TRUE and message if variable is successfully written
-        flog.info(cdb)
+        # Return TRUE if variable is successfully written
         return(T)
       }
     },
@@ -557,10 +510,9 @@ cdb <- setRefClass(
     #' @param table Two-column data table with keys and values
     put_lookup = function(name, table) {
       
-      if (read_only) stop("You're only allowed to read data, to change this use cdb(..., read_only = F)")
+      if (read_only) err(8)
       
-      if (!is.data.frame(table) || ncol(table) != 2) 
-        stop("input must be a two-column data frame")
+      if (!is.data.frame(table) || ncol(table) != 2) err(16)
       
       # Escape characters
       table[[2]] <- escape_char(table[[2]])
@@ -584,12 +536,11 @@ cdb <- setRefClass(
         write_lookup(),
         finally = file.remove(tmp),
         error = function(e) {
-          flog.fatal("%s - writing failed; rollback! (%s)", name, e)
+          err(14, name, e)
         }
       )
       
-      flog.info(f)
-      return(TRUE)
+      return(T)
     },
     
     #' Read dictionary from disk
@@ -605,7 +556,7 @@ cdb <- setRefClass(
         if (file.exists(file)) {
           table <- read.table(file = file, header = F, quote = "", sep = "\t", stringsAsFactors = F)
           if (!is.data.frame(table) || ncol(table) != 2) {
-            stop("lookup must be a two-column data frame")
+            err(16)
           }
           return(as.data.table(table))
         } else { 
@@ -617,7 +568,7 @@ cdb <- setRefClass(
     },
     #' Remove all content in database
     clean = function() {
-      if (read_only) stop("Read only, to change this set db$read_only <- F")
+      if (read_only) err(8)
       
       unlink(path, recursive = T)
       .self$read_only  <- read_only
@@ -654,10 +605,7 @@ setMethod(
         fun <- function(x) isTRUE(all.equal(x, as.character(j)))
         i <- vars[sapply(vars$dims, fun)]$variable
         
-        if(length(i) == 0L) {
-          flog.error("%s - file does not exist", name)
-          return(NULL)
-        }
+        if(length(i) == 0L) err(6, name)
       }
       
       # Create data.table with first variable
@@ -701,7 +649,7 @@ setMethod(
   definition = function(x, i, j, value){
     
     if (missing(j)) j <- NULL
-    if (x$read_only) error("Read only, to change this use ...$set_db_as_read_only(F)")
+    if (x$read_only) err(8)
     
     if (all(class(value) == "doc")) {
       
