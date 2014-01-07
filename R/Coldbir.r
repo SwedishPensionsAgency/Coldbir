@@ -4,5 +4,4 @@
 #' 
 #' @docType package
 #' @name Coldbir
-#' 
 NULL

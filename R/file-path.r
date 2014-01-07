@@ -11,7 +11,6 @@
 #' @param data_folder If data folder should be added
 #' 
 #' @export
-#'
 file_path <- function(name, path, dims = NULL, ext = NULL, create_dir = F, file_name = T, data_folder = T) {
     
     folder_path <- if (data_folder) {
