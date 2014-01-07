@@ -6,9 +6,9 @@ Date: 2014-01-07
 Author: Danne Mikula, Thomas Reinholdsson
 Maintainer: Thomas Reinholdsson <reinholdsson@gmail.com>
 Description: Coldbir is a package that aims to simplify the workflow
-  with panel data on disk, including features such as simple syntax
-  to work with data, small storage size, impressive read/write speed,
-  variable documentation, etc.
+    with panel data on disk, including features such as simple syntax
+    to work with data, small storage size, impressive read/write speed,
+    variable documentation, etc.
 License: AGPL-3
 Depends:
     data.table (>= 1.8.8),
@@ -18,3 +18,16 @@ Depends:
     yaml (>= 2.1.7),
     tools,
     methods
+Collate:
+    '0-constants.r'
+    'Coldbir.r'
+    'cdb-class.r'
+    'check-repr.r'
+    'create-temp-file.r'
+    'doc-class.r'
+    'file-name.r'
+    'file-path.r'
+    'find-exp.r'
+    'messages.r'
+    'search-files.r'
+    'utils.r'
