@@ -8,6 +8,6 @@
   \item{p}{Directory of where the file is to be located}
 }
 \description{
-  ...
+  Function that creates a temporary file path.
 }
 

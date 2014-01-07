@@ -1,6 +1,6 @@
 #' Search files
 #'
-#' ...
+#' List all files in a path matching a specific extension
 #'
 #' @param path Search path
 #' @param ext Allowed extensions

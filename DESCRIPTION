@@ -1,11 +1,14 @@
 Package: Coldbir
 Type: Package
 Title: Column database in R
-Version: 0.4
-Date: 2013-08-12
+Version: 0.5
+Date: 2014-01-07
 Author: Danne Mikula, Thomas Reinholdsson
 Maintainer: Thomas Reinholdsson <reinholdsson@gmail.com>
-Description: ...
+Description: Coldbir is a package that aims to simplify the workflow
+  with panel data on disk, including features such as simple syntax
+  to work with data, small storage size, impressive read/write speed,
+  variable documentation, etc.
 License: AGPL-3
 Depends:
     data.table (>= 1.8.8),
@@ -15,18 +18,3 @@ Depends:
     yaml (>= 2.1.7),
     tools,
     methods
-Collate:
-    'check-repr.r'
-    'find-exp.r'
-    'file-name.r'
-    'file-path.r'
-    'cdb-class.r'
-    '0-constants.r'
-    'to-char.r'
-    'doc-class.r'
-    'create-temp-file.r'
-    'Coldbir.r'
-    'search-files.r'
-    'list-variables.r'
-    'utils.r'
-    'messages.r'

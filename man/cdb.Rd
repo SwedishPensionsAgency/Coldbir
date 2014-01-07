@@ -5,7 +5,7 @@
   cdb(...)
 }
 \arguments{
-  \item{path}{Database path (the location of the coldbir
+  \item{path}{database path (the location of the coldbir
   database)}
 
   \item{compress}{file compression level}

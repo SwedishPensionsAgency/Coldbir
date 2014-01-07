@@ -1,6 +1,6 @@
 #' Generate coldbir file path
 #'
-#' ...
+#' Function that constructs a cdb file path (and creates the folder)
 #'
 #' @param name Variable name
 #' @param path Variable path
@@ -11,7 +11,6 @@
 #' @param data_folder If data folder should be added
 #' 
 #' @export
-#'
 file_path <- function(name, path, dims = NULL, ext = NULL, create_dir = F, file_name = T, data_folder = T) {
     
     folder_path <- if (data_folder) {

@@ -3,7 +3,7 @@
 #' Method to assign either a new or existing coldbir database to an R object.
 #' The current working directory is set as the default path.
 #' 
-#' @param path Database path (the location of the coldbir database)
+#' @param path database path (the location of the coldbir database)
 #' @param compress file compression level
 #' @param encoding set documentation encoding (default: UTF-8)
 #' @param read_only read only (default: T)
@@ -36,7 +36,7 @@ cdb <- setRefClass(
       .self$compress  <- compress
       .self$encoding  <- encoding
       .self$read_only <- read_only
-      .self$curr_var_tab <- list_variables(path = .self$path, dims = T) 
+      .self$curr_var_tab <- get_vars(dims = T) 
       
       f <- file.path(path, .config_filename)
       
@@ -179,7 +179,36 @@ cdb <- setRefClass(
     #' @param dims tells if column with dimensions is required
     #'
     get_vars = function(dims = F) {
-      list_variables(path = .self$path, dims = dims)
+      files <- search_files(path = .self$path)
+      
+      # Extract variable names
+      vars = basename(dirname(dirname(files)))
+      
+      if (dims) {
+        
+        # Extract dims
+        var_dims <- str_extract_all(files, "\\[(\\w*)\\]")
+        
+        # Remove square brackets
+        var_dims <- sapply(var_dims, function(x) {
+          x <- gsub("\\[", "", x)
+          x <- gsub("\\]", "", x)
+          
+          #if (length(x) == 0) x <- NULL
+          return(x)
+        })
+        
+        x <- data.table(
+          variable = vars,
+          dims = var_dims
+        )
+        
+      } else {
+        x <- vars
+      }
+      
+      if (dims == F) x <- unique(x)
+      return(x)
     },
     
     # Get variable dimensions
@@ -187,7 +216,7 @@ cdb <- setRefClass(
     #' @param name variable name
     #'
     get_dims = function(name) {
-      x <- list_variables(path = .self$path, dims = T)
+      x <- get_vars(dims = T)
       x <- subset(x, variable == name)
       return(x$dims)
     },
@@ -574,7 +603,7 @@ cdb <- setRefClass(
       .self$read_only  <- read_only
       .self$db_version <- NA_real_
       .self$n_row      <- NA_integer_
-      .self$curr_var_tab <- list_variables(path = .self$path, dims = T) # Empty data.table with colnames
+      .self$curr_var_tab <- get_vars(dims = T) # Empty data.table with colnames
     }
   )
 )

@@ -23,6 +23,7 @@
   \item{data_folder}{If data folder should be added}
 }
 \description{
-  ...
+  Function that constructs a cdb file path (and creates the
+  folder)
 }
 
