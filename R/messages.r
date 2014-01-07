@@ -9,7 +9,7 @@
 #' @param n message code. The number used must exist in table available in the code.
 #' @param ... arguments passed on to `sprintf()`.
 #' 
-#' @examples 
+#' @examples
 #' \dontrun{
 #' msg(3, "foo")
 #' }
