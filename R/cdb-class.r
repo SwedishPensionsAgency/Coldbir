@@ -719,6 +719,26 @@ setMethod(
       
     }
     
+    # SORING of columns - temporary solution
+    # it must be som less TrIcKy way of doing this
+
+    sL <- str_split(names(resOut), "_")
+    variables <- unlist(lapply(sL,FUN=head,n=1L))
+    sL <- unlist(lapply(sL,FUN=function(x)ifelse(length(x)==1,NA,x[-1]))) # dimensions
+    sL <- str_split(sL, "\\.")
+    #SORT?
+    if(all(unlist(lapply(sL,FUN=
+                           function(x)length(grep("^[0-9]*$",x))== length(x) || is.na(x)
+    )))){ #numeric dimensions are applicable
+      nrDimCol <- max(unlist(lapply(sL,FUN=  function(x)length(x) )))
+      dT <- data.table(Nr = (1:length(variables)),varName=variables)  
+      dimNames <- paste("D",1:nrDimCol,sep="")
+      for(i in 1:nrDimCol) dT[,eval(dimNames[i]):= unlist(lapply(sL, FUN = function(x)as.integer(x[i])))]
+      setkeyv(dT,c("varName",dimNames))       
+      resOut <- resOut[,dT$Nr,with = FALSE]
+    }
+    
+    
     return(resOut)
   }
 ) 
