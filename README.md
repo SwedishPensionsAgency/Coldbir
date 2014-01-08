@@ -46,7 +46,7 @@ The package make use of `get` and `put` methods to read and write data, somewhat
 Method                                  | Example
 --------------------------------------- | -------------
 Initialize database                     | `a <- cdb('mydb')`
-Unlock read only                        | `a$read_only <- FALSE`
+Set read only                           | `a$read_only <- T`
 Get database path                       | `a$path`
 
 ### Put
