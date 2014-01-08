@@ -66,10 +66,11 @@ Put config file                         | `a$put_config()`
 
 Method                                  | Example
 --------------------------------------- | -------------
-Get variable                            | `a['foo']`
+Get variable without dimensions         | `a['foo']`
+Get variable with all dimensions        | `a['foo', .all]`
+Get variable with dimensionality of two | `a['foo', c(._, ._)]`
+Get variable with specified dimensions (*e.g. december for all years*) | `a['foo', c(._, 12)]`
 Get multiple variables                  | `a[c('foo', 'bar')]`
-Get variable with specific dimensions   | `a['foo', c(.ANY, 12)]`
-Get data of dimensionality of two       | `a['foo', c(.ANY, .ANY)]`
 Get all data                            | `a[]`
 Get variable documentation              | `a$get_doc("foo")`
 
