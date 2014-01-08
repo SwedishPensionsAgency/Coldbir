@@ -706,7 +706,7 @@ setMethod(
     varName  <- toRead[k,paste(variable,paste(dims[[1]],collapse="."),
                                sep=ifelse(length(dims[[1]])>0,"_",""))]
     
-    resOut <- data.table(x$get_variable(name = variable, dims = x$curr_var_tab[k,dims[[1]]], na = na))
+    resOut <- data.table(x$get_variable(name = variable, dims = toRead[k,dims[[1]]], na = na))
     setnames(resOut,names(resOut),varName)
     
     if(nrow(x$curr_var_tab) == 1) return(resOut)  # one entry only thus ready!
@@ -715,7 +715,7 @@ setMethod(
       variable <- toRead[k,]$variable
       varName  <- toRead[k,paste(variable,paste(dims[[1]],collapse="."),
                                  sep=ifelse(length(dims[[1]])>0,"_",""))]  
-      resOut[,eval(varName):= x$get_variable(name = variable, dims = x$curr_var_tab[k,dims[[1]]], na = na)]
+      resOut[,eval(varName):= x$get_variable(name = variable, dims = toRead[k,dims[[1]]], na = na)]
       
     }
     
