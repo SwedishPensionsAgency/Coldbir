@@ -692,13 +692,20 @@ setMethod(
     }
     
     # at first: fast track for a simple vector output
-    if(!missing(i) && !is.null(i) && !is.na(i) && length(i) == 1L) { # special case 1
-      if(missing(j)) {
-        v <- x$get_variable(name = i, dims = NULL, na = na)
+    if(!missing(i) && !is.null(i) && !is.na(i) && length(i) == 1L) { 
+      
+      if(missing(j)) {                                                          # special case 1
+        
+        v <- data.table(x$get_variable(name = i, dims = NULL, na = na))
+        setnames(v,names(v),i)
         return(v)
+        
       } else if(!is.null(j) && !is.na(j) && length(j) > 0L && all(!is.na(j)) ) { # special case 2
-        v <- x$get_variable(name = i, dims = j, na = na)
+        
+        v <- data.table(x$get_variable(name = i, dims = j, na = na))
+        setnames(v,names(v), paste(i,paste(j,collapse="."),sep="_"))
         return(v)
+        
       }  # else: pass
     } # else: pass
     
@@ -863,7 +870,9 @@ setMethod(
       if (missing(j)) j <- NULL      
       x$delete_variable(name = i, dims = j)
       
-    } else { 
+    } else {
+      
+      if(is(value,"data.table")) value <- value[[1]]
       
       if (missing(j)) j <- NULL
       x$put_variable(x = value, name = i, dims = j)
