@@ -687,11 +687,13 @@ setMethod(
     # .all   ==  NULL
     
     if(nrow(x$curr_var_tab) == 0){
+      if(missing(i) && missing(j)) return(NULL)
+      
       wrn(17,x$path) # the database table is empty,
       return(NULL)   
     }
     
-    # at first: fast track for a simple vector output
+    # at first: fast track for a one column output
     if(!missing(i) && !is.null(i) && !is.na(i) && length(i) == 1L) { 
       
       if(missing(j)) {                                                          # special case 1
@@ -700,7 +702,7 @@ setMethod(
         setnames(v,names(v),i)
         return(v)
         
-      } else if(!is.null(j) && !is.na(j) && length(j) > 0L && all(!is.na(j)) ) { # special case 2
+      } else if(j != .all && !is.na(j) && length(j) > 0L && all(!is.na(j)) ) { # special case 2
         
         v <- data.table(x$get_variable(name = i, dims = j, na = na))
         setnames(v,names(v), paste(i,paste(j,collapse="."),sep="_"))
@@ -741,7 +743,7 @@ setMethod(
       
       if(!missing(j)){ # selection based on dimension
         
-        if(is.vector(j)) {
+        if(is.vector(j) && (is.na(j) || j != .all)) {
           
           if(length(j) > 0){  # i.e. db[,]
             
@@ -749,7 +751,7 @@ setMethod(
             toRead <- toRead[unlist(lapply(dims, FUN=function(a){all(a==j | is.na(j))}))]        
           } 
           
-        } # else is.null(j) => .all => read all dimensions
+        } # else  .all => read all dimensions
         
         
       } else {  # missing(j)  

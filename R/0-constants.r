@@ -6,4 +6,4 @@
 #' @export
 ._     <- NA
 #' @export
-.all   <- NULL
+.all   <- -.Machine$integer.max
