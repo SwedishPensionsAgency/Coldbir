@@ -221,6 +221,56 @@ cdb <- setRefClass(
       return(x$dims)
     },
     
+    # Delete variable data
+    #'    
+    #' @param name variable name
+    #' @param dims the specified observation in the space of dimensions  
+    #'     
+    delete_variable = function(name, dims = NULL) {
+      
+      # Do data exists? (find faster solution)
+      LeDims <- length(dims)
+      tmpTable  <- .self$curr_var_tab
+      tmpTable[,Nr := 1:nrow(.self$curr_var_tab)]         # temp row counter
+      tmpTable[,Len:= unlist(lapply(dims, FUN=length))]   # temp lengths of dims
+      selNr <- tmpTable[variable==name & Len==LeDims,Nr]   # reduce the problem
+      rm(tmpTable)
+      
+      found <- FALSE
+      k     <- length(selNr)
+      while(!found && k>0L){
+        ndx   <- selNr[k]
+        found <- identical(as.character(.self$curr_var_tab[ndx]$dims[[1]]),as.character(dims))
+        k <- k- 1L
+      }     
+
+      
+      if(!found) {
+        wrn(23, paste(name,"(",paste(dims,collapse=","),")",sep=""))
+        return()
+      }
+      
+      if(nrow(.self$curr_var_tab[variable==name])==1L) {  # remove the whole directory
+        
+         unlink(file.path(.self$path,name),recursive = TRUE)   
+                                            # note: delete the documentation as well
+        } else {
+        
+        cdb <- file_path(name, .self$path, dims, ext = c("cdb.gz", "cdb"), create_dir = F) 
+        
+        if(file.exists(cdb[1])){
+          unlink(file.path(cdb[1])) # compressed
+        } else {
+          unlink(file.path(cdb[2])) # uncompressed
+        }
+      }
+      
+      .self$curr_var_tab$Nr <- .self$curr_var_tab$Nr[-ndx]
+      .self$db_version      <- new_time_stamp()     
+      .self$put_config()      
+      
+    },
+    
     # Get variable data
     #'    
     #' @param name variable name
@@ -345,11 +395,11 @@ cdb <- setRefClass(
     #' @param attrib additional attributes to be saved  
     #' 
     put_variable = function(x, name = NULL, dims = NULL, attrib = NULL) {
-      
       if (read_only) err(8)
       
       # If x is a data frame it will recursively run put_variable over all columns
       if (is.data.frame(x)) {
+        
         sapply(names(x), function(i) {
           put_variable(
             x = x[[i]],
@@ -474,6 +524,9 @@ cdb <- setRefClass(
           create_dir = T
         )
         
+        # check if we need a new entry in the internal table
+        file.existed <- file.exits(cdb)
+        
         # File header
         header$db_ver <- as.integer(.cdb_file_version)
           
@@ -496,6 +549,7 @@ cdb <- setRefClass(
         # Try to write file to disk
         tryCatch({
           
+          # future issue: no check for two vesions of the file. One compressed one not
           # Create file and add file extension
           if (.self$compress > 0) {
             bin_file <- gzfile(tmp, open = "wb", compression = .self$compress)
@@ -510,14 +564,16 @@ cdb <- setRefClass(
           writeBin(x, bin_file, size = header$bytes)  # write each vector element to bin_file
           close(bin_file)
   
+          
           # Rename temporary variable to real name (overwrite)
           file.copy(tmp, cdb, overwrite = T)
           
           #bookkeeping of the internal info
-          .self$curr_var_tab <- rbind(.self$curr_var_tab , list(variable = name, dims = list(dims)))
+          if(!file.existed)
+            .self$curr_var_tab <- rbind(.self$curr_var_tab , list(variable = name, dims = list(dims)))
+
           .self$db_version <- new_time_stamp()
-          
-          put_config()
+          .self$put_config()
           
           },
           finally = file.remove(tmp),
@@ -733,7 +789,7 @@ setMethod(
       nrDimCol <- max(unlist(lapply(sL,FUN=  function(x)length(x) )))
       dT <- data.table(Nr = (1:length(variables)),varName=variables)  
       dimNames <- paste("D",1:nrDimCol,sep="")
-      for(i in 1:nrDimCol) dT[,eval(dimNames[i]):= unlist(lapply(sL, FUN = function(x)as.integer(x[i])))]
+      for(k in 1:nrDimCol) dT[,eval(dimNames[k]):= unlist(lapply(sL, FUN = function(x)as.integer(x[k])))]
       setkeyv(dT,c("varName",dimNames))       
       resOut <- resOut[,dT$Nr,with = FALSE]
     }
@@ -761,17 +817,58 @@ setMethod(
   f = "[<-",
   signature = "cdb",
   definition = function(x, i, j, value){
-    
-    if (missing(j)) j <- NULL
+    browser()
     if (x$read_only) err(8)
+    
+    if(missing(i) && missing(j)) {
+      
+      if(is.null(value)) {
+        
+        x$clean();return(x)
+        
+      } else  if(is(value,"data.table")){
+        
+          colNames <- names(value)    #value <- y
+          if(length(grep("_",colNames)>0)){
+            
+            sL <- str_split(colNames, "_")
+            varNames <- unlist(lapply(sL,FUN=head,n=1L))
+            sL <- unlist(lapply(sL,FUN=function(x)ifelse(length(x)==1,NA,x[-1]))) # dimensions left
+            sL <- str_split(sL, "\\.")
+            
+          } else {            
+            varNames  <- colNames
+            sL        <- list(rep(NA_character_,length(colNames)))
+          }
+          
+          for(k in 1:length(varNames)) {           
+            if(is.na((currDim <- sL[[k]])[1])) currDim <- NULL
+            x$put_variable(x = value[,k,with=FALSE][[1]], name = varNames[k], dims = currDim)
+          }
+          
+          return(x)
+          
+      } else {
+        wrn(22,class(value));return(x)
+      }
+    }
     
     if (all(class(value) == "doc")) {
       
       # Create readme.json
       x$put_doc(x = value$to_json(), name = i)
       
-    } else {
+    } else if(is.null(value)){
+      
+      if (missing(j)) j <- NULL      
+      x$delete_variable(name = i, dims = j)
+      
+    } else { 
+      
+      if (missing(j)) j <- NULL
       x$put_variable(x = value, name = i, dims = j)
+      
+      
     }
     
     return(x)
