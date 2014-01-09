@@ -227,10 +227,10 @@ cdb <- setRefClass(
     #' @param dims the specified observation in the space of dimensions  
     #'     
     delete_variable = function(name, dims = NULL) {
-      
+
       # Do data exists? (find faster solution)
       LeDims <- length(dims)
-      tmpTable  <- .self$curr_var_tab
+      tmpTable  <- data.table::copy(.self$curr_var_tab)
       tmpTable[,Nr := 1:nrow(.self$curr_var_tab)]         # temp row counter
       tmpTable[,Len:= unlist(lapply(dims, FUN=length))]   # temp lengths of dims
       selNr <- tmpTable[variable==name & Len==LeDims,Nr]   # reduce the problem
@@ -265,7 +265,7 @@ cdb <- setRefClass(
         }
       }
       
-      .self$curr_var_tab$Nr <- .self$curr_var_tab$Nr[-ndx]
+      .self$curr_var_tab <- .self$curr_var_tab[-ndx]
       .self$db_version      <- new_time_stamp()     
       .self$put_config()      
       
@@ -525,7 +525,7 @@ cdb <- setRefClass(
         )
         
         # check if we need a new entry in the internal table
-        file.existed <- file.exits(cdb)
+        file.existed <- file.exists(cdb)
         
         # File header
         header$db_ver <- as.integer(.cdb_file_version)
@@ -817,7 +817,7 @@ setMethod(
   f = "[<-",
   signature = "cdb",
   definition = function(x, i, j, value){
-    browser()
+  
     if (x$read_only) err(8)
     
     if(missing(i) && missing(j)) {
@@ -838,7 +838,7 @@ setMethod(
             
           } else {            
             varNames  <- colNames
-            sL        <- list(rep(NA_character_,length(colNames)))
+            sL        <- as.list(rep(NA_character_,length(colNames)))
           }
           
           for(k in 1:length(varNames)) {           
@@ -859,7 +859,7 @@ setMethod(
       x$put_doc(x = value$to_json(), name = i)
       
     } else if(is.null(value)){
-      
+
       if (missing(j)) j <- NULL      
       x$delete_variable(name = i, dims = j)
       
