@@ -835,9 +835,9 @@ setMethod(
         
         x$clean();return(x)
         
-      } else  if(is(value,"data.table")){
+      } else  if(is(value,"data.frame")){
         
-          colNames <- names(value)    #value <- y
+          colNames <- names(value)    
           if(length(grep("_",colNames)>0)){
             
             sL <- str_split(colNames, "_")
@@ -845,14 +845,19 @@ setMethod(
             sL <- unlist(lapply(sL,FUN=function(x)ifelse(length(x)==1,NA,x[-1]))) # dimensions left
             sL <- str_split(sL, "\\.")
             
-          } else {            
+          } else {
+            
             varNames  <- colNames
             sL        <- as.list(rep(NA_character_,length(colNames)))
           }
           
-          for(k in 1:length(varNames)) {           
+          for(k in 1:length(varNames)) {
+            
             if(is.na((currDim <- sL[[k]])[1])) currDim <- NULL
-            x$put_variable(x = value[,k,with=FALSE][[1]], name = varNames[k], dims = currDim)
+            
+            if(is(value,"data.table")) v <- value[,k,with=FALSE][[1]] else v <- value[,k]
+            
+            x$put_variable(x = v, name = varNames[k], dims = currDim)
           }
           
           return(x)
@@ -874,7 +879,13 @@ setMethod(
       
     } else {
       
-      if(is(value,"data.table")) value <- value[[1]]
+      if(is(value,"data.frame") && !missing(i)) {
+        unusedName    <- i
+        if(is.na(i))   unusedName <- "._" else
+        if(is.null(i)) unusedName <- "NULL" else
+        if(is.vector(i) && length(i) == 0L) unusedName <- "empty vector"
+        wrn(24, unusedName)
+      }
       
       if (missing(j)) j <- NULL
       x$put_variable(x = value, name = i, dims = j)

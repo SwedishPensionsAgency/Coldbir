@@ -40,7 +40,8 @@ msg <- function(n, ...) {
     "20"  = "%s not found",
     "21"  = "nothing to get, probably missmatching dimensions, %s",
     "22"  = "The 'value' argument in ']<-' should be a vector, data.table, doc or NULL. It is a %s .",
-    "23"  = "Attemptio to remove non existing data %s ."
+    "23"  = "Attemption to remove non existing data %s .",
+    "24"  = "The argument i = %s is not used. The column names of the data.frame are used instead"
   ), ...)
   
   if (is.null(str)) err(0)
