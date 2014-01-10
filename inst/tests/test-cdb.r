@@ -46,59 +46,59 @@ context("VARIABLE TYPES")
 x <- sample(c(T, F), size, replace = T)
 db["x"] <- x
 test_that("logical", {
-  expect_equal(x, db["x"])
+  expect_equal(x, db["x"][[1]])
 })
 db$clean()
 
 x <- sample(c(T, F, NA), size, replace = T)
 db["x"] <- x
 test_that("logical na", {
-  expect_equal(x, db["x"])
+  expect_equal(x, db["x"][[1]])
 })
 db$clean()
 
 x <- sample(c(0, 1, 10000, .Machine$integer.max, NA), size, replace = T)
 db["x"] <- x
 test_that("integer", {
-  expect_equal(x, db["x"])
+  expect_equal(x, db["x"][[1]])
 })
 db$clean()
 
 x <- sample(c(-100, -50, 0, 50, 100, NA), size, replace = T)
 db["x"] <- x
 test_that("double", {
-  expect_equal(x, db["x"])
+  expect_equal(x, db["x"][[1]])
 })
 db$clean()
 
 x <- sample(LETTERS, size, replace = T)
 db["x"] <- x
 test_that("character", {
-  expect_equal(as.factor(x), db["x"])
+  expect_equal(as.factor(x), db["x"][[1]])
 })
 db$clean()
 
 db["x"] <- x <- as.factor(c(NA, NA))
 test_that("factor with only na", {
-  expect_equal(x, db["x"])
+  expect_equal(x, db["x"][[1]])
 })
 db$clean()
 
 # Test if escape characters works
 db["x"] <- x <- c("a\n", "\tc\v\n", "d\a\vx\ry\f\tz")
 test_that("escape_char", {
-  expect_equal(escape_char(x), as.character(db["x"]))
+  expect_equal(escape_char(x), as.character(db["x"][[1]]))
 })
 db$clean()
 
 db["x"] <- x <- .POSIXct(runif(size) * unclass(Sys.time()))
 test_that("POSIXct", {
-  expect_equal(as.character(x), as.character(db["x"]))
+  expect_equal(as.character(x), as.character(db["x"][[1]]))
 })
 db$clean()
 
 test_that("non-existing", {
-  expect_error(db["non-existing"])
+  expect_warning(db["non-existing"])
 })
 
 context("VARIABLE DOCUMENTATION")
@@ -128,8 +128,7 @@ context("VARIABLE DIMENSIONS")
 dims <- c(2012, "a")
 db["x", dims] <- x <- sample(1:5, size, replace = T)
 test_that("put/get variable with dimensions", {
-  expect_error(db["non-existing", dims])
-  expect_equal(x, db["x", dims])
+  expect_equal(x, db["x", dims][[1]])
   expect_true(file.exists(file.path(db$path, "x", "data", "d[2012][a].cdb.gz")))
 })
 db$clean()
@@ -137,32 +136,32 @@ db$clean()
 dims <- NULL
 db["x", dims] <- x <- sample(1:5, size, replace = T)
 test_that("put/get variable with dims = NULL", {
-  expect_equal(x, db["x", dims])
+  expect_equal(x, db["x", dims][[1]])
   expect_true(file.exists(file.path(db$path, "x", "data", "d.cdb.gz")))
 })
 db$clean()
 
 test_that("non-existing dimensions", {
-  expect_error(db["non-existing", dims])
+  expect_warning(db["non-existing", dims])
 })
 
 context("REPLACE NA")
 #####################
 db["x"] <- x <- c(T, F, NA, F, T)
 test_that("logical replaces NA", {
-  expect_equal(sum(x, na.rm = T), sum(db["x", na = F]))
+  expect_equal(sum(x, na.rm = T), sum(db["x", na = F][[1]]))
 })
 db$clean()
 
 db["x"] <- x <- c(1, NA, 3)
 test_that("integer replaces NA", {
-  expect_equal(1:3, db["x", na = 2])
+  expect_equal(1:3, db["x", na = 2][[1]])
 })
 db$clean()
 
 db["x"] <- x <- c("a", NA)
 test_that("character replaces NA", {
-  expect_equal(as.factor(c("a", "b")), db["x", na = "b"])
+  expect_equal(as.factor(c("a", "b")), db["x", na = "b"][[1]])
 })
 db$clean()
 
@@ -174,7 +173,7 @@ x <- data.table(MASS::survey)
 # to specifically test issue 49.
 setnames(x, c("Wr.Hnd", "NW.Hnd", "Pulse"), c("var", "x", "z"))
 
-db[, c("survey")] <- x
+db[] <- x
 
 setcolorder(x, sort(names(x)))
 
