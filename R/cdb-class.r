@@ -686,10 +686,13 @@ setMethod(
     # ._     ==  NA
     # .all   ==  NULL
     
-    if(nrow(x$curr_var_tab) == 0){
+    IFtZhmqaOHbU671928 <- x  # "IFtZhmqaOHbU671928" for avoiding name conflicts
+    rm(x)                    # :) paste(paste(sample(c(letters,LETTERS),12),collapse=""),as.integer(1e6*runif(1)),sep="")
+    
+    if(nrow(IFtZhmqaOHbU671928$curr_var_tab) == 0){
       if(missing(i) && missing(j)) return(NULL)
       
-      wrn(17,x$path) # the database table is empty,
+      wrn(17,IFtZhmqaOHbU671928$path) # the database table is empty,
       return(NULL)   
     }
     
@@ -698,20 +701,20 @@ setMethod(
       
       if(missing(j)) {                                                          # special case 1
         
-        v <- data.table(x$get_variable(name = i, dims = NULL, na = na))
+        v <- data.table(IFtZhmqaOHbU671928$get_variable(name = i, dims = NULL, na = na))
         setnames(v,names(v),i)
         return(v)
         
       } else if(j != .all && !is.na(j) && length(j) > 0L && all(!is.na(j)) ) { # special case 2
         
-        v <- data.table(x$get_variable(name = i, dims = j, na = na))
+        v <- data.table(IFtZhmqaOHbU671928$get_variable(name = i, dims = j, na = na))
         setnames(v,names(v), paste(i,paste(j,collapse="."),sep="_"))
         return(v)
         
       }  # else: pass
     } # else: pass
     
-    toRead  <- copy(x$curr_var_tab)
+    toRead  <- copy(IFtZhmqaOHbU671928$curr_var_tab)
     toRead[,len:= unlist(lapply(dims, FUN= length))]
     
       if(!missing(i) || !missing(j)){   # all cases except db[]
@@ -771,16 +774,16 @@ setMethod(
     varName  <- toRead[k,paste(variable,paste(dims[[1]],collapse="."),
                                sep=ifelse(length(dims[[1]])>0,"_",""))]
     
-    resOut <- data.table(x$get_variable(name = variable, dims = toRead[k,dims[[1]]], na = na))
+    resOut <- data.table(IFtZhmqaOHbU671928$get_variable(name = variable, dims = toRead[k,dims[[1]]], na = na))
     setnames(resOut,names(resOut),varName)
     
-    if(nrow(x$curr_var_tab) == 1) return(resOut)  # one entry only thus ready!
+    if(nrow(IFtZhmqaOHbU671928$curr_var_tab) == 1) return(resOut)  # one entry only thus ready!
     
     for(k in 2:nrow(toRead)) {
       variable <- toRead[k,]$variable
       varName  <- toRead[k,paste(variable,paste(dims[[1]],collapse="."),
                                  sep=ifelse(length(dims[[1]])>0,"_",""))]  
-      resOut[,eval(varName):= x$get_variable(name = variable, dims = toRead[k,dims[[1]]], na = na)]
+      resOut[,eval(varName):= IFtZhmqaOHbU671928$get_variable(name = variable, dims = toRead[k,dims[[1]]], na = na)]
       
     }
     
@@ -825,7 +828,8 @@ setMethod(
 setMethod(
   f = "[<-",
   signature = "cdb",
-  definition = function(x, i, j, value){
+  definition = function(x, i, j, value){    
+                                            
   
     if (x$read_only) err(8)
     
