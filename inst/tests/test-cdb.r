@@ -178,7 +178,7 @@ db[] <- x
 setcolorder(x, sort(names(x)))
 
 test_that("get dataset", {
-  expect_equal(x, db[, "survey"])
+  expect_equal(x, db[])
 })
 
 db$clean()
