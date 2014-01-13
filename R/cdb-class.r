@@ -684,7 +684,7 @@ setMethod(
   definition = function(x, i, j, na = NA){
     
     # ._     ==  NA
-    # .all   ==  NULL
+    # .all   ==  -.Machine$integer.max
     
     IFtZhmqaOHbU671928 <- x  # "IFtZhmqaOHbU671928" for avoiding name conflicts
     rm(x)                    # :) paste(paste(sample(c(letters,LETTERS),12),collapse=""),as.integer(1e6*runif(1)),sep="")
