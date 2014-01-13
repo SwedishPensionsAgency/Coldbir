@@ -699,7 +699,7 @@ setMethod(
     # at first: fast track for a one column output
     if(!missing(i) && !is.null(i) && !is.na(i) && length(i) == 1L) { 
       
-      if(missing(j)) {                                                          # special case 1
+      if(missing(j) || is.null(j)) {                                                          # special case 1
         
         v <- data.table(IFtZhmqaOHbU671928$get_variable(name = i, dims = NULL, na = na))
         setnames(v,names(v),i)
