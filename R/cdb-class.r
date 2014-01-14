@@ -769,21 +769,31 @@ setMethod(
       wrn(21,ifelse(!missing(j),j,""));return(NULL)  # nothing to get, probably missmatching dimensions
     }
     
-    k <- 1L
-    variable <- toRead[k,]$variable
-    varName  <- toRead[k,paste(variable,paste(dims[[1]],collapse="."),
-                               sep=ifelse(length(dims[[1]])>0,"_",""))]
     
-    resOut <- data.table(IFtZhmqaOHbU671928$get_variable(name = variable, dims = toRead[k,dims[[1]]], na = na))
-    setnames(resOut,names(resOut),varName)
+    variablesToRead <- toRead$variable
+    dimsToRead      <- toRead$dims
     
-    if(nrow(IFtZhmqaOHbU671928$curr_var_tab) == 1) return(resOut)  # one entry only thus ready!
-    
-    for(k in 2:nrow(toRead)) {
-      variable <- toRead[k,]$variable
-      varName  <- toRead[k,paste(variable,paste(dims[[1]],collapse="."),
-                                 sep=ifelse(length(dims[[1]])>0,"_",""))]  
-      resOut[,eval(varName):= IFtZhmqaOHbU671928$get_variable(name = variable, dims = toRead[k,dims[[1]]], na = na)]
+
+    for(k in 1:nrow(toRead)) {
+      theVariableToRead <- variablesToRead[k]
+      theDimToRead      <- dimsToRead[[k]]
+      
+      theVarName  <- paste(theVariableToRead,paste(theDimToRead,collapse="."),
+                                 sep=ifelse(length(theDimToRead)>0,"_",""))
+      
+      theVariableData <- IFtZhmqaOHbU671928$get_variable(name = theVariableToRead, dims = theDimToRead, na = na)
+      
+      if(k == 1) {
+        
+        resOut <- data.table("V"=theVariableData)
+        setnames(resOut,"V",theVarName)
+        
+      } else { 
+        
+        resOut[,eval(theVarName):= theVariableData]
+        
+      }
+      
       
     }
     
