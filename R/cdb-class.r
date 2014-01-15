@@ -715,7 +715,7 @@ setMethod(
     } # else: pass
     
     toRead  <- copy(IFtZhmqaOHbU671928$curr_var_tab)
-    toRead[,len:= unlist(lapply(dims, FUN= length))]
+    toRead$len <- unlist(lapply(toRead$dims, FUN= length))
     
       if(!missing(i) || !missing(j)){   # all cases except db[]
 
