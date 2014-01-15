@@ -685,10 +685,12 @@ setMethod(
     
     if (missing(j)) j <- NULL
     
+    # Table of database variables
+    tbl <- x$curr_var_tab
+    
     # Return null if the database is empty
-    if (nrow(x$curr_var_tab) == 0){
-      wrn(17, x$path)
-      return(NULL)   
+    if (nrow(tbl) == 0L || length(i) == 0L){
+      wrn(17, x$path); return(NULL)   
     }
     
     # Do the following, if only one column and one dimension is requested
@@ -707,24 +709,27 @@ setMethod(
       return(v)
     }
     
+    # Setup temporary variables
+    vars <- tbl$dims
+    names(vars) <- tbl$variable
+    len <- unlist(lapply(dims, FUN = length))
     
+    # Subset the choice of variables and dimensions
     
-    
-    
-    toRead  <- copy(IFtZhmqaOHbU671928$curr_var_tab)
-    toRead$len <- unlist(lapply(toRead$dims, FUN= length))
-    
-      if(!missing(i) || !missing(j)){   # all cases except db[]
+    ## All cases except for db[]
+    if (!missing(i) || !is.null(j)) {   # all cases except db[]
 
-        if(missing(i) || is.na(i) ){      # all existing db[, ...] or db[._ , ...]
-          
-          i       <- unique(toRead$variable)      
+      ## All cases for db[, ...] and db[._ , ...]
+      if (missing(i) || is.na(i)) {
+      
+        
+          #i       <- unique(toRead$variable)    => vars  
           i2      <- i
-          
-        } else if(is.vector(i) && length(i) == 0L){ 
-          
-          wrn(18);return(NULL)                          # reading with an empty vector of variable names"
-          
+#           
+#       } else if(is.vector(vars) && length(i) == 0L){ 
+#           
+#           wrn(18); return(NULL)  # empty database
+#           
         } else { 
           
           toRead   <- toRead[variable %in% i,]          # matching variables in data base
