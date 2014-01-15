@@ -683,7 +683,10 @@ setMethod(
   signature = "cdb",
   definition = function(x, i, j, na = NA){
     
+    # Convert missing to null
     if (missing(j)) j <- NULL
+    
+    # TODO: add input checks, e.g. is.vector(i)
     
     # Table of database variables
     tbl <- x$curr_var_tab
@@ -712,49 +715,34 @@ setMethod(
     # Setup temporary variables
     vars <- tbl$dims
     names(vars) <- tbl$variable
-    len <- unlist(lapply(dims, FUN = length))
+    vars_dim_len <- unlist(lapply(tbl$dims, FUN = length))
     
     # Subset the choice of variables and dimensions
     
     ## All cases except for db[]
     if (!missing(i) || !is.null(j)) {   # all cases except db[]
 
-      ## All cases for db[, ...] and db[._ , ...]
-      if (missing(i) || is.na(i)) {
+      ## All cases except for db[, ...] and db[._ , ...]
+      if (!missing(i) || !is.na(i)) {
+        vars <- vars[i]
+      }
       
-        
-          #i       <- unique(toRead$variable)    => vars  
-          i2      <- i
-#           
-#       } else if(is.vector(vars) && length(i) == 0L){ 
-#           
-#           wrn(18); return(NULL)  # empty database
-#           
-        } else { 
-          
-          toRead   <- toRead[variable %in% i,]          # matching variables in data base
-          i2       <- unique(toRead$variable)
-          
-        }
-        
-        if(length(i2) == 0L){
-          wrn(19,i);return(NULL)                        # the database doesn't match required variables                     
-        }
-        
-        if(length(i_diff <- setdiff(i, i2))>0) {
-          wrn(20,i_diff)                                # i_diff not found
-        }
+      # ???
+      #         if(length(i_diff <- setdiff(i, i2))>0) {
+      #           wrn(20,i_diff)                                # i_diff not found
+      #         }
       
       
-      if(!missing(j)){ # selection based on dimension
+      if (!is.null(j)) { # selection based on dimension
         
-        if(is.vector(j) && (is.na(j) || j != .all)) {
+        if (is.vector(j) && (is.na(j) || j != .all)) {
           
-          if(length(j) > 0){  # i.e. db[,]
-            
-            toRead <- toRead[len == length(j)]            
-            toRead <- toRead[unlist(lapply(dims, FUN=function(a){all(a==j | is.na(j))}))]        
-          } 
+          if (length(j) > 0) {  # i.e. db[,]
+            # Subset by dimension vector length
+            vars <- vars[length(j) == vars_dim_len]
+            # Subset ...
+            vars <- unlist(lapply(vars, FUN=function(a){all(a==j | is.na(j))}))
+          }
           
         } # else  .all => read all dimensions
         
@@ -765,6 +753,10 @@ setMethod(
       }
       
     } # else sepecial case 3) db[], etire data base table 
+    
+    if (length(vars) == 0L) {
+      wrn(19,i); return(NULL)  # empty selection (no matching variables)
+    }
     
     
     if(nrow(toRead)==0) {
