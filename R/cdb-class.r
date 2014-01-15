@@ -683,36 +683,33 @@ setMethod(
   signature = "cdb",
   definition = function(x, i, j, na = NA){
     
-    # ._     ==  NA
-    # .all   ==  -.Machine$integer.max
+    if (missing(j)) j <- NULL
     
-    IFtZhmqaOHbU671928 <- x  # "IFtZhmqaOHbU671928" for avoiding name conflicts
-    rm(x)                    # :) paste(paste(sample(c(letters,LETTERS),12),collapse=""),as.integer(1e6*runif(1)),sep="")
-    
-    if(nrow(IFtZhmqaOHbU671928$curr_var_tab) == 0){
-      if(missing(i) && missing(j)) return(NULL)
-      
-      wrn(17,IFtZhmqaOHbU671928$path) # the database table is empty,
+    # Return null if the database is empty
+    if (nrow(x$curr_var_tab) == 0){
+      wrn(17, x$path)
       return(NULL)   
     }
     
-    # at first: fast track for a one column output
-    if(!missing(i) && !is.null(i) && !is.na(i) && length(i) == 1L) { 
+    # Do the following, if only one column and one dimension is requested
+    if (
+      !is.null(i) && !is.na(i) && length(i) == 1L &&  # only one column
+      is.null(j) || (j != .all && !is.na(j) && length(j) > 0L && all(!is.na(j)))  # only one dimension
+    ) {
       
-      if(missing(j) || is.null(j)) {                                                          # special case 1
-        
-        v <- data.table(IFtZhmqaOHbU671928$get_variable(name = i, dims = NULL, na = na))
-        setnames(v,names(v),i)
-        return(v)
-        
-      } else if(j != .all && !is.na(j) && length(j) > 0L && all(!is.na(j)) ) { # special case 2
-        
-        v <- data.table(IFtZhmqaOHbU671928$get_variable(name = i, dims = j, na = na))
-        setnames(v,names(v), paste(i,paste(j,collapse="."),sep="_"))
-        return(v)
-        
-      }  # else: pass
-    } # else: pass
+      # Get data
+      v <- data.table(x$get_variable(name = i, dims = j, na = na))
+      
+      # Set new column names
+      new_names <- if (is.null(j)) i else paste(i, paste(j, collapse = "."), sep = "_")
+      setnames(v, names(v), new_names)
+      
+      return(v)
+    }
+    
+    
+    
+    
     
     toRead  <- copy(IFtZhmqaOHbU671928$curr_var_tab)
     toRead$len <- unlist(lapply(toRead$dims, FUN= length))

@@ -174,13 +174,18 @@ x <- data.table(MASS::survey)
 setnames(x, c("Wr.Hnd", "NW.Hnd", "Pulse"), c("var", "x", "z"))
 
 db[] <- x
-
 setcolorder(x, sort(names(x)))
-
 test_that("get dataset", {
   expect_equal(x, db[])
 })
+db$clean()
 
+d <- "dim"
+db[, d] <- x
+setnames(x, paste(names(x), d, sep = "_"))
+test_that("get dataset (with dimensions)", {
+  expect_equal(x, db[, d])
+})
 db$clean()
 
 context("READ ONLY")
