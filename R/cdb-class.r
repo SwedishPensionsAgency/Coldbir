@@ -681,10 +681,13 @@ cdb <- setRefClass(
 setMethod(
   f = "[",
   signature = "cdb",
-  definition = function(x, i, j, na = NA){
+  definition = function(x, i, j, na = NA) {
     
-    # Convert missing to null
+    # Set missing arguments
     if (missing(j)) j <- NULL
+    if (missing(i)) i <- NULL
+    
+    #browser()
     
     # TODO: add input checks, e.g. is.vector(i)
     
@@ -692,14 +695,14 @@ setMethod(
     tbl <- x$curr_var_tab
     
     # Return null if the database is empty
-    if (nrow(tbl) == 0L || length(i) == 0L){
+    if (nrow(tbl) == 0L || !is.null(i) && length(i) == 0L) {
       wrn(17, x$path); return(NULL)   
     }
     
     # Do the following, if only one column and one dimension is requested
     if (
       !is.null(i) && !is.na(i) && length(i) == 1L &&  # only one column
-      is.null(j) || (j != .all && !is.na(j) && length(j) > 0L && all(!is.na(j)))  # only one dimension
+      (is.null(j) || (j != .all && !is.na(j) && length(j) > 0L && all(!is.na(j))))  # only one dimension
     ) {
       
       # Get data
@@ -712,108 +715,89 @@ setMethod(
       return(v)
     }
     
-    # Setup temporary variables
+    
+    
+    # Keep list of all variables (curr_var_tab) as a list
     vars <- tbl$dims
     names(vars) <- tbl$variable
     vars_dim_len <- unlist(lapply(tbl$dims, FUN = length))
     
+#     lapply(unique(tbl$variable), function(x) {
+#       lst <- list(tbl[variable == x]$dims)
+#       names(lst) <- x
+#       return(lst)
+#     })
+    
+    
     # Subset the choice of variables and dimensions
     
     ## All cases except for db[]
-    if (!missing(i) || !is.null(j)) {   # all cases except db[]
+    # if (!missing(i) || !is.null(j)) {   # all cases except db[]
 
-      ## All cases except for db[, ...] and db[._ , ...]
-      if (!missing(i) || !is.na(i)) {
-        vars <- vars[i]
-      }
+    ## All cases except for db[, ...] and db[._ , ...]
+    if (!is.null(i) && !is.na(i)) {
+      vars <- vars[i]
+    }
+    
+    if (is.vector(j) && (is.na(j) || j != .all)) {
+      # Subset by dimension vector length
+      vars <- vars[length(j) == vars_dim_len]
       
-      # ???
-      #         if(length(i_diff <- setdiff(i, i2))>0) {
-      #           wrn(20,i_diff)                                # i_diff not found
-      #         }
-      
-      
-      if (!is.null(j)) { # selection based on dimension
-        
-        if (is.vector(j) && (is.na(j) || j != .all)) {
-          
-          if (length(j) > 0) {  # i.e. db[,]
-            # Subset by dimension vector length
-            vars <- vars[length(j) == vars_dim_len]
-            # Subset ...
-            vars <- unlist(lapply(vars, FUN=function(a){all(a==j | is.na(j))}))
-          }
-          
-        } # else  .all => read all dimensions
-        
-        
-      } else {  # missing(j)  
-        
-        toRead   <- toRead[len==0L,]            # matching zero-dim variables in thr data base table
-      }
-      
-    } # else sepecial case 3) db[], etire data base table 
+      # Subset ...
+      vars <- unlist(lapply(vars, FUN = function(a){all(a==j | is.na(j))}))
+    }
     
     if (length(vars) == 0L) {
       wrn(19,i); return(NULL)  # empty selection (no matching variables)
     }
-    
-    
-    if(nrow(toRead)==0) {
-      wrn(21,ifelse(!missing(j),j,""));return(NULL)  # nothing to get, probably missmatching dimensions
-    }
-    
-    
-    variablesToRead <- toRead$variable
-    dimsToRead      <- toRead$dims
-    
 
-    for(k in 1:nrow(toRead)) {
-      theVariableToRead <- variablesToRead[k]
-      theDimToRead      <- dimsToRead[[k]]
-      
-      theVarName  <- paste(theVariableToRead,paste(theDimToRead,collapse="."),
-                                 sep=ifelse(length(theDimToRead)>0,"_",""))
-      
-      theVariableData <- IFtZhmqaOHbU671928$get_variable(name = theVariableToRead, dims = theDimToRead, na = na)
-      
-      if(k == 1) {
-        
-        resOut <- data.table("V"=theVariableData)
-        setnames(resOut,"V",theVarName)
-        
-      } else { 
-        
-        resOut[,eval(theVarName):= theVariableData]
-        
-      }
-      
-      
-    }
-    
-    # SORING of columns - temporary solution
-    # it must be som less TrIcKy way of doing this
-
-    sL <- str_split(names(resOut), "_")
-    variables <- unlist(lapply(sL,FUN=head,n=1L))
-    sL <- unlist(lapply(sL,FUN=function(x)ifelse(length(x)==1,NA,x[-1]))) # dimensions
-    sL <- str_split(sL, "\\.")
-    #SORT?
-    if(all(unlist(lapply(sL,FUN=
-                           function(x)length(grep("^[0-9]*$",x))== length(x) || is.na(x)
-    )))){ #numeric dimensions are applicable
-      nrDimCol <- max(unlist(lapply(sL,FUN=  function(x)length(x) )))
-      dT <- data.table(Nr = (1:length(variables)),varName=variables)  
-      dimNames <- paste("D",1:nrDimCol,sep="")
-      for(k in 1:nrDimCol) dT[,eval(dimNames[k]):= unlist(lapply(sL, FUN = function(x)as.integer(x[k])))]
-      setkeyv(dT,c("varName",dimNames))       
-      resOut <- resOut[,dT$Nr,with = FALSE]
-    }
-    
-    
-    return(resOut)
+# 
+#     for(k in 1:nrow(toRead)) {
+#       theVariableToRead <- variablesToRead[k]
+#       theDimToRead      <- dimsToRead[[k]]
+#       
+#       theVarName  <- paste(theVariableToRead,paste(theDimToRead,collapse="."),
+#                                  sep=ifelse(length(theDimToRead)>0,"_",""))
+#       
+#       theVariableData <- IFtZhmqaOHbU671928$get_variable(name = theVariableToRead, dims = theDimToRead, na = na)
+#       
+#       if(k == 1) {
+#         
+#         resOut <- data.table("V"=theVariableData)
+#         setnames(resOut,"V",theVarName)
+#         
+#       } else { 
+#         
+#         resOut[,eval(theVarName):= theVariableData]
+#         
+#       }
+#       
+#       
+#     }
+#     
+#     # SORING of columns - temporary solution
+#     # it must be som less TrIcKy way of doing this
+# 
+#     sL <- str_split(names(resOut), "_")
+#     variables <- unlist(lapply(sL,FUN=head,n=1L))
+#     sL <- unlist(lapply(sL,FUN=function(x)ifelse(length(x)==1,NA,x[-1]))) # dimensions
+#     sL <- str_split(sL, "\\.")
+#     #SORT?
+#     if(all(unlist(lapply(sL,FUN=
+#                            function(x)length(grep("^[0-9]*$",x))== length(x) || is.na(x)
+#     )))){ #numeric dimensions are applicable
+#       nrDimCol <- max(unlist(lapply(sL,FUN=  function(x)length(x) )))
+#       dT <- data.table(Nr = (1:length(variables)),varName=variables)  
+#       dimNames <- paste("D",1:nrDimCol,sep="")
+#       for(k in 1:nrDimCol) dT[,eval(dimNames[k]):= unlist(lapply(sL, FUN = function(x)as.integer(x[k])))]
+#       setkeyv(dT,c("varName",dimNames))       
+#       resOut <- resOut[,dT$Nr,with = FALSE]
+#     }
+#     
+#     
+#     return(resOut)
   }
-) 
+)
 
 
 #' Assign content to variable 
@@ -832,7 +816,7 @@ setMethod(
 setMethod(
   f = "[<-",
   signature = "cdb",
-  definition = function(x, i, j, value){    
+  definition = function(x, i, j, value) {    
                                             
   
     if (x$read_only) err(8)
