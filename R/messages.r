@@ -33,7 +33,15 @@ msg <- function(n, ...) {
     "11"  = "%s - length of variable doesn't match the size of the other columns; nothing will be written",
     "13"  = "%s - data type is not supported",
     "14"  = "%s - writing failed; rollback! (%s)",
-    "16"  = "input must be a two-column data frame"
+    "16"  = "input must be a two-column data frame",
+    "17"  = "the database %s is empty",
+    "18"  = "reading with an empty vector of variable names",
+    "19"  = "the database variables doesn't match the required: %s",
+    "20"  = "%s not found",
+    "21"  = "nothing to get, probably missmatching dimensions, %s",
+    "22"  = "The 'value' argument in ']<-' should be a vector, data.table, doc or NULL. It is a %s .",
+    "23"  = "Attemption to remove non existing data %s .",
+    "24"  = "The argument i = %s is not used. The column names of the data.frame are used instead"
   ), ...)
   
   if (is.null(str)) err(0)
