@@ -30,3 +30,17 @@ get_args <- function(...) {
 new_time_stamp <- function(){
   return(as.double(lubridate::force_tz(Sys.time(), .tzone)))
 }
+
+
+#' Create recursive list from vector
+#' 
+#' A helper function to convert variable file names to a list representation
+#' 
+#' @param x character vector
+rec_lst <- function(x) {
+  car <- x[1]
+  cdr <- x[-1]
+  r <- list()
+  r[[car]] <- if (length(cdr) != 0) rec_lst(cdr) else 1
+  return(r)
+}
