@@ -37,10 +37,26 @@ new_time_stamp <- function(){
 #' A helper function to convert variable file names to a list representation
 #' 
 #' @param x character vector
-rec_lst <- function(x) {
-  car <- x[1]
-  cdr <- x[-1]
+recursive_list <- function(x) {
   r <- list()
-  r[[car]] <- if (length(cdr) != 0) rec_lst(cdr) else 1
+  r[[x[1]]] <- if (length(x[-1]) != 0) recursive_list(x[-1]) else 1
   return(r)
 }
+
+#' Sorted modify list
+#' 
+#' Almost the same as utils::modifyList,
+#' but also sorts the resulting list
+#' 
+#' @param x list
+#' @param val list
+sorted_modify_list <- function (x, val) {
+  stopifnot(is.list(x), is.list(val))
+  for (v in names(val)) {
+    x[[v]] <- if (v %in% names(x) && is.list(x[[v]]) && is.list(val[[v]])) {
+      sorted_modify_list(x[[v]], val[[v]])
+    } else val[[v]]
+  }
+  return(x[gtools::mixedorder(names(x))])
+}
+
