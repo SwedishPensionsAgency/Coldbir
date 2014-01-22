@@ -21,7 +21,8 @@ cdb <- setRefClass(
     read_only    = "logical",
     db_version   = "numeric",
     n_row        = "integer",
-    curr_var_tab = "ANY"
+    curr_var_tab = "ANY",
+    variables    = "list"
   ),
   methods = list(
     initialize = function(
@@ -36,7 +37,7 @@ cdb <- setRefClass(
       .self$compress  <- compress
       .self$encoding  <- encoding
       .self$read_only <- read_only
-      .self$curr_var_tab <- get_vars(dims = T) 
+      .self$curr_var_tab <- get_vars(dims = T)
       
       f <- file.path(path, .config_filename)
       
@@ -174,10 +175,26 @@ cdb <- setRefClass(
       return(d)
     },
     
-    # List all variables
-    #'
+    #' Add to list representation
+    #' 
+    #' @param name
+    #' @param dims
+    add_repr = function(name, dims) {
+      var <- list(recursive_list(dims))
+      names(var) <- name
+      .self$variables <- sorted_modify_list(.self$variables, var)
+    },
+    
+    #' Remove from list representation
+    #' 
+    #' @param name
+    #' @param dims
+    rm_repr = function() {
+    },
+    
+    #' List all variables
+    #' 
     #' @param dims tells if column with dimensions is required
-    #'
     get_vars = function(dims = F) {
       files <- search_files(path = .self$path)
       

@@ -44,7 +44,7 @@ new_time_stamp <- function(){
 #' }
 recursive_list <- function(x) {
   r <- list()
-  r[[x[1]]] <- if (length(x[-1]) != 0) recursive_list(x[-1]) else 1
+  r[[as.character(x[1])]] <- if (length(x[-1]) != 0) recursive_list(x[-1]) else 1
   return(r)
 }
 
@@ -69,5 +69,11 @@ sorted_modify_list <- function (x, val) {
       sorted_modify_list(x[[v]], val[[v]])
     } else val[[v]]
   }
-  return(x[gtools::mixedorder(names(x))])
+  
+  # mixedorder works a bit strange if length == 1
+  if (length(names(x)) > 1) {
+    x <- x[gtools::mixedorder(names(x))]
+  }
+  
+  return(x)
 }
