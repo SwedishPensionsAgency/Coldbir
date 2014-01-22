@@ -37,6 +37,11 @@ new_time_stamp <- function(){
 #' A helper function to convert variable file names to a list representation
 #' 
 #' @param x character vector
+#' 
+#' @examples \dontrun{
+#' x <- c("a", "b", "c")
+#' recursive_list(x)
+#' }
 recursive_list <- function(x) {
   r <- list()
   r[[x[1]]] <- if (length(x[-1]) != 0) recursive_list(x[-1]) else 1
@@ -50,6 +55,13 @@ recursive_list <- function(x) {
 #' 
 #' @param x list
 #' @param val list
+#' 
+#' @examples \dontrun{
+#' x <- list(a = list(b = list(c = 1, e = 1), g = 1, h = 1))
+#' y <- list(a = list(b = list(c = NULL, d = 1), f = 1, g = NULL))
+#' sorted_modify_list(x, y)
+#' }
+#' 
 sorted_modify_list <- function (x, val) {
   stopifnot(is.list(x), is.list(val))
   for (v in names(val)) {
@@ -59,4 +71,3 @@ sorted_modify_list <- function (x, val) {
   }
   return(x[gtools::mixedorder(names(x))])
 }
-
