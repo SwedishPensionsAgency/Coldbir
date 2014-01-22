@@ -186,8 +186,8 @@ cdb <- setRefClass(
       names(var) <- name
       .self$variables <- sorted_modify_list(.self$variables, var)
     },
-    add_repr = function(...) update_repr(..., val = 1), 
-    del_repr = function(...) update_repr(..., val = 0),
+    add_repr = function(...) update_repr(..., val = list(. = 1)), 
+    del_repr = function(...) update_repr(..., val = list(. = 0)),
     
     #' List all variables
     #' 
