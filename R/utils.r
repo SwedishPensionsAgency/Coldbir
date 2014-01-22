@@ -37,14 +37,15 @@ new_time_stamp <- function(){
 #' A helper function to convert variable file names to a list representation
 #' 
 #' @param x character vector
+#' @param val endpoint value
 #' 
 #' @examples \dontrun{
 #' x <- c("a", "b", "c")
 #' recursive_list(x)
 #' }
-recursive_list <- function(x) {
+recursive_list <- function(x, val) {
   r <- list()
-  r[[as.character(x[1])]] <- if (length(x[-1]) != 0) recursive_list(x[-1]) else 1
+  r[[as.character(x[1])]] <- if (length(x[-1]) != 0) recursive_list(x[-1], val) else val
   return(r)
 }
 

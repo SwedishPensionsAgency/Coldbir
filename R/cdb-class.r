@@ -175,22 +175,19 @@ cdb <- setRefClass(
       return(d)
     },
     
-    #' Add to list representation
+    #' Add list representation
     #' 
-    #' @param name
-    #' @param dims
-    add_repr = function(name, dims) {
-      var <- list(recursive_list(dims))
+    #' @param name name
+    #' @param dims dims
+    #' @param val endpoint value (add: 1, del: NULL)
+    update_repr = function(name, dims, ...) {
+      
+      var <- list(recursive_list(x = dims, ...))
       names(var) <- name
       .self$variables <- sorted_modify_list(.self$variables, var)
     },
-    
-    #' Remove from list representation
-    #' 
-    #' @param name
-    #' @param dims
-    rm_repr = function() {
-    },
+    add_repr = function(...) update_repr(..., val = 1), 
+    del_repr = function(...) update_repr(..., val = 0),
     
     #' List all variables
     #' 
