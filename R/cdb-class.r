@@ -38,6 +38,7 @@ cdb <- setRefClass(
       .self$encoding  <- encoding
       .self$read_only <- read_only
       .self$curr_var_tab <- get_vars(dims = T)
+      .self$variables <- update_repr_from_file()
       
       f <- file.path(path, .config_filename)
       
@@ -223,6 +224,37 @@ cdb <- setRefClass(
       
       if (dims == F) x <- unique(x)
       return(x)
+    },
+    
+    #' Init list representation
+    #' 
+    #' Update list representation from file
+    #' 
+    #' @param dims tells if column with dimensions is required
+    update_repr_from_file = function() {
+      files <- search_files(path = .self$path)
+      
+      # Extract variable names
+      vars = basename(dirname(dirname(files)))
+      
+      if (length(vars) > 0) {
+        # Extract dims
+        var_dims <- str_extract_all(files, "\\[(\\w*)\\]")
+        
+        # Remove square brackets
+        var_dims <- sapply(var_dims, function(x) {
+          x <- gsub("\\[", "", x)
+          x <- gsub("\\]", "", x)
+          
+          if (length(x) == 0) x <- NULL
+          return(x)
+        })
+        
+        # Add to list representation
+        for(i in 1:length(vars)) {
+          a$add_repr(vars[[i]], var_dims[[i]])
+        }
+      } else .self$variables <- list()
     },
     
     # Get variable dimensions
@@ -588,6 +620,7 @@ cdb <- setRefClass(
 
           .self$db_version <- new_time_stamp()
           .self$put_config()
+          .self$add_repr(name, dims)  # add to in-memory list representation
           
           },
           finally = file.remove(tmp),
