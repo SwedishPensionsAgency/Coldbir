@@ -257,16 +257,6 @@ cdb <- setRefClass(
       } else .self$variables <- list()
     },
     
-    # Get variable dimensions
-    #'    
-    #' @param name variable name
-    #'
-    get_dims = function(name) {
-      x <- get_vars(dims = T)
-      x <- subset(x, variable == name)
-      return(x$dims)
-    },
-    
     # Delete variable data
     #'    
     #' @param name variable name
