@@ -312,8 +312,9 @@ cdb <- setRefClass(
       }
       
       .self$curr_var_tab <- .self$curr_var_tab[-ndx]
-      .self$db_version      <- new_time_stamp()     
-      .self$put_config()      
+      .self$db_version <- new_time_stamp()
+      .self$put_config()
+      .self$del_repr(name, dims)
       
     },
     
