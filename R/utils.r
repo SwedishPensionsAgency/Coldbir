@@ -62,7 +62,6 @@ recursive_list <- function(x, val) {
 #' y <- list(a = list(b = list(c = NULL, d = 1), f = 1, g = NULL))
 #' sorted_modify_list(x, y)
 #' }
-#' 
 sorted_modify_list <- function (x, val) {
   stopifnot(is.list(x), is.list(val))
   for (v in names(val)) {
@@ -76,5 +75,22 @@ sorted_modify_list <- function (x, val) {
     x <- x[gtools::mixedorder(names(x))]
   }
   
+  return(x)
+}
+
+#' Clear empty branches
+#' 
+#' Clear all empty branches in a nested list
+#' 
+#' @param x list
+clear_branch <- function (x) {
+  stopifnot(is.list(x))
+  for (i in names(x)) {
+    if (is.list(x[[i]])){
+      if (sum(unlist(x[[i]])) == 0) {
+        x[[i]] <- NULL
+      } else x[[i]] <- clear_branch(x[[i]])
+    }
+  }
   return(x)
 }
