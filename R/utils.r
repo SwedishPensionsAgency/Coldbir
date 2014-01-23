@@ -89,6 +89,7 @@ clear_branch <- function (x) {
       x[[i]] <- NULL
     } else {
       x[[i]] <- if (is.list(x[[i]])) clear_branch(x[[i]]) else x[[i]]
+    }
   }
   return(x)
 }

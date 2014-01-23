@@ -181,8 +181,7 @@ cdb <- setRefClass(
     #' @param dims dims
     #' @param val endpoint value (add: 1, del: NULL)
     update_repr = function(name, dims, ...) {
-      var <- list(recursive_list(x = dims, ...))
-      names(var) <- name
+      var <- recursive_list(x = c(name, dims), ...)
       .self$variables <- sorted_modify_list(.self$variables, var)
       .self$variables <- clear_branch(.self$variables)  # remove all 0's
     },
