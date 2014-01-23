@@ -84,13 +84,10 @@ sorted_modify_list <- function (x, val) {
 #' 
 #' @param x list
 clear_branch <- function (x) {
-  stopifnot(is.list(x))
   for (i in names(x)) {
-    if (is.list(x[[i]])){
-      if (sum(unlist(x[[i]])) == 0) {
-        x[[i]] <- NULL
-      } else x[[i]] <- clear_branch(x[[i]])
-    }
+    if (sum(unlist(x[[i]])) == 0) {
+      x[[i]] <- NULL
+    } else x[[i]] <- clear_branch(x[[i]])
   }
   return(x)
 }

@@ -185,8 +185,10 @@ cdb <- setRefClass(
       var <- list(recursive_list(x = dims, ...))
       names(var) <- name
       .self$variables <- sorted_modify_list(.self$variables, var)
+      .self$variables <- clear_branch(.self$variables)  # remove all 0's
     },
-    add_repr = function(...) update_repr(..., val = list(. = 1)), 
+    
+    add_repr = function(...) update_repr(..., val = list(. = 1)),
     del_repr = function(...) update_repr(..., val = list(. = 0)),
     
     #' List all variables
