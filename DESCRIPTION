@@ -19,16 +19,3 @@ Depends:
     tools,
     methods,
     gtools
-Collate:
-    '0-constants.r'
-    'Coldbir.r'
-    'cdb-class.r'
-    'check-repr.r'
-    'create-temp-file.r'
-    'doc-class.r'
-    'file-name.r'
-    'file-path.r'
-    'find-exp.r'
-    'messages.r'
-    'search-files.r'
-    'utils.r'

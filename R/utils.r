@@ -93,3 +93,39 @@ clear_branch <- function (x) {
   }
   return(x)
 }
+
+#' Match two lists
+#' 
+#' See what part of a list that is also included in another one.
+#' Returns the inner join of both lists.
+#' 
+#' @param x list
+#' @param val list
+list_match <- function (x, val) {
+  for (v in names(val)) {
+    
+    # If the name doesn't exist in the other list => 0
+    if (v %in% names(x)) {
+      
+      # If any of the recursive sums are 0 => 0
+      if (sum(unlist(x[[v]])) == 0 || sum(unlist(val[[v]])) == 0) {
+        val[[v]] <- list(. = 0)
+        
+        # If both are lists run function recursevily
+      } else if (is.list(x[[v]]) && is.list(val[[v]])) {
+        val[[v]] <- list_match(x[[v]], val[[v]])
+      } else if (x[[v]] != 1 && val[[v]] != 1) {
+        val[[v]] <- list(. = 0)
+      }
+    } else val[[v]] <- list(. = 0)
+  }
+  
+  if (length(names(val)) > 1) {
+    val <- val[gtools::mixedorder(names(val))]
+  }
+  
+  val <- clear_branch(val)
+  if (length(val) == 0) val <- NULL
+  
+  return(val)
+}
