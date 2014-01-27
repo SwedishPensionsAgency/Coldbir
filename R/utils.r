@@ -99,8 +99,8 @@ clear_branch <- function (x) {
 #' See what part of a list that is also included in another one.
 #' Returns the inner join of both lists.
 #' 
-#' @param x list
-#' @param val list
+#' @param x data list, including all database variables
+#' @param val matching list, could also include wild cards (._)
 list_match <- function (x, val) {
   for (v in names(val)) {
     
@@ -111,12 +111,21 @@ list_match <- function (x, val) {
       if (sum(unlist(x[[v]])) == 0 || sum(unlist(val[[v]])) == 0) {
         val[[v]] <- list(. = 0)
         
-        # If both are lists run function recursevily
+      # If both are lists run function recursivly
       } else if (is.list(x[[v]]) && is.list(val[[v]])) {
         val[[v]] <- list_match(x[[v]], val[[v]])
       } else if (x[[v]] != 1 && val[[v]] != 1) {
         val[[v]] <- list(. = 0)
       }
+      
+    # If wildcard is used add all x's values
+    } else if (is.na(v)) {
+      
+      sapply(names(x), function(i) {
+        val[[i]] <<- list_match(x[[i]], val$`NA`)
+      })
+      val$`NA` <- NULL
+      
     } else val[[v]] <- list(. = 0)
   }
   
@@ -124,7 +133,7 @@ list_match <- function (x, val) {
     val <- val[gtools::mixedorder(names(val))]
   }
   
-  val <- clear_branch(val)
+  val <- Coldbir:::clear_branch(val)
   if (length(val) == 0) val <- NULL
   
   return(val)
