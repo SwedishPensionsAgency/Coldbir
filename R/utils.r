@@ -152,17 +152,18 @@ subset_list <- function(x, sel) {
 }
 
 create_colname <- function(name, dims) {
-  paste(name, paste(dims, collapse = "."), sep = "_")
+  sep <- if (length(dims) > 0) "_" else ""
+  paste(name, paste(dims, collapse = "."), sep = sep)
 }
 
 list_to_query_repr <- function(x) {
-  browser()
   x <- names(unlist(x))
   
   x <- lapply(x, function(p) {
     p <- strsplit(p, "\\.")[[1]]
     p <- p[nchar(p) > 0]
-    list(name = p[1], dims = p[2:length(p)])
+    dims <- if (length(p[-1]) != 0) p[-1] else NULL
+    list(name = p[1], dims = dims)
   })
   return(x)
 }

@@ -731,9 +731,8 @@ setMethod(
   signature = "cdb",
   definition = function(x, i, j, na = NA){
     
-    #browser()
     if (missing(i) || i %in% .all) i <- ._
-    if (missing(j)) j <- ._
+    if (missing(j)) j <- NULL  # or .all?
     
     y <- list_to_query_repr(x$variable_match(name = i, dims = j))
     
