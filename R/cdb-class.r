@@ -22,7 +22,7 @@ cdb <- setRefClass(
     db_version   = "numeric",
     n_row        = "integer",
     curr_var_tab = "ANY",
-    variables    = "list"
+    variables    = "ANY"
   ),
   methods = list(
     initialize = function(
@@ -700,29 +700,6 @@ cdb <- setRefClass(
       !is.null(subset_list(.self$variables, c(name, dims)))
     },
     
-    get_v = function(...) {
-      x <- list_to_query_repr(.self$variable_match(...))
-      
-      if (length(x) > 0) {
-        # Temporary function (since data.table otherwise think .self is
-        # a column name, if that name is used)
-        read_var <- function(...) .self$get_variable(...)
-        
-        # Create data.table with first variable
-        v <- data.table(V1 = .self$get_variable(name = x[[1]]$name, dims = x[[1]]$dims))
-        setnames(v, create_colname(x[[1]]$name, x[[1]]$dims))
-        
-        # Add all other variables
-        if (length(x) > 1) {
-          for(i in 2:length(x)){
-            v[ , create_colname(x[[i]]$name, x[[i]]$dims) := .self$get_variable(x[[i]]$name, x[[i]]$dims), with = F]
-          }
-        }
-      } else v <- NULL
-      
-      return(v)
-    },
-    
     #' Remove all content in database
     clean = function() {
       if (read_only) err(8)
@@ -735,7 +712,6 @@ cdb <- setRefClass(
     }
   )
 )
-
 
 #' Extract content from variable
 #' 
@@ -754,145 +730,28 @@ setMethod(
   f = "[",
   signature = "cdb",
   definition = function(x, i, j, na = NA){
+    y <- list_to_query_repr(x$variable_match(name = i, dims = j))
     
-    # ._     ==  NA
-    # .all   ==  -.Machine$integer.max
-    
-    IFtZhmqaOHbU671928 <- x  # "IFtZhmqaOHbU671928" for avoiding name conflicts
-    rm(x)                    # :) paste(paste(sample(c(letters,LETTERS),12),collapse=""),as.integer(1e6*runif(1)),sep="")
-    
-    if(nrow(IFtZhmqaOHbU671928$curr_var_tab) == 0){
-      if(missing(i) && missing(j)) return(NULL)
+    if (length(y) > 0) {
+      # Temporary function (since data.table otherwise think .self is
+      # a column name, if that name is used)
+      read_var <- function(...) x$get_variable(...)
       
-      wrn(17,IFtZhmqaOHbU671928$path) # the database table is empty,
-      return(NULL)   
-    }
-    
-    # at first: fast track for a one column output
-    if(!missing(i) && !is.null(i) && !is.na(i) && length(i) == 1L) { 
+      # Create data.table with first variable
+      v <- data.table(V1 = x$get_variable(name = y[[1]]$name, dims = y[[1]]$dims, na = na))
+      setnames(v, create_colname(y[[1]]$name, y[[1]]$dims))
       
-      if(missing(j) || is.null(j)) {                                                          # special case 1
-        
-        v <- data.table(IFtZhmqaOHbU671928$get_variable(name = i, dims = NULL, na = na))
-        setnames(v,names(v),i)
-        return(v)
-        
-      } else if(j != .all && !is.na(j) && length(j) > 0L && all(!is.na(j)) ) { # special case 2
-        
-        v <- data.table(IFtZhmqaOHbU671928$get_variable(name = i, dims = j, na = na))
-        setnames(v,names(v), paste(i,paste(j,collapse="."),sep="_"))
-        return(v)
-        
-      }  # else: pass
-    } # else: pass
-    
-    toRead  <- copy(IFtZhmqaOHbU671928$curr_var_tab)
-    toRead$len <- unlist(lapply(toRead$dims, FUN= length))
-    
-      if(!missing(i) || !missing(j)){   # all cases except db[]
-
-        if(missing(i) || is.na(i) ){      # all existing db[, ...] or db[._ , ...]
-          
-          i       <- unique(toRead$variable)      
-          i2      <- i
-          
-        } else if(is.vector(i) && length(i) == 0L){ 
-          
-          wrn(18);return(NULL)                          # reading with an empty vector of variable names"
-          
-        } else { 
-          
-          toRead   <- toRead[variable %in% i,]          # matching variables in data base
-          i2       <- unique(toRead$variable)
-          
+      # Add all other variables
+      if (length(y) > 1) {
+        for(i in 2:length(y)){
+          v[ , create_colname(y[[i]]$name, y[[i]]$dims) := read_var(y[[i]]$name, y[[i]]$dims, na = na), with = F]
         }
-        
-        if(length(i2) == 0L){
-          wrn(19,i);return(NULL)                        # the database doesn't match required variables                     
-        }
-        
-        if(length(i_diff <- setdiff(i, i2))>0) {
-          wrn(20,i_diff)                                # i_diff not found
-        }
-      
-      
-      if(!missing(j)){ # selection based on dimension
-        
-        if(is.vector(j) && (is.na(j) || j != .all)) {
-          
-          if(length(j) > 0){  # i.e. db[,]
-            
-            toRead <- toRead[len == length(j)]            
-            toRead <- toRead[unlist(lapply(dims, FUN=function(a){all(a==j | is.na(j))}))]        
-          } 
-          
-        } # else  .all => read all dimensions
-        
-        
-      } else {  # missing(j)  
-        
-        toRead   <- toRead[len==0L,]            # matching zero-dim variables in thr data base table
       }
-      
-    } # else sepecial case 3) db[], etire data base table 
+    } else v <- NULL
     
-    
-    if(nrow(toRead)==0) {
-      wrn(21,ifelse(!missing(j),j,""));return(NULL)  # nothing to get, probably missmatching dimensions
-    }
-    
-    
-    variablesToRead <- toRead$variable
-    dimsToRead      <- toRead$dims
-    
-
-    for(k in 1:nrow(toRead)) {
-      theVariableToRead <- variablesToRead[k]
-      theDimToRead      <- dimsToRead[[k]]
-      
-      theVarName  <- paste(theVariableToRead,paste(theDimToRead,collapse="."),
-                                 sep=ifelse(length(theDimToRead)>0,"_",""))
-      
-      theVariableData <- IFtZhmqaOHbU671928$get_variable(name = theVariableToRead, dims = theDimToRead, na = na)
-      
-      if(k == 1) {
-        
-        resOut <- data.table("V"=theVariableData)
-        setnames(resOut,"V",theVarName)
-        
-      } else { 
-        
-        resOut[,eval(theVarName):= theVariableData]
-        
-      }
-      
-      
-    }
-    
-    # SORING of columns - temporary solution
-    # it must be som less TrIcKy way of doing this
-
-    sL <- str_split(names(resOut), "_")
-    variables <- unlist(lapply(sL,FUN=head,n=1L))
-    sL <- unlist(lapply(sL,FUN=function(x)ifelse(length(x)==1,NA,x[-1]))) # dimensions
-    sL <- str_split(sL, "\\.")
-    #SORT?
-    if(all(unlist(lapply(sL,FUN=
-                           function(x)length(grep("^[0-9]*$",x))== length(x) || is.na(x)
-    )))){ #numeric dimensions are applicable
-      nrDimCol <- max(unlist(lapply(sL,FUN=  function(x)length(x) )))
-      dT <- data.table(Nr = (1:length(variables)),varName=variables)  
-      dimNames <- paste("D",1:nrDimCol,sep="")
-      for(k in 1:nrDimCol) dT[,eval(dimNames[k]):= unlist(lapply(sL, FUN = function(x)as.integer(x[k])))]
-      setkeyv(dT,c("varName",dimNames))       
-      resOut <- resOut[,dT$Nr,with = FALSE]
-    }
-    
-    
-    return(resOut)
+    return(v)
   }
-) 
-
+)
 
 #' Assign content to variable 
 #' 
@@ -910,9 +769,8 @@ setMethod(
 setMethod(
   f = "[<-",
   signature = "cdb",
-  definition = function(x, i, j, value){    
-                                            
-  
+  definition = function(x, i, j, value){
+    
     if (x$read_only) err(8)
     
     if(missing(i) && missing(j)) {
@@ -976,9 +834,7 @@ setMethod(
       if (missing(j)) j <- NULL
       x$put_variable(x = value, name = i, dims = j)
       
-      
     }
-    
     return(x)
   }
 )
