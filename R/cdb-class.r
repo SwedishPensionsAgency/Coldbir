@@ -689,6 +689,40 @@ cdb <- setRefClass(
         return(NULL)
       }
     },
+    
+    #' Get matching variables
+    variable_match = function(name, dims) {
+      list_match(.self$variables, recursive_list(c(name, dims), list(. = 1)))
+    },
+    
+    #' Check if variable exist
+    variable_exists = function(name, dims) {
+      !is.null(subset_list(.self$variables, c(name, dims)))
+    },
+    
+    get_v = function(...) {
+      x <- list_to_query_repr(.self$variable_match(...))
+      
+      if (length(x) > 0) {
+        # Temporary function (since data.table otherwise think .self is
+        # a column name, if that name is used)
+        read_var <- function(...) .self$get_variable(...)
+        
+        # Create data.table with first variable
+        v <- data.table(V1 = .self$get_variable(name = x[[1]]$name, dims = x[[1]]$dims))
+        setnames(v, create_colname(x[[1]]$name, x[[1]]$dims))
+        
+        # Add all other variables
+        if (length(x) > 1) {
+          for(i in 2:length(x)){
+            v[ , create_colname(x[[i]]$name, x[[i]]$dims) := .self$get_variable(x[[i]]$name, x[[i]]$dims), with = F]
+          }
+        }
+      } else v <- NULL
+      
+      return(v)
+    },
+    
     #' Remove all content in database
     clean = function() {
       if (read_only) err(8)

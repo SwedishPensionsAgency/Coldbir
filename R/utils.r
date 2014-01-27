@@ -150,3 +150,19 @@ list_match <- function (x, val) {
 subset_list <- function(x, sel) {
   if (length(sel) > 1) subset_list(x[[sel[1]]], sel[-1]) else x[[sel]]
 }
+
+create_colname <- function(name, dims) {
+  paste(name, paste(dims, collapse = "."), sep = "_")
+}
+
+list_to_query_repr <- function(x) {
+  x <- names(unlist(x))
+  x <- lapply(x, function(p) {
+    p <- strsplit(p, "\\.")[[1]]
+    p <- p[nchar(p) > 0]
+    list(name = p[1], dims = p[2:length(p)])
+  })
+  return(x)
+}
+
+
