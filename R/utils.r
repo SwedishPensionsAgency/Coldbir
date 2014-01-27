@@ -156,7 +156,9 @@ create_colname <- function(name, dims) {
 }
 
 list_to_query_repr <- function(x) {
+  browser()
   x <- names(unlist(x))
+  
   x <- lapply(x, function(p) {
     p <- strsplit(p, "\\.")[[1]]
     p <- p[nchar(p) > 0]

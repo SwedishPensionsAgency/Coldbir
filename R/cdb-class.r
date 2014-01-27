@@ -691,12 +691,12 @@ cdb <- setRefClass(
     },
     
     #' Get matching variables
-    variable_match = function(name, dims) {
+    variable_match = function(name, dims = NULL) {
       list_match(.self$variables, recursive_list(c(name, dims), list(. = 1)))
     },
     
     #' Check if variable exist
-    variable_exists = function(name, dims) {
+    variable_exists = function(name, dims = NULL) {
       !is.null(subset_list(.self$variables, c(name, dims)))
     },
     
@@ -730,9 +730,15 @@ setMethod(
   f = "[",
   signature = "cdb",
   definition = function(x, i, j, na = NA){
+    
+    #browser()
+    if (missing(i) || i %in% .all) i <- ._
+    if (missing(j)) j <- ._
+    
     y <- list_to_query_repr(x$variable_match(name = i, dims = j))
     
     if (length(y) > 0) {
+      
       # Temporary function (since data.table otherwise think .self is
       # a column name, if that name is used)
       read_var <- function(...) x$get_variable(...)
