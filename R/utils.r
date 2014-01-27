@@ -140,3 +140,13 @@ list_match <- function (x, val) {
   
   return(val)
 }
+
+#' Subset nested list
+#' 
+#' Use a character vector to subset a named nested list
+#' 
+#' @param x list
+#' @param sel character vector (representing the nested names to subset on)
+subset_list <- function(x, sel) {
+  if (length(sel) > 1) subset_list(x[[sel[1]]], sel[-1]) else x[[sel]]
+}
