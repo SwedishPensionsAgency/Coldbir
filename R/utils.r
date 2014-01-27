@@ -104,8 +104,11 @@ clear_branch <- function (x) {
 list_match <- function (x, val) {
   for (v in names(val)) {
     
+    if (v %in% .all) {
+      val <- x
+      
     # If the name doesn't exist in the other list => 0
-    if (v %in% names(x)) {
+    } else if (v %in% names(x)) {
       
       # If any of the recursive sums are 0 => 0
       if (sum(unlist(x[[v]])) == 0 || sum(unlist(val[[v]])) == 0) {
@@ -124,8 +127,7 @@ list_match <- function (x, val) {
       sapply(names(x), function(i) {
         val[[i]] <<- list_match(x[[i]], val$`NA`)
       })
-      val$`NA` <- NULL
-      
+      val$`NA` <- NULL 
     } else val[[v]] <- list(. = 0)
   }
   
