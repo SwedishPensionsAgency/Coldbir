@@ -776,39 +776,38 @@ setMethod(
     
     if(missing(i) && missing(j)) {
       
+      # Clean database, e.g. a[] <- NULL
       if(is.null(value)) {
         
-        x$clean();return(x)
+        x$clean(); return(x)
+      
+      # Add multiple variables, e.g. a[] <- mtcars
+      } else if (is(value, "data.frame")) {
         
-      } else  if(is(value,"data.frame")){
+        if (!missing(i)) wrn(24)
         
-          colNames <- names(value)    
-          if(length(grep("_",colNames)>0)){
-            
-            sL <- str_split(colNames, "_")
-            varNames <- unlist(lapply(sL,FUN=head,n=1L))
-            sL <- unlist(lapply(sL,FUN=function(x)ifelse(length(x)==1,NA,x[-1]))) # dimensions left
-            sL <- str_split(sL, "\\.")
-            
-          } else {
-            
-            varNames  <- colNames
-            sL        <- as.list(rep(NA_character_,length(colNames)))
-          }
+        cnames <- names(value)
+        
+        lst <- str_split(cnames, .col_sep)
+        vars <- unlist(lapply(lst, FUN = head, n = 1))
+        dims <- unlist(lapply(lst, FUN = function(x) ifelse(length(x) == 1, NA, x[-1])))
+        
+        for(k in 1:length(vars)) {
           
-          for(k in 1:length(varNames)) {
-            
-            if(is.na((currDim <- sL[[k]])[1])) currDim <- NULL
-            
-            if(is(value,"data.table")) v <- value[,k,with=FALSE][[1]] else v <- value[,k]
-            
-            x$put_variable(x = v, name = varNames[k], dims = currDim)
-          }
+          # If dim == NA, replace with NULL
+          if (is.na((d <- dims[[k]])[1])) d <- NULL
           
-          return(x)
+          # Prepare data vector
+          if (is(value, "data.table")) v <- value[, k, with = F][[1]] else v <- value[, k]
           
+          # Add to database
+          x$put_variable(x = v, name = vars[k], dims = d)
+        }
+        
+        return(x)
+        
       } else {
-        wrn(22,class(value));return(x)
+        wrn(22, class(value)); return(x)
       }
     }
     
@@ -817,20 +816,12 @@ setMethod(
       # Create readme.json
       x$put_doc(x = value$to_json(), name = i)
       
-    } else if(is.null(value)){
+    } else if (is.null(value)){
 
       if (missing(j)) j <- NULL      
       x$delete_variable(name = i, dims = j)
       
     } else {
-      
-      if(is(value,"data.frame") && !missing(i)) {
-        unusedName    <- i
-        if(is.na(i))   unusedName <- "._" else
-        if(is.null(i)) unusedName <- "NULL" else
-        if(is.vector(i) && length(i) == 0L) unusedName <- "empty vector"
-        wrn(24, unusedName)
-      }
       
       if (missing(j)) j <- NULL
       x$put_variable(x = value, name = i, dims = j)

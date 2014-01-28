@@ -3,6 +3,7 @@
 .lookup_filename <- "lookup.txt"
 .config_filename <- "config.dat"
 .tzone <- "GMT"
+.col_sep <- "\\."
 #' @export
 ._     <- NA
 #' @export
