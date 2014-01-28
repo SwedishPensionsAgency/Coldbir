@@ -728,7 +728,7 @@ setMethod(
   definition = function(x, i, j, na = NA) {
     
     # Get database, e.g. a[], a[, ._] 
-    if (missing(i)) {
+    if (missing(i) || is.null(i)) {
       i <- ._
       if (missing(j)) j <- .all
     # Get variable, e.g. a[._], a[.all]
