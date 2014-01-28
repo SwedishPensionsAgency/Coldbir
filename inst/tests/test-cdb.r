@@ -167,11 +167,13 @@ db$clean()
 
 context("DATASETS")
 ###################
-x <- data.table(MASS::survey)
+x <- data.table(MASS::survey)[, list(
+  Sex, Fold, Pulse, Clap, Exer, Smoke, Height, Age
+)]
 
 # In addition we change the column names
 # to specifically test issue 49.
-setnames(x, c("Wr.Hnd", "NW.Hnd", "Pulse"), c("var", "x", "z"))
+setnames(x, c("Smoke", "Height", "Age"), c("var", "x", "z"))
 
 db[] <- x
 
