@@ -708,6 +708,7 @@ cdb <- setRefClass(
       .self$read_only  <- read_only
       .self$db_version <- NA_real_
       .self$n_row      <- NA_integer_
+      .self$variables <- list()
       .self$curr_var_tab <- get_vars(dims = T) # Empty data.table with colnames
     }
   )
