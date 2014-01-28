@@ -701,7 +701,10 @@ cdb <- setRefClass(
     
     #' Get matching variables
     variable_match = function(name, dims = NULL) {
-      list_match(.self$variables, recursive_list(c(name, dims), list(. = 1)))
+      lst <- do.call("c", lapply(name, function(x) {
+        recursive_list(c(x, dims), list(. = 1))
+      }))
+      list_match(.self$variables, lst)
     },
     
     #' Check if variable exist
