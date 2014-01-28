@@ -437,6 +437,10 @@ cdb <- setRefClass(
       # If x is a data frame it will recursively run put_variable over all columns
       if (is.data.frame(x)) {
         
+        # Check if all column names aren't unique
+        cnames <- colnames(x)
+        if (length(cnames) != length(unqiue(cnames))) err(26)
+        
         sapply(names(x), function(i) {
           put_variable(
             x = x[[i]],
