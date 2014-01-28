@@ -315,14 +315,14 @@ cdb <- setRefClass(
     #' @param na the value of missing values. NA by default. 
     #'     
     get_variable = function(name, dims = NULL, na = NA) {
-  
+      
       # Get file path
       cdb <- file_path(name, .self$path, dims, ext = c("cdb.gz", "cdb"), create_dir = F)
       
       # Connect to compressed/uncompressed file
       if (file.exists(cdb[1])) {
         bin_file <- gzfile(cdb[1], "rb")
-          
+        
       } else if (file.exists(cdb[2])) {
         bin_file <- file(cdb[2], "rb")
         
