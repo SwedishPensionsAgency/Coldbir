@@ -98,7 +98,7 @@ test_that("POSIXct", {
 db$clean()
 
 test_that("non-existing", {
-  expect_warning(db["non-existing"])
+  expect_true(is.null(db["non-existing"]))
 })
 
 context("VARIABLE DOCUMENTATION")
@@ -142,7 +142,7 @@ test_that("put/get variable with dims = NULL", {
 db$clean()
 
 test_that("non-existing dimensions", {
-  expect_warning(db["non-existing", dims])
+  expect_true(is.null(db["non-existing", dims]))
 })
 
 context("REPLACE NA")
