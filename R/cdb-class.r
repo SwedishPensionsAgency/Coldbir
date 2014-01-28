@@ -439,7 +439,7 @@ cdb <- setRefClass(
         
         # Check if all column names aren't unique
         cnames <- colnames(x)
-        if (length(cnames) != length(unqiue(cnames))) err(26)
+        if (length(cnames) != length(unique(cnames))) err(26)
         
         sapply(names(x), function(i) {
           put_variable(
