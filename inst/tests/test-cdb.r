@@ -183,6 +183,10 @@ test_that("get dataset", {
   expect_equal(x, db[])
 })
 
+test_that("select multiple variables", {
+  expect_equal(x[, list(Clap, Pulse)], db[c("Clap", "Pulse")])
+})
+
 db$clean()
 
 context("READ ONLY")
