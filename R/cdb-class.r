@@ -441,7 +441,7 @@ cdb <- setRefClass(
         
         # Dot's aren't allowed in column names
         # since it used as a seperator of name and dims
-        if (length(grep("\\.", name)) == 0) {
+        if (length(grep(.col_sep, name)) == 0) {
           
           # if null => exit
           if (is.null(x)) {
@@ -725,10 +725,16 @@ cdb <- setRefClass(
 setMethod(
   f = "[",
   signature = "cdb",
-  definition = function(x, i, j, na = NA){
+  definition = function(x, i, j, na = NA) {
     
-    if (missing(i) || i %in% .all) i <- ._
-    if (missing(j)) j <- NULL  # or .all?
+    # Get database, e.g. a[], a[, ._] 
+    if (missing(i)) {
+      i <- ._
+      if (missing(j)) j <- .all
+    # Get variable, e.g. a[._], a[.all]
+    } else {
+      if (missing(j)) j <- NULL
+    }
     
     y <- list_to_query_repr(x$variable_match(name = i, dims = j))
     

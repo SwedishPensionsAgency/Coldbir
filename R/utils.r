@@ -157,6 +157,8 @@ create_colname <- function(name, dims) {
 }
 
 list_to_query_repr <- function(x) {
+  
+  # Because of `unlist` we cannot use other than "." as column seperator
   x <- names(unlist(x))
   
   x <- lapply(x, function(p) {
