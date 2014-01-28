@@ -152,7 +152,7 @@ subset_list <- function(x, sel) {
 }
 
 create_colname <- function(name, dims) {
-  sep <- if (length(dims) > 0) "_" else ""
+  sep <- if (length(dims) > 0) "." else ""
   paste(name, paste(dims, collapse = "."), sep = sep)
 }
 

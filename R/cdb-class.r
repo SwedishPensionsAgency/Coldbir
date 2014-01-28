@@ -456,8 +456,9 @@ cdb <- setRefClass(
         # Read object name if name argument is missing
         if (is.null(name)) name <- deparse(substitute(x))
         
-        # Currently some signs aren't allowed in variable names
-        if (length(grep("\\.|_", name)) == 0) {
+        # Dot's aren't allowed in column names
+        # since it used as a seperator of name and dims
+        if (length(grep("\\.", name)) == 0) {
           
           # if null => exit
           if (is.null(x)) {
