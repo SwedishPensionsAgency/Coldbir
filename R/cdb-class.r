@@ -733,6 +733,7 @@ setMethod(
       if (missing(j)) j <- .all
     # Get variable, e.g. a[._], a[.all]
     } else {
+      if (i %in% .all) i <- ._
       if (missing(j)) j <- NULL
     }
     
