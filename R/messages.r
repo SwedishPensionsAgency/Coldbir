@@ -42,7 +42,7 @@ msg <- function(n, ...) {
     "22"  = "The 'value' argument in ']<-' should be a vector, data.table, doc or NULL. It is a %s .",
     "23"  = "Attemption to remove non existing data %s .",
     "24"  = "The argument i = %s is not used. The column names of the data.frame are used instead",
-    "25"  = "%s wasn't added since neither '.' or '_' are currently supported as variable names.",
+    "25"  = "%s wasn't added since '.' aren't supported as variable names.",
     "26"  = "All column names must be unique."
   ), ...)
   

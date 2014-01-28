@@ -257,13 +257,13 @@ cdb <- setRefClass(
       } else .self$variables <- list()
     },
     
-    # Delete variable data
-    #'    
+    #' Delete variable data
+    #' 
     #' @param name variable name
-    #' @param dims the specified observation in the space of dimensions  
-    #'     
+    #' @param dims the specified observation in the space of dimensions
+    #' 
     delete_variable = function(name, dims = NULL) {
-
+      
       # Do data exists? (find faster solution)
       LeDims <- length(dims)
       tmpTable  <- data.table::copy(.self$curr_var_tab)
