@@ -448,180 +448,184 @@ cdb <- setRefClass(
         return(T)
         
       } else {
-  
+        
         # Read object name if name argument is missing
         if (is.null(name)) name <- deparse(substitute(x))
         
-        # if null => exit
-        if (is.null(x)) {
-          wrn(9, name)
-          return(F)
-        }
-        
-        if(is.na(.self$n_row)){
+        # Currently some signs aren't allowed in variable names
+        if (length(grep("\\.|_", name)) == 0) {
           
-          .self$n_row <- length(x)
+          # if null => exit
+          if (is.null(x)) {
+            wrn(9, name)
+            return(F)
+          }
           
-        } else if(.self$n_row != length(x)) err(11, name)
-        
-        # Create empty header
-        header <- list()
-        
-        # Check/set vector type and number of bytes
-        if (is.numeric(x)) {
+          if(is.na(.self$n_row)){
+            
+            .self$n_row <- length(x)
+            
+          } else if(.self$n_row != length(x)) err(11, name)
+          
+          # Create empty header
+          header <- list()
+          
+          # Check/set vector type and number of bytes
+          if (is.numeric(x)) {
+                
+            if (is.integer(x)) {
+              header$type <- "integer"
+              header$bytes <- 4L  # H_itemSize, note: NA for integers is already -2147483648 in R
               
-          if (is.integer(x)) {
-            header$type <- "integer"
-            header$bytes <- 4L  # H_itemSize, note: NA for integers is already -2147483648 in R
-            
-          } else if (is.double(x)) {
-            header$type <- "double"
-            header$exponent <- find_exp(x)
-            
-            if (header$exponent <= 9L) {
-              x <- round(x * 10^header$exponent, 0)
-              header$bytes <- check_repr(x)
-              if (header$bytes <= 4L) {
-                header$bytes <- 4L
+            } else if (is.double(x)) {
+              header$type <- "double"
+              header$exponent <- find_exp(x)
+              
+              if (header$exponent <= 9L) {
+                x <- round(x * 10^header$exponent, 0)
+                header$bytes <- check_repr(x)
+                if (header$bytes <= 4L) {
+                  header$bytes <- 4L
+                }
+              } else {
+                header$bytes <- 8L
+                header$exponent <- 0L
               }
-            } else {
-              header$bytes <- 8L
-              header$exponent <- 0L
             }
-          }
-  
-        } else if (is.logical(x)) {
-          header$type <- "logical"
-          header$bytes <- 1L
-          
-          # Replace integer value with NA,
-          # unless -2147483648 is in the range
-          x[is.na(x)] <- -1L
-          
-        } else if ("POSIXt" %in% class(x)) {  # OBS: must be checked before is.double
-          header$type <- "POSIXct"
-          header$bytes <- 8L  # save as double
-          
-          x <- lubridate::force_tz(x, .tzone)  # convert to GMT
-          x <- as.double(x)  # convert to double
-          
-        } else if ("Date" %in% class(x)) {
-          header$type <- "Date"
-          header$bytes <- 8L
-          
-        } else if (is.factor(x) || is.character(x)) {
-          if (is.character(x)) {
-            x <- as.factor(x)  # convert to factor
-          }
-          
-          # Get previous lookup table
-          lookup <- .self$get_lookup(name = name)
-          
-          # Get new levels (compared to lookup table)
-          lvl <- levels(x)[!levels(x) %in% lookup[[2]]]
-          
-          # Add new levels (if there are any)
-          if (length(lvl) > 0) {
+    
+          } else if (is.logical(x)) {
+            header$type <- "logical"
+            header$bytes <- 1L
             
-            # Set previous lookup table length              
-            len <- nrow(lookup)
-            if (is.null(len)) len <- 0
+            # Replace integer value with NA,
+            # unless -2147483648 is in the range
+            x[is.na(x)] <- -1L
             
-            # Create new lookup table or add to existing (cols: key, value)
-            lookup <- rbindlist(list(
-              lookup, 
-              data.table((len + 1):(len + length(lvl)), lvl)
-            ))
+          } else if ("POSIXt" %in% class(x)) {  # OBS: must be checked before is.double
+            header$type <- "POSIXct"
+            header$bytes <- 8L  # save as double
             
-            # Write lookup table
-            .self$put_lookup(name = name, table = lookup)
-          }
-          
-          # Convert variable (TODO: rewrite this part)
-          if (!is.null(lookup)) {
-            setnames(lookup, c("k", "v"))
-            x_data <- data.table(k = as.integer(x), v = x, order = 1:length(x))
-            x <- merge(x_data, lookup, by = "v", all.x = T, all.y = F)
-            x <- x$k.y[order(x$order)]
-          }
-          
-          header$type <- "factor"
-          header$bytes <- 4L
+            x <- lubridate::force_tz(x, .tzone)  # convert to GMT
+            x <- as.double(x)  # convert to double
+            
+          } else if ("Date" %in% class(x)) {
+            header$type <- "Date"
+            header$bytes <- 8L
+            
+          } else if (is.factor(x) || is.character(x)) {
+            if (is.character(x)) {
+              x <- as.factor(x)  # convert to factor
+            }
+            
+            # Get previous lookup table
+            lookup <- .self$get_lookup(name = name)
+            
+            # Get new levels (compared to lookup table)
+            lvl <- levels(x)[!levels(x) %in% lookup[[2]]]
+            
+            # Add new levels (if there are any)
+            if (length(lvl) > 0) {
               
-        } else err(13, name)
-        
-        ext <- if (.self$compress > 0) "cdb.gz" else "cdb"
-        
-        # Construct file path
-        cdb <- file_path(
-          name = name,
-          path = .self$path,
-          dims = dims,
-          ext = ext,
-          create_dir = T
-        )
-        
-        # check if we need a new entry in the internal table
-        file.existed <- file.exists(cdb)
-        
-        # File header
-        header$db_ver <- as.integer(.cdb_file_version)
-          
-        # Add attributes
-        header$attributes <- attrib
-          
-        header_raw <- charToRaw(toJSON(header, digits = 50))
-        header_len <- length(header_raw)
-        
-        # Removes attributes from vector
-        if (header$bytes == 8) {
-          x <- as.double(x)
-        } else {
-          x <- as.integer(x)
-        }
-        
-        # Create temporary file
-        tmp <- create_temp_file(cdb)
-  
-        # Try to write file to disk
-        tryCatch({
-          
-          # future issue: no check for two vesions of the file. One compressed one not
-          # Create file and add file extension
-          if (.self$compress > 0) {
-            bin_file <- gzfile(tmp, open = "wb", compression = .self$compress)
-          } else {
-            bin_file <- file(tmp, "wb")
-          }
+              # Set previous lookup table length              
+              len <- nrow(lookup)
+              if (is.null(len)) len <- 0
+              
+              # Create new lookup table or add to existing (cols: key, value)
+              lookup <- rbindlist(list(
+                lookup, 
+                data.table((len + 1):(len + length(lvl)), lvl)
+              ))
+              
+              # Write lookup table
+              .self$put_lookup(name = name, table = lookup)
+            }
             
-          # Write binary file
-          writeBin(header_len, bin_file, size = 8)
-          writeBin(header_raw, bin_file)
-          writeBin(length(x),  bin_file, size = 8)
-          writeBin(x, bin_file, size = header$bytes)  # write each vector element to bin_file
-          close(bin_file)
-  
+            # Convert variable (TODO: rewrite this part)
+            if (!is.null(lookup)) {
+              setnames(lookup, c("k", "v"))
+              x_data <- data.table(k = as.integer(x), v = x, order = 1:length(x))
+              x <- merge(x_data, lookup, by = "v", all.x = T, all.y = F)
+              x <- x$k.y[order(x$order)]
+            }
+            
+            header$type <- "factor"
+            header$bytes <- 4L
+                
+          } else err(13, name)
           
-          # Rename temporary variable to real name (overwrite)
-          file.copy(tmp, cdb, overwrite = T)
+          ext <- if (.self$compress > 0) "cdb.gz" else "cdb"
           
-          #bookkeeping of the internal info
-          if(!file.existed)
-            .self$curr_var_tab <- rbind(.self$curr_var_tab , list(variable = name, dims = list(dims)))
-
-          .self$db_version <- new_time_stamp()
-          .self$put_config()
-          .self$add_repr(name, dims)  # add to in-memory list representation
+          # Construct file path
+          cdb <- file_path(
+            name = name,
+            path = .self$path,
+            dims = dims,
+            ext = ext,
+            create_dir = T
+          )
           
-          },
-          finally = file.remove(tmp),
-          error = function(e) {
-            err(14, name, e)
+          # check if we need a new entry in the internal table
+          file.existed <- file.exists(cdb)
+          
+          # File header
+          header$db_ver <- as.integer(.cdb_file_version)
+            
+          # Add attributes
+          header$attributes <- attrib
+            
+          header_raw <- charToRaw(toJSON(header, digits = 50))
+          header_len <- length(header_raw)
+          
+          # Removes attributes from vector
+          if (header$bytes == 8) {
+            x <- as.double(x)
+          } else {
+            x <- as.integer(x)
           }
-        )
-        
-        # Return TRUE if variable is successfully written
-        return(T)
+          
+          # Create temporary file
+          tmp <- create_temp_file(cdb)
+    
+          # Try to write file to disk
+          tryCatch({
+            
+            # future issue: no check for two vesions of the file. One compressed one not
+            # Create file and add file extension
+            if (.self$compress > 0) {
+              bin_file <- gzfile(tmp, open = "wb", compression = .self$compress)
+            } else {
+              bin_file <- file(tmp, "wb")
+            }
+              
+            # Write binary file
+            writeBin(header_len, bin_file, size = 8)
+            writeBin(header_raw, bin_file)
+            writeBin(length(x),  bin_file, size = 8)
+            writeBin(x, bin_file, size = header$bytes)  # write each vector element to bin_file
+            close(bin_file)
+    
+            
+            # Rename temporary variable to real name (overwrite)
+            file.copy(tmp, cdb, overwrite = T)
+            
+            #bookkeeping of the internal info
+            if(!file.existed)
+              .self$curr_var_tab <- rbind(.self$curr_var_tab , list(variable = name, dims = list(dims)))
+  
+            .self$db_version <- new_time_stamp()
+            .self$put_config()
+            .self$add_repr(name, dims)  # add to in-memory list representation
+            
+            },
+            finally = file.remove(tmp),
+            error = function(e) {
+              err(14, name, e)
+            }
+          )
+          
+          # Return TRUE if variable is successfully written
+          return(T)
+        } else wrn(25, name); return(F)
       }
     },
     

@@ -41,7 +41,8 @@ msg <- function(n, ...) {
     "21"  = "nothing to get, probably missmatching dimensions, %s",
     "22"  = "The 'value' argument in ']<-' should be a vector, data.table, doc or NULL. It is a %s .",
     "23"  = "Attemption to remove non existing data %s .",
-    "24"  = "The argument i = %s is not used. The column names of the data.frame are used instead"
+    "24"  = "The argument i = %s is not used. The column names of the data.frame are used instead",
+    "25"  = "%s wasn't added since neither '.' or '_' are currently supported as variable names."
   ), ...)
   
   if (is.null(str)) err(0)
