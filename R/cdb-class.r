@@ -264,35 +264,20 @@ cdb <- setRefClass(
     #' 
     delete_variable = function(name, dims = NULL) {
       
-      # Do data exists? (find faster solution)
-      LeDims <- length(dims)
-      tmpTable  <- data.table::copy(.self$curr_var_tab)
-      tmpTable[,Nr := 1:nrow(.self$curr_var_tab)]         # temp row counter
-      tmpTable[,Len:= unlist(lapply(dims, FUN=length))]   # temp lengths of dims
-      selNr <- tmpTable[variable==name & Len==LeDims,Nr]   # reduce the problem
-      rm(tmpTable)
+      n_sel <- sum(unlist(.self$variable_match(name, dims)))
       
-      found <- FALSE
-      k     <- length(selNr)
-      while(!found && k>0L){
-        ndx   <- selNr[k]
-        found <- identical(as.character(.self$curr_var_tab[ndx]$dims[[1]]),as.character(dims))
-        k <- k- 1L
-      }     
-
-      
-      if(!found) {
+      # Return FALSE if variable doesn't exist
+      if (n_sel == 0) {
         wrn(23, paste(name,"(",paste(dims,collapse=","),")",sep=""))
-        return()
+        return(F)
       }
       
-      if(nrow(.self$curr_var_tab[variable==name])==1L) {  # remove the whole directory
-        
-         unlink(file.path(.self$path,name),recursive = TRUE)   
-                                            # note: delete the documentation as well
-        } else {
-        
-        cdb <- file_path(name, .self$path, dims, ext = c("cdb.gz", "cdb"), create_dir = F) 
+      # Remove the whole directory if there is only one dimension
+      # including the documentation
+      if (n_sel == sum(unlist(.self$variable_match(name, .all)))) {
+        unlink(file.path(.self$path, name), recursive = T)
+      } else {
+        cdb <- file_path(name, .self$path, dims, ext = c("cdb.gz", "cdb"), create_dir = F)
         
         if(file.exists(cdb[1])){
           unlink(file.path(cdb[1])) # compressed
@@ -305,7 +290,6 @@ cdb <- setRefClass(
       .self$db_version <- new_time_stamp()
       .self$put_config()
       .self$del_repr(name, dims)
-      
     },
     
     # Get variable data
