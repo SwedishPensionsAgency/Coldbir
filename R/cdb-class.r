@@ -247,7 +247,7 @@ cdb <- setRefClass(
         
         # Add to list representation
         for(i in 1:length(vars)) {
-          a$add_repr(vars[[i]], var_dims[[i]])
+          .self$add_repr(vars[[i]], var_dims[[i]])
         }
       } else .self$variables <- list()
     },
