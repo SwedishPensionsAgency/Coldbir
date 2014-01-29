@@ -794,7 +794,6 @@ setMethod(
         if (!missing(i)) wrn(24)
         
         cnames <- names(value)
-        
         lst <- str_split(cnames, .col_sep)
         vars <- unlist(lapply(lst, FUN = head, n = 1))
         dims <- unlist(lapply(lst, FUN = function(x) ifelse(length(x) == 1, NA, x[-1])))
