@@ -171,7 +171,9 @@ list_to_query_repr <- function(x) {
 }
 
 cdb_unlist <- function(L, nStr = "", del = .col_sep$text) {
-  if (!is.list(L)) {
+  if (is.null(L)) {
+    return(NULL)
+  } else if (!is.list(L)) {
     x <- 1; names(x) <- nStr
     return(x)
   }
@@ -181,7 +183,7 @@ cdb_unlist <- function(L, nStr = "", del = .col_sep$text) {
   
   for(i in 1:length(L)) {
     if (nStr!="" ) actNstr[i] <- ifelse(actNstr[i] == ".", nStr, paste(nStr, actNstr[i], sep = del))
-    res <- c(res, cdb_unlist(L= L[[i]], nStr = actNstr[i]))
+    res <- c(res, cdb_unlist(L = L[[i]], nStr = actNstr[i]))
   }
   
   return(res)

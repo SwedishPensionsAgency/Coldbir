@@ -189,6 +189,20 @@ test_that("select multiple variables", {
 
 db$clean()
 
+x1 <- cdb(tempfile())
+x2 <- cdb(tempfile())
+x1[] <- mtcars
+x1[, 2012] <- mtcars
+x1[, c(2012,12)] <- mtcars
+x2[] <- x1[]
+
+test_that("Copy database", {
+  expect_equal(x1[], x2[])
+})
+
+x1$clean()
+x2$clean()
+
 context("READ ONLY")
 ####################
 db$read_only <- T
