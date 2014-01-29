@@ -4,9 +4,19 @@ db <- cdb(path, read_only = F)
 
 context("INITIALIZE DATABASE")
 ##############################
-test_that("init cdb", {
+test_that("initialize database", {
   expect_equal(path, db$path)
 })
+
+db[] <- MASS::survey
+db2 <- cdb(path, read_only = F)
+
+test_that("re-initialize database", {
+  expect_equal(db[], db2[])
+})
+
+db$clean()
+db2 <- NULL
 
 context("DATABASE CONFIG")
 ##########################
