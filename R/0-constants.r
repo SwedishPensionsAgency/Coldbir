@@ -5,6 +5,6 @@
 .tzone <- "GMT"
 .col_sep <- list(text = "___", regexpr = "_{3}")  # ".", "\\."
 #' @export
-._     <- NA
+._ <- NA
 #' @export
-.all   <- -.Machine$integer.max
+.all <- -.Machine$integer.max
