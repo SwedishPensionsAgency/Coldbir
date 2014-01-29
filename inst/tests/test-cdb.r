@@ -25,12 +25,12 @@ db$clean()
 context("DATABASE VARIABLE LENGTH")
 ###################################
 test_that("nrow when database is empty", {
-  expect_true(is.na(db$guess_db_nrow()))
+  expect_true(is.na(db$db_nrow()))
 })
 
 db["x"] <- sample(1:5, size, replace = T)
 test_that("nrow when database contains one variable without any dimentions", {
-  expect_equal(db$guess_db_nrow(), size)
+  expect_equal(db$db_nrow(), size)
 })
 db$clean()
 

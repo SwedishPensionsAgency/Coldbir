@@ -51,7 +51,7 @@ cdb <- setRefClass(
         if(nrow(.self$curr_var_tab) > 0L) { #data exist bunt not the config file => create the file
           
           .self$db_version <- new_time_stamp()
-          .self$n_row      <- guess_db_nrow()
+          .self$n_row      <- db_nrow()
           put_config()
           
         } else { # no data = > postpone the creation of the config file until something is done in the directory
@@ -65,17 +65,14 @@ cdb <- setRefClass(
     
     #' Get database variable length
     #' - Currently it compares with the first variable in the database
-    guess_db_nrow = function() {
+    db_nrow = function() {
       
-      if (nrow(.self$curr_var_tab) == 0L) return(NA_integer_)
-      
-      # Get variable dimension
-      dim <- unlist(.self$curr_var_tab[1,]$dim)
-      if (length(dim) == 0L) dim <- NULL
+      if (length(.self$variables) == 0) return(NA_integer_)
       
       # Get variable length
       # - Could have a special function looking in the header instead for length
-      len <- length(get_variable(.self$curr_var_tab[1,]$variable, dim))
+      var <- list_to_query_repr(.self$variables)[[1]]
+      len <- length(.self$get_variable(name = var$name, dims = var$dims))
       
       return(len)
     },
