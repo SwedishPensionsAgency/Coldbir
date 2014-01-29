@@ -19,7 +19,7 @@ Then, to access or create a database, one has to first initialize a connection:
     library(Coldbir)
     a <- cdb('mydb')
     
-The package make use of `get` and `put` methods to read and write data, somewhat simplied the syntax is `a[] <- x` to put data `x` on to disk and then `a[]` to read from disk. The `[]` notation is used for data selection, e.g. to define which variable and dimensions to read, see the API section for more details.
+The package make use of *get* and *put* methods to read and write data, somewhat simplified the syntax is `a[] <- x` to put some data (`x`) on to the disk and then `a[]` to read the same data from disk. The `[]` notation is used for data selection, e.g. to define which variable and dimensions to read, see the API section for more details.
 
 ## Introduction
 
