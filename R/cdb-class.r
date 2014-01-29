@@ -227,6 +227,11 @@ cdb <- setRefClass(
     #' 
     #' @param dims tells if column with dimensions is required
     update_repr_from_file = function() {
+      
+      # Need to be assigned as a list, since it's an uninitialized field,
+      # or sorted_modify_list will throw an error
+      .self$variables <- list()
+      
       files <- search_files(path = .self$path)
       
       # Extract variable names
