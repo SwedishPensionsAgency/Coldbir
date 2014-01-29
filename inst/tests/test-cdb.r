@@ -191,9 +191,9 @@ db$clean()
 
 x1 <- cdb(tempfile())
 x2 <- cdb(tempfile())
-x1[] <- mtcars
-x1[, 2012] <- mtcars
-x1[, c(2012,12)] <- mtcars
+x1[] <- MASS::survey
+x1[, 2012] <- MASS::survey
+x1[, c(2012,12)] <- MASS::survey
 x2[] <- x1[]
 
 test_that("Copy database", {
