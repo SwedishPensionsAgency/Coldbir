@@ -21,7 +21,6 @@ cdb <- setRefClass(
     read_only    = "logical",
     db_version   = "numeric",
     n_row        = "integer",
-    curr_var_tab = "ANY",
     variables    = "ANY"
   ),
   methods = list(
@@ -37,7 +36,6 @@ cdb <- setRefClass(
       .self$compress  <- compress
       .self$encoding  <- encoding
       .self$read_only <- read_only
-      .self$curr_var_tab <- get_vars(dims = T)
       .self$variables <- update_repr_from_file()
       
       f <- file.path(path, .config_filename)
@@ -48,7 +46,7 @@ cdb <- setRefClass(
         
       } else { # config.dat doesn't exist 
         
-        if(nrow(.self$curr_var_tab) > 0L) { #data exist bunt not the config file => create the file
+        if (length(.self$variables) > 0L) { #data exist bunt not the config file => create the file
           
           .self$db_version <- new_time_stamp()
           .self$n_row      <- db_nrow()
@@ -594,19 +592,16 @@ cdb <- setRefClass(
             file.copy(tmp, cdb, overwrite = T)
             
             #bookkeeping of the internal info
-            if(!file.existed)
-              .self$curr_var_tab <- rbind(.self$curr_var_tab , list(variable = name, dims = list(dims)))
-  
+            if(!file.existed) .self$add_repr(name, dims)  # add to in-memory list representation
+            
             .self$db_version <- new_time_stamp()
             .self$put_config()
-            .self$add_repr(name, dims)  # add to in-memory list representation
             
-            },
-            finally = file.remove(tmp),
-            error = function(e) {
-              err(14, name, e)
-            }
-          )
+          },
+          finally = file.remove(tmp),
+          error = function(e) {
+            err(14, name, e)
+          })
           
           # Return TRUE if variable is successfully written
           return(T)
@@ -701,7 +696,6 @@ cdb <- setRefClass(
       .self$db_version <- NA_real_
       .self$n_row      <- NA_integer_
       .self$variables <- list()
-      .self$curr_var_tab <- get_vars(dims = T) # Empty data.table with colnames
     }
   )
 )
