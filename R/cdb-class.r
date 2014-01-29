@@ -36,7 +36,9 @@ cdb <- setRefClass(
       .self$compress  <- compress
       .self$encoding  <- encoding
       .self$read_only <- read_only
-      .self$variables <- update_repr_from_file()
+      
+      # Update file representation
+      .self$update_repr_from_file()
       
       f <- file.path(path, .config_filename)
       
@@ -192,8 +194,8 @@ cdb <- setRefClass(
     #' @param dims tells if column with dimensions is required
     update_repr_from_file = function() {
       
-      # Need to be assigned as a list, since it's an uninitialized field,
-      # or sorted_modify_list will throw an error
+      # Need to be assigned as a list since it's an uninitialized field,
+      # or sorted_modify_list will throwan error
       .self$variables <- list()
       
       files <- search_files(path = .self$path)
