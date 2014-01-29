@@ -787,7 +787,9 @@ setMethod(
         cnames <- names(value)
         lst <- str_split(cnames, .col_sep$regexp)
         vars <- unlist(lapply(lst, FUN = head, n = 1))
-        dims <- unlist(lapply(lst, FUN = function(x) ifelse(length(x) == 1, NA, x[-1])))
+        dims <- lapply(lst, FUN = function(x) {
+          if (length(x) == 1) NA else x[-1]
+        })
         
         for(k in 1:length(vars)) {
           
