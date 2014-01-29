@@ -547,7 +547,7 @@ cdb <- setRefClass(
             create_dir = T
           )
           
-          # check if we need a new entry in the internal table
+          # Check if we need a new entry in the in-memory representation
           file.existed <- file.exists(cdb)
           
           # File header
@@ -568,7 +568,7 @@ cdb <- setRefClass(
           
           # Create temporary file
           tmp <- create_temp_file(cdb)
-    
+          
           # Try to write file to disk
           tryCatch({
             
@@ -579,21 +579,21 @@ cdb <- setRefClass(
             } else {
               bin_file <- file(tmp, "wb")
             }
-              
+            
             # Write binary file
             writeBin(header_len, bin_file, size = 8)
             writeBin(header_raw, bin_file)
             writeBin(length(x),  bin_file, size = 8)
             writeBin(x, bin_file, size = header$bytes)  # write each vector element to bin_file
             close(bin_file)
-    
             
             # Rename temporary variable to real name (overwrite)
             file.copy(tmp, cdb, overwrite = T)
             
-            #bookkeeping of the internal info
-            if(!file.existed) .self$add_repr(name, dims)  # add to in-memory list representation
+            # Add to in-memory list representation
+            if(!file.existed) .self$add_repr(name, dims)
             
+            # Update database version in config file
             .self$db_version <- new_time_stamp()
             .self$put_config()
             
