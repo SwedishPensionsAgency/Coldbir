@@ -822,11 +822,17 @@ setMethod(
       
       # Create readme.json
       x$put_doc(x = value$to_json(), name = i)
-      
+    
+    # Delete variables
     } else if (is.null(value)){
-
-      if (missing(j)) j <- NULL      
-      x$delete_variable(name = i, dims = j)
+      
+      if (missing(j)) j <- NULL
+      
+      # Delete all matching variables
+      y <- list_to_query_repr(x$variable_match(name = i, dims = j))
+      lapply(y, function(var) {
+        x$delete_variable(name = var$name, dims = var$dims)
+      })
       
     } else {
       
