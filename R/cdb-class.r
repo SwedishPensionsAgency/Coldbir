@@ -185,42 +185,6 @@ cdb <- setRefClass(
     add_repr = function(...) update_repr(..., val = list(. = 1)),
     del_repr = function(...) update_repr(..., val = list(. = 0)),
     
-    #' List all variables
-    #' 
-    #' @param dims tells if column with dimensions is required
-    get_vars = function(dims = F) {
-      files <- search_files(path = .self$path)
-      
-      # Extract variable names
-      vars = basename(dirname(dirname(files)))
-      
-      if (dims) {
-        
-        # Extract dims
-        var_dims <- str_extract_all(files, "\\[(\\w*)\\]")
-        
-        # Remove square brackets
-        var_dims <- sapply(var_dims, function(x) {
-          x <- gsub("\\[", "", x)
-          x <- gsub("\\]", "", x)
-          
-          #if (length(x) == 0) x <- NULL
-          return(x)
-        })
-        
-        x <- data.table(
-          variable = vars,
-          dims = var_dims
-        )
-        
-      } else {
-        x <- vars
-      }
-      
-      if (dims == F) x <- unique(x)
-      return(x)
-    },
-    
     #' Init list representation
     #' 
     #' Update list representation from file
