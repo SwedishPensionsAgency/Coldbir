@@ -26,7 +26,7 @@ Below is an example of a database, named *mydb*, including variables on `income`
         documentation.yml
         lookup.txt
 
-The database stores a config file to keep track of variable length, when it was lastly changed (database version) and additional database specific options. Also worth to mention, when initalizing a new database connection it read the config file and create an in-memory list representation of all variables and dimensions available within the database. This causes the inital connection to be a bit slow, but allows much faster queries.
+The database stores a config file to keep track of variable length, when it was lastly changed (database version) and some additional database specific options. Also worth to mention, when initalizing a new database connection it read the config file and create an in-memory list representation of all variables and dimensions available within the database. This causes the inital connection to be a bit slow, but allows much faster queries.
 
 ## Getting started
 
