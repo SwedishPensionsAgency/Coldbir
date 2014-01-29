@@ -436,7 +436,7 @@ cdb <- setRefClass(
         
         # Dot's aren't allowed in column names
         # since it used as a seperator of name and dims
-        if (length(grep(.col_sep, name)) == 0) {
+        if (length(grep(.col_sep$regexp, name)) == 0) {
           
           # if null => exit
           if (is.null(x)) {
@@ -785,7 +785,7 @@ setMethod(
         if (!missing(i)) wrn(24)
         
         cnames <- names(value)
-        lst <- str_split(cnames, .col_sep)
+        lst <- str_split(cnames, .col_sep$regexp)
         vars <- unlist(lapply(lst, FUN = head, n = 1))
         dims <- unlist(lapply(lst, FUN = function(x) ifelse(length(x) == 1, NA, x[-1])))
         

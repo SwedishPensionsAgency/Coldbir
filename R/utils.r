@@ -152,17 +152,17 @@ subset_list <- function(x, sel) {
 }
 
 create_colname <- function(name, dims) {
-  sep <- if (length(dims) > 0) "." else ""
-  paste(name, paste(dims, collapse = "."), sep = sep)
+  sep <- if (length(dims) > 0) .col_sep$text else ""
+  paste(name, paste(dims, collapse = .col_sep$text), sep = sep)
 }
 
 list_to_query_repr <- function(x) {
   
   # Because of `unlist` we cannot use other than "." as column seperator
-  x <- names(unlist(x))
+  x <- names(cdb_unlist(x))
   
   x <- lapply(x, function(p) {
-    p <- strsplit(p, "\\.")[[1]]
+    p <- strsplit(p, .col_sep$regexp)[[1]]
     p <- p[nchar(p) > 0]
     dims <- if (length(p[-1]) != 0) p[-1] else NULL
     list(name = p[1], dims = dims)
@@ -170,4 +170,19 @@ list_to_query_repr <- function(x) {
   return(x)
 }
 
-
+cdb_unlist <- function(L, nStr = "", del = .col_sep$text) {
+  if (!is.list(L)) {
+    x <- 1; names(x) <- nStr
+    return(x)
+  }
+  
+  res <- integer(0) 
+  actNstr <- names(L)
+  
+  for(i in 1:length(L)) {
+    if (nStr!="" ) actNstr[i] <- ifelse(actNstr[i] == ".", nStr, paste(nStr, actNstr[i], sep = del))
+    res <- c(res, cdb_unlist(L= L[[i]], nStr = actNstr[i]))
+  }
+  
+  return(res)
+}
