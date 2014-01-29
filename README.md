@@ -8,6 +8,21 @@ Coldbir is a column database in R. The main purpose of this package is to simpli
 - Variable documentation
 - Support for various data types
 
+## Getting started
+
+The package is currently not available on `CRAN`, therefore make sure to use `devtools` when installing the package:
+
+    devtools::install_github('SwedishPensionsAgency/Coldbir')
+
+Then, to access or create a database, one has to first initialize a connection:
+
+    library(Coldbir)
+    a <- cdb('mydb')
+    
+The package make use of `get` and `put` methods to read and write data, somewhat simplied the syntax is `a[] <- x` to put data `x` on to disk and then `a[]` to read from disk. The `[]` notation is used for data selection, e.g. to define which variable and dimensions to read, see the API section for more details.
+
+## Introduction
+
 The Coldbir database could be seen as a large table including a lot of columns. The data itself is stored as a [column-oriented DBMS](http://en.wikipedia.org/wiki/Column-oriented_DBMS), where each individual column, also called `variable`, has its own folder including data, documentation and lookup files. A variable data could also be divided into different dimensions (e.g. months and years), hence making it possible to store time series data. *As a notation, this feature could also be used to improve read performance by pre-aggreggating values into years, when data is originally divided into months.*
 
 Below is an example of a database, named *mydb*, including variables on `income` and `unemployment` and year-month as dimensions:
@@ -28,18 +43,36 @@ Below is an example of a database, named *mydb*, including variables on `income`
 
 The database stores a config file to keep track of variable length, when it was lastly changed (database version) and some additional database specific options. Also worth to mention, when initalizing a new database connection it read the config file and create an in-memory list representation of all variables and dimensions available within the database. This causes the inital connection to be a bit slow, but allows much faster queries.
 
-## Getting started
+### Variable documentation
 
-The package is currently not available on `CRAN`, therefore make sure to use `devtools` when installing the package:
+An additional feature is to add documentation to a variable. This is simply done by first creating an object of the `doc` class and then assign it to a variable:
 
-    devtools::install_github('Coldbir', 'SwedishPensionsAgency')
+    a['foo'] <- doc(
+      'Foo' = 'This is a variable', 
+      'Info' = list(
+        'Stats' = paste('The minimum value is', min(1:10)),
+        'Source' = "Some db"
+      )
+    )
 
-Then, to access or create a database, one has to first initialize a connection:
+As one may notice, the doc object is build up as a list, which makes it simple to include variable statistics that updates when running the above code. Then, to use the documentation:
 
-    library(Coldbir)
-    a <- cdb('mydb')
-    
-The package make use of `get` and `put` methods to read and write data, somewhat simplied the syntax is `a[] <- x` to put data `x` on to disk and then `a[]` to read from disk. The `[]` notation is used for data selection, e.g. to define which variable and dimensions to read, see the API section below for more details.
+    d <- a$get_doc("foo")
+    d$Info$Stats
+    # [1] "The minimum value is 1"
+
+### Supported data types
+
+The package currently support the following data types:
+
+- `integer`
+- `double`
+- `logical`
+- `factor`
+- `Date`
+- `POSIXct` / `POSIXlt`
+
+Timezones are not supported. All timestamps are written as `GMT` without timezone conversion. E.g. `2013-04-29 01:00:00 CST` is stored (and returned) as `2013-04-29 01:00:00 GMT`. `POSIXlt` is automatically converted to `POSIXct`.
 
 ## API
 
@@ -86,19 +119,6 @@ Delete specific dimension               | `a['foo', c(2013, 12)] <- NULL`
 Delete all database content             | `a[] <- NULL`, alt. `a$clean()`
 
 The documentation object has its own class `doc` and is constructed as a list.
-
-## Supported data types
-
-The package currently support the following data types:
-
-- `integer`
-- `double`
-- `logical`
-- `factor`
-- `Date`
-- `POSIXct` / `POSIXlt`
-
-Timezones are not supported. All timestamps are written as `GMT` without timezone conversion. E.g. `2013-04-29 01:00:00 CST` is stored (and returned) as `2013-04-29 01:00:00 GMT`. `POSIXlt` is automatically converted to `POSIXct`.
 
 ## Development
 
