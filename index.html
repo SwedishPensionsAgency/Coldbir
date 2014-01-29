@@ -28,52 +28,79 @@
         </ul>
       </header>
       <section>
-        <p>The Coldbir package is a column-oriented DBMS in R.</p>
+        <p>Coldbir is a column database in R. The main purpose of this package is to simplify the workflow with panel data on disk, including features such as:</p>
 
-<p>The project is currently maintained by Thomas Reinholdsson (<a href="mailto:reinholdsson@gmail.com">reinholdsson@gmail.com</a>).</p>
+<ul>
+<li>Simple syntax to work with data</li>
+<li>Small storage size</li>
+<li>Impressive read and write speed</li>
+<li>Variable documentation</li>
+<li>Support for various data types</li>
+</ul><h2>
+<a name="getting-started" class="anchor" href="#getting-started"><span class="octicon octicon-link"></span></a>Getting started</h2>
 
-<h2>
-<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h2>
+<p>The package is currently not available on <code>CRAN</code>, therefore make sure to use <code>devtools</code> when installing the package:</p>
 
-<p>Use <code>devtools</code> for easy installation:</p>
-
-<pre><code>devtools::install_github('Coldbir', 'SthlmR')
+<pre><code>devtools::install_github('SwedishPensionsAgency/Coldbir')
 </code></pre>
+
+<p>Then, to access or create a database, one has to first initialize a connection:</p>
+
+<pre><code>library(Coldbir)
+a &lt;- cdb('mydb')
+</code></pre>
+
+<p>The package make use of <em>get</em> and <em>put</em> methods to read and write data, somewhat simplified the syntax is <code>a[] &lt;- x</code> to put some data (<code>x</code>) on to the disk and then <code>a[]</code> to read the same data from disk. The <code>[]</code> notation is used for data selection, e.g. to define which variable and dimensions to read, see the API section for more details.</p>
 
 <h2>
 <a name="introduction" class="anchor" href="#introduction"><span class="octicon octicon-link"></span></a>Introduction</h2>
 
-<p>First, make sure to load the package with <code>library(Coldbir)</code>.</p>
+<p>The Coldbir database could be seen as a large table including a lot of columns. The data itself is stored as a <a href="http://en.wikipedia.org/wiki/Column-oriented_DBMS">column-oriented DBMS</a>, where each individual column, also called <code>variable</code>, has its own folder including data, documentation and lookup files. A variable data could also be divided into different dimensions (e.g. months and years), hence making it possible to store time series data. <em>As a notation, this feature could also be used to improve read performance by pre-aggreggating values into years, when data is originally divided into months.</em></p>
 
-<p>Then, to decide where the database is to be saved, or whether it already exists, do:</p>
+<p>Below is an example of a database, named <em>mydb</em>, including variables on <code>income</code> and <code>unemployment</code> and year-month as dimensions:</p>
 
-<pre><code>a &lt;- cdb('database_path')
+<pre><code>mydb/
+  income/
+    data/
+      d[2012][12].cdb.gz
+      d[2013][12].cdb.gz
+    documentation.json
+    lookup.txt
+  unemployment/
+    data/
+      d[2012][12].cdb.gz
+      d[2013][12].cdb.gz
+    documentation.json
+    lookup.txt
 </code></pre>
 
-<p>To save data to the database, simply write:</p>
+<p>The database stores a config file to keep track of variable length, when it was lastly changed (database version) and some additional database specific options. Also worth to mention, when initalizing a new database connection it read the config file and create an in-memory list representation of all variables and dimensions available within the database. This causes the inital connection to be a bit slow, but allows much faster queries.</p>
 
-<pre><code>a['foo'] &lt;- 1:10
+<h3>
+<a name="variable-documentation" class="anchor" href="#variable-documentation"><span class="octicon octicon-link"></span></a>Variable documentation</h3>
+
+<p>An additional feature is to add documentation to a variable. This is simply done by first creating an object of the <code>doc</code> class and then assign it to a variable:</p>
+
+<pre><code>a['foo'] &lt;- doc(
+  'Foo' = 'This is a variable', 
+  'Info' = list(
+    'Stats' = paste('The minimum value is', min(1:10)),
+    'Source' = "Some db"
+  )
+)
 </code></pre>
 
-<p>and to get a variable:</p>
+<p>As one may notice, the doc object is build up as a list, which makes it simple to include variable statistics that updates when running the above code. Then, to use the documentation:</p>
 
-<pre><code>b &lt;- a['foo']
-</code></pre>
-
-<p>It is also possible to put a data frame to the coldbir database - each column will then represent one variable each;</p>
-
-<pre><code>a[] &lt;- MASS::survey
-</code></pre>
-
-<p>However, since they are all saved as variables one cannot get all of them back at once. Their names are the same as their previous column names. For example:</p>
-
-<pre><code>b &lt;- a['Pulse']
+<pre><code>d &lt;- a$get_doc("foo")
+d$Info$Stats
+# [1] "The minimum value is 1"
 </code></pre>
 
 <h3>
-<a name="data-types" class="anchor" href="#data-types"><span class="octicon octicon-link"></span></a>Data types</h3>
+<a name="supported-data-types" class="anchor" href="#supported-data-types"><span class="octicon octicon-link"></span></a>Supported data types</h3>
 
-<p>Currently supported data types:</p>
+<p>The package currently support the following data types:</p>
 
 <ul>
 <li><code>integer</code></li>
@@ -82,122 +109,179 @@
 <li><code>factor</code></li>
 <li><code>Date</code></li>
 <li>
-<code>POSIXct</code> / <code>POSIXlt</code> ** <strong>EXPERIMENTAL</strong> **</li>
+<code>POSIXct</code> / <code>POSIXlt</code>
+</li>
 </ul><p>Timezones are not supported. All timestamps are written as <code>GMT</code> without timezone conversion. E.g. <code>2013-04-29 01:00:00 CST</code> is stored (and returned) as <code>2013-04-29 01:00:00 GMT</code>. <code>POSIXlt</code> is automatically converted to <code>POSIXct</code>.</p>
 
-<h3>
-<a name="variable-documentation" class="anchor" href="#variable-documentation"><span class="octicon octicon-link"></span></a>Variable documentation</h3>
-
-<p>An additional feature is to add documentation to a variable. </p>
-
-<p>Create an object of the <code>doc</code> class and add it to a variable:</p>
-
-<pre><code>a['foo'] &lt;- doc(
-      'Foo' = 'This is a variable', 
-      'Info' = list(
-        'Stats' = paste('The minimum value is', min(1:10)),
-        'Source' = "Some db"
-        )
-      )
-</code></pre>
-
-<p><em>As one may notice, the doc object is build up as a list. Thus it makes it possible to e.g. include variable statistics that updates automatically.</em> </p>
-
-<p>To get the documentation (as a list):</p>
-
-<pre><code>d &lt;- get_doc(a, "foo")
-
-d$Info$Stats
-# [1] "The minimum value is 1"
-</code></pre>
-
-<h3>
-<a name="file-structure" class="anchor" href="#file-structure"><span class="octicon octicon-link"></span></a>File structure</h3>
-
-<p>The coldbir database consists of folders where each folder represent a variable. 
-Each variable may have several dimensions, e.g. months and years. 
-The data is stored as a <a href="http://en.wikipedia.org/wiki/Column-oriented_DBMS">column-oriented DBMS</a>. 
-Below is an example of a database, named <em>mydb</em>, with a couple of variables:</p>
-
-<pre><code>mydb/
-  income/
-    data/
-      d[2011].cdb.gz
-      d[2012].cdb.gz
-    doc.json
-    lookup.txt
-    readme.md
-  unemployment/
-    data/
-      d[2011].cdb.gz
-      d[2012].cdb.gz
-    doc.json
-    lookup.txt
-    readme.md
-</code></pre>
-
-<p>The <code>doc.json</code> includes the variable documentation that is read with <code>get_doc()</code> method. <code>readme.md</code> includes the same information but in markdown.</p>
-
 <h2>
-<a name="examples" class="anchor" href="#examples"><span class="octicon octicon-link"></span></a>Examples</h2>
+<a name="api" class="anchor" href="#api"><span class="octicon octicon-link"></span></a>API</h2>
 
 <h3>
-<a name="example-survey-data" class="anchor" href="#example-survey-data"><span class="octicon octicon-link"></span></a>Example: Survey data</h3>
+<a name="general" class="anchor" href="#general"><span class="octicon octicon-link"></span></a>General</h3>
 
-<h4>
-<a name="write-data-and-documentation" class="anchor" href="#write-data-and-documentation"><span class="octicon octicon-link"></span></a>Write data and documentation</h4>
+<table>
+<thead><tr>
+<th>Method</th>
+<th>Example</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Initialize database</td>
+<td><code>a &lt;- cdb('mydb')</code></td>
+</tr>
+<tr>
+<td>Set read only</td>
+<td><code>a$read_only &lt;- T</code></td>
+</tr>
+<tr>
+<td>Get database path</td>
+<td><code>a$path</code></td>
+</tr>
+<tr>
+<td>List all variables</td>
+<td><code>a$variables</code></td>
+</tr>
+</tbody>
+</table><h3>
+<a name="put" class="anchor" href="#put"><span class="octicon octicon-link"></span></a>Put</h3>
 
-<p>Link to database</p>
+<table>
+<thead><tr>
+<th>Method</th>
+<th>Example</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Put variable</td>
+<td><code>a['foo'] &lt;- 1:10</code></td>
+</tr>
+<tr>
+<td>Put variable with dimension</td>
+<td><code>a['foo', 2013] &lt;- 1:10</code></td>
+</tr>
+<tr>
+<td>Put variable with multiple dimensions</td>
+<td><code>a['foo', c(2013, 12)] &lt;- 1:10</code></td>
+</tr>
+<tr>
+<td>Put data.frame</td>
+<td><code>a[] &lt;- MASS::survey</code></td>
+</tr>
+<tr>
+<td>Put data.frame with dimensions</td>
+<td><code>a[, c(2013, 12)] &lt;- MASS::survey</code></td>
+</tr>
+<tr>
+<td>Put variable documentation</td>
+<td><code>a['foo'] &lt;- doc(title = "Foo", desc = "Bar")</code></td>
+</tr>
+<tr>
+<td>Put variable documentation (list)</td>
+<td><code>a['foo'] &lt;- doc(list(title = "Foo"))</code></td>
+</tr>
+<tr>
+<td>Put config file</td>
+<td><code>a$put_config()</code></td>
+</tr>
+</tbody>
+</table><h3>
+<a name="get" class="anchor" href="#get"><span class="octicon octicon-link"></span></a>Get</h3>
 
-<pre><code>a &lt;- cdb()
-</code></pre>
+<table>
+<thead><tr>
+<th>Method</th>
+<th>Example</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Get variable without dimensions</td>
+<td><code>a['foo']</code></td>
+</tr>
+<tr>
+<td>Get variable with all dimensions</td>
+<td><code>a['foo', .all]</code></td>
+</tr>
+<tr>
+<td>Get variable with dimensionality of two</td>
+<td><code>a['foo', c(._, ._)]</code></td>
+</tr>
+<tr>
+<td>Get variable with specified dimensions (<em>e.g. december for all years</em>)</td>
+<td><code>a['foo', c(._, 12)]</code></td>
+</tr>
+<tr>
+<td>Get multiple variables</td>
+<td><code>a[c('foo', 'bar')]</code></td>
+</tr>
+<tr>
+<td>Get all data</td>
+<td><code>a[]</code></td>
+</tr>
+<tr>
+<td>Get variable documentation</td>
+<td><code>a$get_doc("foo")</code></td>
+</tr>
+</tbody>
+</table><h3>
+<a name="delete" class="anchor" href="#delete"><span class="octicon octicon-link"></span></a>Delete</h3>
 
-<p>Add survey data to database</p>
-
-<pre><code>require(MASS)
-a["Age"] &lt;- survey$Age
-a["Pulse"] &lt;- survey$Pulse
-</code></pre>
-
-<p>Add documentation for <code>Age</code> and <code>Pulse</code></p>
-
-<pre><code>a["Age"] &lt;- doc(
-    title = "Age",
-    description = "Age of the student in years."
-    )
-
-a["Pulse"] &lt;- doc(
-    title = "Pulse",
-    description = "Pulse rate of student (beats per minute)."
-    )
-</code></pre>
-
-<h4>
-<a name="how-to-use" class="anchor" href="#how-to-use"><span class="octicon octicon-link"></span></a>How to use</h4>
-
-<p>Scatter plot</p>
-
-<pre><code>plot(a["Age"], a["Pulse"],
-     xlab = get_doc(a, "Age")$description, 
-     ylab = get_doc(a, "Pulse")$description
-     )
-</code></pre>
-
-<p>Histogram</p>
-
-<pre><code>d &lt;- get_doc(a, "Pulse")
-hist(a["Pulse"], main = paste("Histogram of", d$title), xlab = d$title, sub = d$description)
-</code></pre>
+<table>
+<thead><tr>
+<th>Method</th>
+<th>Example</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Delete variable</td>
+<td><code>a['foo'] &lt;- NULL</code></td>
+</tr>
+<tr>
+<td>Delete specific dimension</td>
+<td><code>a['foo', c(2013, 12)] &lt;- NULL</code></td>
+</tr>
+<tr>
+<td>Delete all database content</td>
+<td>
+<code>a[] &lt;- NULL</code>, alt. <code>a$clean()</code>
+</td>
+</tr>
+</tbody>
+</table><p>The documentation object has its own class <code>doc</code> and is constructed as a list.</p>
 
 <h2>
 <a name="development" class="anchor" href="#development"><span class="octicon octicon-link"></span></a>Development</h2>
 
-<p>The <em>dev</em> branch is the development branch, and might therefore be a bit instable. Stable releases are marked with tags, e.g. v1.0, where the first number represents a new stable release and the second number imply new bug fixes within the given release version.</p>
+<h3>
+<a name="git-branches" class="anchor" href="#git-branches"><span class="octicon octicon-link"></span></a>Git branches</h3>
+
+<p>The <em>dev</em> branch is the development branch, and might therefore be a bit unstable. <em>master</em> is the latest stable version and larger releases are marked with tags, e.g. v1.0, where the first number represents a new stable release and the second number imply new bug fixes within the given release version.</p>
+
+<h3>
+<a name="build-package-and-run-tests" class="anchor" href="#build-package-and-run-tests"><span class="octicon octicon-link"></span></a>Build package and run tests</h3>
+
+<p>Use the <code>makefile</code> to run tests and to build the package:</p>
+
+<ul>
+<li>
+<code>make build</code>: to build the package</li>
+<li>
+<code>make install</code>: to build and install the package</li>
+<li>
+<code>make check</code>: to build and check (cran requirements) the package</li>
+<li>
+<code>make test</code>: to run the package tests</li>
+</ul><p>The <code>testthat</code> package is required to run the package tests and the related test code is available in <code>inst/tests/testthat/</code>. The build/test structure of this package takes a lot of inspiration from the <a href="https://github.com/Rapporter/pander">pander</a> package - many thanks to its developers!</p>
 
 <h2>
+<a name="see-also" class="anchor" href="#see-also"><span class="octicon octicon-link"></span></a>See also</h2>
+
+<ul>
+<li><a href="http://www.bigmemory.org/">bigmemory</a></li>
+<li><a href="http://ff.r-forge.r-project.org/">ff</a></li>
+</ul><h2>
 <a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h2>
 
-<p>Coldbir is licensed under the AGPLv3, the terms of which are included in the file LICENSE.</p>
+<p>Coldbir is licensed under the AGPL-3, for more information on the license please read: <a href="http://www.r-project.org/Licenses/AGPL-3">http://www.r-project.org/Licenses/AGPL-3</a>.</p>
       </section>
       <footer>
         <p>This project is maintained by <a href="https://github.com/SwedishPensionsAgency">SwedishPensionsAgency</a></p>
