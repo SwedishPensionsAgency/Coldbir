@@ -25,7 +25,9 @@ Below is an example of a database, named *mydb*, including variables on `income`
           d[2013][12].cdb.gz
         documentation.yml
         lookup.txt
-        
+
+The database stores a config file to keep track of variable length, when it was lastly changed (database version) and additional database specific options. Also worth to mention, when initalizing a new database connection it read the config file and create an in-memory list representation of all variables and dimensions available within the database. This causes the inital connection to be a bit slow, but allows much faster queries.
+
 ## Getting started
 
 The package is currently not available on `CRAN`, therefore make sure to use `devtools` when installing the package:
@@ -48,6 +50,7 @@ Method                                  | Example
 Initialize database                     | `a <- cdb('mydb')`
 Set read only                           | `a$read_only <- T`
 Get database path                       | `a$path`
+List all variables                      | `a$variables`
 
 ### Put
 
@@ -80,7 +83,7 @@ Method                                  | Example
 --------------------------------------- | -------------
 Delete variable                         | `a['foo'] <- NULL`
 Delete specific dimension               | `a['foo', c(2013, 12)] <- NULL`
-Delete all database content             | `a$clean()`
+Delete all database content             | `a[] <- NULL`, alt. `a$clean()`
 
 The documentation object has its own class `doc` and is constructed as a list.
 
@@ -93,7 +96,7 @@ The package currently support the following data types:
 - `logical`
 - `factor`
 - `Date`
-- `POSIXct` / `POSIXlt` ** **EXPERIMENTAL** **
+- `POSIXct` / `POSIXlt`
 
 Timezones are not supported. All timestamps are written as `GMT` without timezone conversion. E.g. `2013-04-29 01:00:00 CST` is stored (and returned) as `2013-04-29 01:00:00 GMT`. `POSIXlt` is automatically converted to `POSIXct`.
 

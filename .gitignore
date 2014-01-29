@@ -1,6 +1,7 @@
 *.gz
 *.DS_Store
 *.Rproj
+*.html
 .Rhistory
 .Rproj.user
 .Rbuildignore
