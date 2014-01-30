@@ -279,7 +279,7 @@ cdb <- setRefClass(
       
       header_len <- readBin(bin_file, integer(), n = 1, size = 8)
       header_str <- rawToChar(readBin(bin_file, raw(), n = header_len))
-      header <- fromJSON(header_str, simplifyWithNames = F)
+      header <- RJSONIO::fromJSON(header_str, simplifyWithNames = F)
       
       vector_len <- readBin(bin_file, integer(), n = 1, size = 8)
       
@@ -527,7 +527,7 @@ cdb <- setRefClass(
           # Add attributes
           header$attributes <- attrib
             
-          header_raw <- charToRaw(toJSON(header, digits = 50))
+          header_raw <- charToRaw(RJSONIO::toJSON(header, digits = 50))
           header_len <- length(header_raw)
           
           # Removes attributes from vector
