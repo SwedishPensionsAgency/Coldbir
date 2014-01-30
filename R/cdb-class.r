@@ -159,10 +159,14 @@ cdb <- setRefClass(
     get_doc = function(name) {
       
       f <- file_path(name, .self$path, create_dir = F, file_name = F, data_folder = F)
-      if (is.na(f)) stp(3, .self$path)
+      if (is.na(f)) {
+        wrn(3, .self$path); return(NULL)
+      }
       
       f <- file.path(f, .doc_file)
-      if (!file.exists(f)) stp(4, .self$path, name)
+      if (!file.exists(f)) {
+        wrn(4, .self$path, name); return(NULL)
+      }
       
       con <- file(f, "r", encoding = .self$encoding)
       lns <- readLines(con, n = -1, warn = F)
