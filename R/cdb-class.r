@@ -3,14 +3,14 @@
 #' Method to assign either a new or existing coldbir database to an R object.
 #' The current working directory is set as the default path.
 #' 
-#' @param path database path (the location of the coldbir database)
+#' @param path database path; the location of your new or existing Coldbir database,
+#' where the last folder name of the path is the name of the database,
+#' e.g. `a <- cdb('data/MyCDB')` (default: `tempfile()`) 
 #' @param compress file compression level
 #' @param encoding set documentation encoding (default: UTF-8)
 #' @param read_only read only (default: T)
-#' @param db_version instance-attribute for sycronisation of current list of variables
-#' @param n_row the common length of vecrors in the database
 #' 
-#' @examples db <- cdb()
+#' @examples a <- cdb()
 #' @export
 cdb <- setRefClass(
   "cdb",
@@ -25,7 +25,7 @@ cdb <- setRefClass(
   ),
   methods = list(
     initialize = function(
-      path      = getwd(),
+      path      = tempfile(),
       compress  = 5L,
       encoding  = "UTF-8",
       read_only = F
@@ -159,10 +159,14 @@ cdb <- setRefClass(
     get_doc = function(name) {
       
       f <- file_path(name, .self$path, create_dir = F, file_name = F, data_folder = F)
-      if (is.na(f)) stp(3, .self$path)
+      if (is.na(f)) {
+        wrn(3, .self$path); return(NULL)
+      }
       
       f <- file.path(f, .doc_file)
-      if (!file.exists(f)) stp(4, .self$path, name)
+      if (!file.exists(f)) {
+        wrn(4, .self$path, name); return(NULL)
+      }
       
       con <- file(f, "r", encoding = .self$encoding)
       lns <- readLines(con, n = -1, warn = F)

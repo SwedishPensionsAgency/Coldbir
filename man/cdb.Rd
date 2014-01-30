@@ -5,8 +5,10 @@
   cdb(...)
 }
 \arguments{
-  \item{path}{database path (the location of the coldbir
-  database)}
+  \item{path}{database path; the location of your new or
+  existing Coldbir database, where the last folder name of
+  the path is the name of the database, e.g. `a <-
+  cdb('data/MyCDB')` (default: `tempfile()`)}
 
   \item{compress}{file compression level}
 
@@ -14,12 +16,6 @@
   UTF-8)}
 
   \item{read_only}{read only (default: T)}
-
-  \item{db_version}{instance-attribute for sycronisation of
-  current list of variables}
-
-  \item{n_row}{the common length of vecrors in the
-  database}
 }
 \description{
   Method to assign either a new or existing coldbir
@@ -27,6 +23,6 @@
   set as the default path.
 }
 \examples{
-db <- cdb()
+a <- cdb()
 }
 
