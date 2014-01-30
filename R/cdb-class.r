@@ -3,14 +3,14 @@
 #' Method to assign either a new or existing coldbir database to an R object.
 #' The current working directory is set as the default path.
 #' 
-#' @param path database path (the location of the coldbir database)
+#' @param path database path; the location of your new or existing Coldbir database,
+#' where the last folder name of the path is the name of the database,
+#' e.g. `a <- cdb('data/MyCDB')` (default: `tempfile()`) 
 #' @param compress file compression level
 #' @param encoding set documentation encoding (default: UTF-8)
 #' @param read_only read only (default: T)
-#' @param db_version instance-attribute for sycronisation of current list of variables
-#' @param n_row the common length of vecrors in the database
 #' 
-#' @examples db <- cdb()
+#' @examples a <- cdb()
 #' @export
 cdb <- setRefClass(
   "cdb",
@@ -25,7 +25,7 @@ cdb <- setRefClass(
   ),
   methods = list(
     initialize = function(
-      path      = getwd(),
+      path      = tempfile(),
       compress  = 5L,
       encoding  = "UTF-8",
       read_only = F
