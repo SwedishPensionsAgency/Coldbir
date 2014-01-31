@@ -302,11 +302,7 @@ cdb <- setRefClass(
       
       ## integer or factor
       
-      if (header$type == "integer") {
-        
-        if (!is.na(na)) x[is.na(x)] <- as.integer(na)
-        
-      } else if (header$type == "factor") {
+      if (header$type %in% c("factor", "integer")) {
         
         # Get lookup table, where values are to be used as levels
         lt <- .self$get_lookup(name = name)
@@ -331,6 +327,10 @@ cdb <- setRefClass(
           levels(x) <- levels
           class(x) <- "factor"
 
+        } else if (header$type == "integer") {
+          
+          if (!is.na(na)) x[is.na(x)] <- as.integer(na)
+          
         } else {
           
           # This is outside the `if (!is.null(df))` due to the 
