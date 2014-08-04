@@ -471,10 +471,12 @@ cdb <- setRefClass(
             header$bytes <- 8L
             
           } else if (is.factor(x) || is.character(x)) {
-            if (is.character(x)) {
-              x <- as.factor(x)  # convert to factor
-            }
-            
+          	
+          	# Convert to factor
+          	if (is.character(x)) {
+          		x <- as.factor(x)
+          	}
+          	
             # Get previous lookup table
             lookup <- .self$get_lookup(name = name)
             
@@ -707,10 +709,6 @@ setMethod(
     
     if (length(y) > 0) {
       
-      # Temporary function (since data.table otherwise think .self is
-      # a column name, if that name is used)
-      read_var <- function(...) x$get_variable(...)
-      
       # Create data.table with first variable
       v <- data.table(V1 = x$get_variable(name = y[[1]]$name, dims = y[[1]]$dims, na = na))
       setnames(v, create_colname(y[[1]]$name, y[[1]]$dims))
@@ -718,7 +716,7 @@ setMethod(
       # Add all other variables
       if (length(y) > 1) {
         for(i in 2:length(y)){
-          v[ , create_colname(y[[i]]$name, y[[i]]$dims) := read_var(y[[i]]$name, y[[i]]$dims, na = na), with = F]
+          v[ , eval(create_colname(y[[i]]$name, y[[i]]$dims)) := eval(x$get_variable(y[[i]]$name, y[[i]]$dims, na = na)), with = F]
         }
       }
     } else v <- NULL
