@@ -5,7 +5,12 @@
 #' 
 #' @param x character string
 escape_char <- function(x) {
-  gsub("[\x01-\x1f\x7f-\xff]", "", x)
+	regexp <- "\\t|\\n|\\a|\\f|\\r"
+	if (any(grepl(regexp, x))) {
+		x <- gsub(regexp, " ", x)
+		wrn(27)
+	}
+	return(x)
 }
 
 #' Get function arguments
