@@ -309,14 +309,17 @@ cdb <- setRefClass(
         
         if (!is.null(lt)) {
           
-          # Check whether variable has any NA
-          has_na <- any(is.na(x)) && !any(is.na(lt[[2]]))
+          # Check whether variable has any NA and if that's to
+          # be replaced, otherwise it will return NA as a non-level.
+          # However, if `NA` itself is stored in the lookup table,
+          # it will remain in factor levels.
+          replace_na <- !is.na(na) && !na %in% lt[[2]] && all(!is.na(lt[[2]]))
           
-          # Add one level for NA
-          levels_len <- max(lt[[1]]) + as.integer(has_na)
+          # Add one level for NA if it's to be replaced
+          levels_len <- max(lt[[1]]) + as.integer(replace_na)
           
           # Replace NA in data with factor level
-          if(has_na) x[which(is.na(x))] <- levels_len   # NA values by leveles
+          if(replace_na) x[which(is.na(x))] <- levels_len   # NA values by leveles
           
           # Create factor levels
           levels <- rep(NA_character_, levels_len)  # assert odd cases, usually 1:nrow(lt) + occasional NA
@@ -326,7 +329,7 @@ cdb <- setRefClass(
           # Convert to factor variable
           levels(x) <- levels
           class(x) <- "factor"
-
+          
         } else if (header$type == "integer") {
           
           if (!is.na(na)) x[is.na(x)] <- as.integer(na)
