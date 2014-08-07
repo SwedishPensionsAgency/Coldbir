@@ -27,7 +27,7 @@ cdb <- setRefClass(
     initialize = function(
       path      = tempfile(),
       compress  = 5L,
-      encoding  = "UTF-8",
+      encoding  = .encoding,
       read_only = F
     ) {
       
@@ -606,7 +606,7 @@ cdb <- setRefClass(
       
       write_lookup <- function() {
         # Write temporary doc file to disk
-        write.table(table, file = tmp, quote = F, col.names = F, row.names = F, sep = "\t")
+        write.table(table, file = tmp, quote = F, col.names = F, row.names = F, sep = "\t", fileEncoding = .self$encoding)
         
         # Rename temporary doc to real name (overwrite)
         file.copy(tmp, f, overwrite = T)
@@ -638,7 +638,7 @@ cdb <- setRefClass(
         file <- file.path(folder_path, .lookup_filename)
         
         if (file.exists(file)) {
-          table <- read.table(file = file, header = F, quote = "", sep = "\t", stringsAsFactors = F)
+          table <- read.table(file = file, header = F, quote = "", sep = "\t", stringsAsFactors = F, fileEncoding = .self$encoding)
           if (!is.data.frame(table) || ncol(table) != 2) {
             err(16)
           }
