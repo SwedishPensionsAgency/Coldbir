@@ -287,7 +287,10 @@ cdb <- setRefClass(
       
       vector_len <- readBin(bin_file, integer(), n = 1, size = 8)
       
-      if (header$bytes <= 4) {
+      if (header$type == "character") {
+        nc <- readBin(bin_file, integer(), n = vector_len, size = header$bytes)
+        x <- readChar(bin_file, nc)
+      } else if (header$bytes <= 4) {
         x <- readBin(bin_file, integer(), n = vector_len, size = header$bytes)
       } else {
         x <- readBin(bin_file, double(), n = vector_len)
@@ -469,10 +472,11 @@ cdb <- setRefClass(
             header$type <- "Date"
             header$bytes <- 8L
             
-          } else if (is.factor(x) || is.character(x)) {
-            if (is.character(x)) {
-              x <- as.factor(x)  # convert to factor
-            }
+          } else if (is.character(x)) {
+            header$type <- "character"
+            header$bytes <- 8L  # used for nchars
+            
+          } else if (is.factor(x)) {
             
             # Get previous lookup table
             lookup <- .self$get_lookup(name = name)
@@ -533,13 +537,6 @@ cdb <- setRefClass(
           header_raw <- charToRaw(RJSONIO::toJSON(header, digits = 50))
           header_len <- length(header_raw)
           
-          # Removes attributes from vector
-          if (header$bytes == 8) {
-            x <- as.double(x)
-          } else {
-            x <- as.integer(x)
-          }
-          
           # Create temporary file
           tmp <- create_temp_file(cdb)
           
@@ -558,7 +555,25 @@ cdb <- setRefClass(
             writeBin(header_len, bin_file, size = 8)
             writeBin(header_raw, bin_file)
             writeBin(length(x),  bin_file, size = 8)
-            writeBin(x, bin_file, size = header$bytes)  # write each vector element to bin_file
+            
+            if (header$type == "character") {
+              
+              nc <- nchar(x)
+              writeBin(nc, bin_file, size = header$bytes) # first write a integer vector with the nchar of each observation
+              writeChar(x, bin_file, nc, eos = NULL)      # then write character data
+              
+            } else {
+              
+              # Removes attributes from vector
+              if (header$bytes == 8) {
+                x <- as.double(x)
+              } else {
+                x <- as.integer(x)
+              }
+              
+              writeBin(x, bin_file, size = header$bytes)  # write each vector element to bin_file
+            }
+            
             close(bin_file)
             
             # Rename temporary variable to real name (overwrite)
