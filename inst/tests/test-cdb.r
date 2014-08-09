@@ -84,7 +84,7 @@ db$clean()
 x <- sample(LETTERS, size, replace = T)
 db["x"] <- x
 test_that("character", {
-  expect_equal(as.factor(x), db["x"][[1]])
+  expect_equal(x, db["x"][[1]])
 })
 db$clean()
 
@@ -94,10 +94,18 @@ test_that("factor with only na", {
 })
 db$clean()
 
-# Test if escape characters works
-db["x"] <- x <- c("a\n", "\tc\v\n", "d\a\vx\ry\f\tz")
+db["x"] <- x <- as.character(c("a", NA, "b", NA))
+test_that("character with na", {
+  expect_equal(x, db["x"][[1]])
+})
+db$clean()
+
+# Test if escape characters works for factor variables
+# Only factor variables (lookup tables) are escaped,
+# character variables aren't (as it's not necessary).
+db["x"] <- x <- as.factor(c("a\n", "\tc\v\n", "d\a\vx\ry\f\tz"))
 test_that("escape_char", {
-  expect_equal(escape_char(x), as.character(db["x"][[1]]))
+  expect_equal(as.character(escape_char(x)), as.character(db["x"][[1]]))
 })
 db$clean()
 
@@ -238,17 +246,21 @@ db$clean()
 
 context("LOOKUP TABLES")
 ########################
-db["x", "a"] <- a <- c("b", "c", "c", "b")
-db["x", "b"] <- b <- c("a", "b", NA, NA)
-db["x", "c"] <- c <- c("d", "c", NA, "c")
-db["x", "d"] <- d <- rep("c", 4)
-db["x", "e"] <- e <- rep(as.character(NA), 4)
+db["x", "a"] <- a <- as.factor(c("b", "c", "c", "b"))
+db["x", "b"] <- b <- as.factor(c("a", "b", NA, NA))
+db["x", "c"] <- c <- as.factor(c("d", "c", NA, "c"))
+db["x", "d"] <- d <- as.factor(rep("c", 4))
+db["x", "e"] <- e <- as.factor(rep(as.character(NA), 4))
+
+# Since it's the same variable but with several dimensions,
+# it share the same lookup table, therefore we convert
+# them to character before comparing.
 test_that("Different lookup tables between dimensions", {
-  expect_equal(a, as.character(db["x", "a"][[1]]))
-  expect_equal(b, as.character(db["x", "b"][[1]]))
-  expect_equal(c, as.character(db["x", "c"][[1]]))
-  expect_equal(d, as.character(db["x", "d"][[1]]))
-  expect_equal(e, as.character(db["x", "e"][[1]]))
+  expect_equal(as.character(a), as.character(db["x", "a"][[1]]))
+  expect_equal(as.character(b), as.character(db["x", "b"][[1]]))
+  expect_equal(as.character(c), as.character(db["x", "c"][[1]]))
+  expect_equal(as.character(d), as.character(db["x", "d"][[1]]))
+  expect_equal(as.character(e), as.character(db["x", "e"][[1]]))
 })
 
 db$clean()
