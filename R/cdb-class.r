@@ -301,8 +301,11 @@ cdb <- setRefClass(
       # Prepare data depending on vector type
       
       ## integer or factor
-      
-      if (header$type %in% c("factor", "integer")) {
+      if (header$type == "integer") {
+        
+        if (!is.na(na)) x[is.na(x)] <- as.integer(na)
+        
+      } else if (header$type == "factor") {
         
         # Get lookup table, where values are to be used as levels
         lt <- .self$get_lookup(name = name)
@@ -326,10 +329,6 @@ cdb <- setRefClass(
           # Convert to factor variable
           levels(x) <- levels
           class(x) <- "factor"
-
-        } else if (header$type == "integer") {
-          
-          if (!is.na(na)) x[is.na(x)] <- as.integer(na)
           
         } else {
           
