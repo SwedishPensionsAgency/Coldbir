@@ -43,7 +43,8 @@ msg <- function(n, ...) {
     "23"  = "Attemption to remove non existing data %s.",
     "24"  = "The argument `i` is not used. The column names of the data.frame are used instead",
     "25"  = "%s wasn't added since '.' aren't supported as variable names",
-    "26"  = "All column names must be unique"
+    "26"  = "All column names must be unique",
+    "27"  = "Escaping characters in vector ..."
   ), ...)
   
   if (is.null(str)) err(0)

@@ -27,7 +27,7 @@ cdb <- setRefClass(
     initialize = function(
       path      = tempfile(),
       compress  = 5L,
-      encoding  = "UTF-8",
+      encoding  = .encoding,
       read_only = F
     ) {
       
@@ -470,10 +470,12 @@ cdb <- setRefClass(
             header$bytes <- 8L
             
           } else if (is.factor(x) || is.character(x)) {
-            if (is.character(x)) {
-              x <- as.factor(x)  # convert to factor
-            }
-            
+          	
+          	# Convert to factor
+          	if (is.character(x)) {
+          		x <- as.factor(x)
+          	}
+          	
             # Get previous lookup table
             lookup <- .self$get_lookup(name = name)
             
@@ -603,7 +605,7 @@ cdb <- setRefClass(
       
       write_lookup <- function() {
         # Write temporary doc file to disk
-        write.table(table, file = tmp, quote = F, col.names = F, row.names = F, sep = "\t")
+        write.table(table, file = tmp, quote = F, col.names = F, row.names = F, sep = "\t", fileEncoding = .self$encoding)
         
         # Rename temporary doc to real name (overwrite)
         file.copy(tmp, f, overwrite = T)
@@ -635,7 +637,7 @@ cdb <- setRefClass(
         file <- file.path(folder_path, .lookup_filename)
         
         if (file.exists(file)) {
-          table <- read.table(file = file, header = F, quote = "", sep = "\t", stringsAsFactors = F)
+          table <- read.table(file = file, header = F, quote = "", sep = "\t", stringsAsFactors = F, fileEncoding = .self$encoding)
           if (!is.data.frame(table) || ncol(table) != 2) {
             err(16)
           }
@@ -706,10 +708,6 @@ setMethod(
     
     if (length(y) > 0) {
       
-      # Temporary function (since data.table otherwise think .self is
-      # a column name, if that name is used)
-      read_var <- function(...) x$get_variable(...)
-      
       # Create data.table with first variable
       v <- data.table(V1 = x$get_variable(name = y[[1]]$name, dims = y[[1]]$dims, na = na))
       setnames(v, create_colname(y[[1]]$name, y[[1]]$dims))
@@ -717,7 +715,7 @@ setMethod(
       # Add all other variables
       if (length(y) > 1) {
         for(i in 2:length(y)){
-          v[ , create_colname(y[[i]]$name, y[[i]]$dims) := read_var(y[[i]]$name, y[[i]]$dims, na = na), with = F]
+          v[ , eval(create_colname(y[[i]]$name, y[[i]]$dims)) := eval(x$get_variable(y[[i]]$name, y[[i]]$dims, na = na)), with = F]
         }
       }
     } else v <- NULL
