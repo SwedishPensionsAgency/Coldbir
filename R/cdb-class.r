@@ -31,6 +31,8 @@ cdb <- setRefClass(
       read_only = F
     ) {
       
+      browser()  # TEST!
+      
       # Set parameters
       .self$path      <- path
       .self$compress  <- compress
