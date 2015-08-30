@@ -42,8 +42,11 @@ msg <- function(n, ...) {
     "22"  = "The 'value' argument in ']<-' should be a vector, data.table, doc or NULL. It is a %s.",
     "23"  = "Attemption to remove non existing data %s.",
     "24"  = "The argument `i` is not used. The column names of the data.frame are used instead",
-    "25"  = "%s wasn't added since '.' aren't supported as variable names",
-    "26"  = "All column names must be unique"
+    "25"  = "%s wasn't added since character '.' isn't supported as variable name",
+    "26"  = "All column names must be unique",
+    "27"  = "No variable name provided. Expecting a name string during attpmtion to save vector to database",
+    "28"  = "Time limit exceeded. The database was blocked by another precess."
+    
   ), ...)
   
   if (is.null(str)) err(0)

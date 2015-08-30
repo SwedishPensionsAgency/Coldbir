@@ -1,3 +1,30 @@
+
+# a couple of convinient aliases for the package environment 
+is._           <- is.na # ._ <- NA in 0-constants.r
+
+# a copy of "." definition in plyr by Hadley Wickham 
+# (at least in version 0.4.2 on Cran or https://github.com/hadley/dplyr)
+.              <- function (..., .env = parent.frame()) 
+{structure(as.list(match.call()[-1]), env = .env, class = "quoted")}
+# mainly to get conistance with data.table's handling of .() as list()
+# ti's the simple way of avoiding conflicts with dplyr and still use 
+# thr convinient dot-notation from data.table without any hard-maintained pieces of code
+# the dot-function is exported as it is in dplyr
+
+# we need the corresponding function for translation the do-notation into list-represantation
+unpackDots <- function(x){
+  if(class(x) == "quoted") {
+    return(lapply(x, function(z) unpackDots(eval(z))))
+  } else {
+    if(is.call(x))  return(lapply(x, unpackDots)) else return(x)
+  }
+}
+# example: x <- .(.(1:4,7:12),.(1999, 2011:2012), .("A", "B"))
+# unpackDots(x)
+# unpackDots(list())
+# unpackDots(NULL)
+
+
 #' Escape characters
 #' 
 #' Use this to escape character strings.
@@ -31,160 +58,148 @@ new_time_stamp <- function(){
   return(as.double(lubridate::force_tz(Sys.time(), .tzone)))
 }
 
-
-#' Create recursive list from vector
+#' Help function for better readability of the code
 #' 
-#' A helper function to convert variable file names to a list representation
+#' All is codet as numeric value .all
 #' 
-#' @param x character vector
-#' @param val endpoint value
-#' 
-#' @examples \dontrun{
-#' x <- c("a", "b", "c")
-#' recursive_list(x)
-#' }
-recursive_list <- function(x, val) {
-  r <- list()
-  r[[as.character(x[1])]] <- if (length(x[-1]) != 0) recursive_list(x[-1], val) else val
-  return(r)
+isALL <- function(x) {
+  if(is.numeric(x)){ 
+    return(any(x == .all))
+  } else if(is.list(x)) {
+    return(any(sapply(x,function(x){is.numeric(x) && x == .all})))
+  } else return (FALSE)
 }
 
-#' Sorted modify list
+
+
+
+#' Rephrasing of the actual data request
 #' 
-#' Almost the same as utils::modifyList,
-#' but also sorts the resulting list
+#' A helper function, never accessed directly by user
+#' @param x   - variables to fetch - character vector or missing or .all (defined in 0-constants)
+#' @param y   - dimensions to fetch - vector, list, missing, first element of vector or .all (-"-)
+#' @param ... - remeining dimension
 #' 
-#' @param x list
-#' @param val list
+#' @return list of two elements
+#'           vector of variables names or constnt .all
+#'           data.table with all requested observation regardless if they exist or not
 #' 
 #' @examples \dontrun{
-#' x <- list(a = list(b = list(c = 1, e = 1), g = 1, h = 1))
-#' y <- list(a = list(b = list(c = NULL, d = 1), f = 1, g = NULL))
-#' sorted_modify_list(x, y)
+#' rephraseDataRequest()                            # empty => take all
+#' rephraseDataRequest("a")                         # missing dimensions => take all observations
+#' rephraseDataRequest(NULL)                        # any cases, even strange request -> inerpretation "empty list"
+#' rephraseDataRequest("a", NULL)                   # any cases, even strange request -> inerpretation "empty list"
+#' rephraseDataRequest(,2001,2,._)                  # wild card => take all abservetions in form (2001,2,...)
+#'                                                  # all arguments are on the same level
+#' rephraseDataRequest (c("a","b"),.(3:6,._, 1:2, c("d","e")))  # wild card + expand-grid 
+#' rephraseDataRequest("a", c(3,4))                 # dimension represented as a vector
+#' rephraseDataRequest(.("hej","a"), .(3,"4",NA))   # both variables and dimensions are expressed as lists
+#' rephraseDataRequest("a",1,2,"3")                 # no essuptions about the data type of dimentions
+#' rephraseDataRequest("a",.all,.all,"b",.all)      # translate .all into ._
+#' rephraseDataRequest("a",.all,.all,._,.all)       # .all instead for data.table in the resulting list
+#' rephraseDataRequest(.("a","b",._),1,2,3)         # + few other cases ...
+#' rephraseDataRequest("*Var*", .("test1", .(2001, 2002:2003),.(1:3))) # handle unnecessary complex expressions
+#' rephraseDataRequest("*Var*", .("test1", 2001:2003,1:3)) # the same as above, simplyfied
+#' 
 #' }
-sorted_modify_list <- function (x, val) {
-  stopifnot(is.list(x), is.list(val))
-  for (v in names(val)) {
-    x[[v]] <- if (v %in% names(x) && is.list(x[[v]]) && is.list(val[[v]])) {
-      sorted_modify_list(x[[v]], val[[v]])
-    } else val[[v]]
-  }
+#' 
+rephraseDataRequest <- function(x, y ,...) {
   
-  # mixedorder works a bit strange if length == 1
-  if (length(names(x)) > 1) {
-    x <- x[gtools::mixedorder(names(x))]
-  }
-  
-  return(x)
-}
+  # the first argument - named variables 
+  #       vector or list or missing (or value == .all)
+  #       list-notation . == list is allowed
+  #       result:  a vector of variable names or value == .all
 
-#' Clear empty branches
-#' 
-#' Clear all empty branches in a nested list
-#' 
-#' @param x list
-clear_branch <- function (x) {
-  for (i in names(x)) {
-    if (sum(unlist(x[[i]])) == 0) {
-      x[[i]] <- NULL
+  if(missing(x)){ 
+    x <- .all
+  } else{
+      x <- unpackDots(x)
+      if(is.null(x)){
+        return(list())
+      } else {
+        if(is.list(x)) x <- unlist(x)
+      }
+  }
+  
+  # solving problem with ambiguous .all or ._ in y
+  if(any(is.na(x)) || any(x ==.all)) x <- .all 
+  
+  
+  # the second argument (and eventually following args) - requested dimensions
+  #       vector or list or missing or first element of a vector (or value == .all)
+  #       list-notation . == list is enablad
+  #       when using list (or .()): elements can specified as vectors and used for "grid expansion"
+  #       wildcards ._ are allowed
+  #       result: a data.table with requsted dimensions
+  if(missing(y)){
+    y <- .all 
+  } else {
+    y <- unpackDots(y)
+    if(is.null(y)) {
+       return(list())
     } else {
-      x[[i]] <- if (is.list(x[[i]])) clear_branch(x[[i]]) else x[[i]]
+       if(!is.list(y)) y <- as.list(y)
+       y <- lapply(y, unlist) # move up lists on second level
     }
   }
-  return(x)
-}
-
-#' Match two lists
-#' 
-#' See what part of a list that is also included in another one.
-#' Returns the inner join of both lists.
-#' 
-#' @param x data list, including all database variables
-#' @param val matching list, could also include wild cards (._)
-list_match <- function (x, val) {
-  for (v in names(val)) {
-    
-    if (v %in% .all) {
-      val <- x
-      
-    # If the name doesn't exist in the other list => 0
-    } else if (v %in% names(x)) {
-      
-      # If any of the recursive sums are 0 => 0
-      if (sum(unlist(x[[v]])) == 0 || sum(unlist(val[[v]])) == 0) {
-        val[[v]] <- list(. = 0)
-        
-      # If both are lists run function recursivly
-      } else if (is.list(x[[v]]) && is.list(val[[v]])) {
-        val[[v]] <- list_match(x[[v]], val[[v]])
-      } else if (x[[v]] != 1 && val[[v]] != 1) {
-        val[[v]] <- list(. = 0)
-      }
-      
-    # If wildcard is used add all x's values
-    } else if (is.na(v)) {
-      
-      sapply(names(x), function(i) {
-        val[[i]] <<- list_match(x[[i]], val$`NA`)
-      })
-      val$`NA` <- NULL 
-    } else val[[v]] <- list(. = 0)
+  
+  #case with y as a vector
+  if(!is.list(y)) y <- as.list(y)
+  
+  # case with y as just first element of a longer list
+  y_rest <- list(...)
+  if(length(y_rest) > 0L) y <- c(y, y_rest)
+  
+  # case with y as just first element of a longer list
+  
+  # translate any .all or ._ into ._ for the total dimension
+  y <- lapply(y ,FUN=function(x){if(length(intersect(x,c(._ , .all)))>0) return(._) else return(x)})
+  
+  if( all(is.na(unlist(y)))){ 
+    #  we don't need any data.table when all observations are requested
+    y = .all
+  } else {
+    y = expand.grid(y,stringsAsFactors=FALSE)
+    y = as.data.table(lapply(y, unlist ))
+    ns <- names(y)
+    setnames(y,ns, paste("V",1:length(ns),sep=""))
   }
   
-  if (length(names(val)) > 1) {
-    val <- val[gtools::mixedorder(names(val))]
+  
+  return (list(VAR = x, DIMS = y))
+  
+}
+
+create_colname <- function(nm, dms) {
+  if (length(dms) > 0) dms <- dms[!is.na(dms)]
+  
+  if (length(dms) > 0) # there are still !NA dimenstions left
+   return(paste(nm, paste(dms, collapse = .col_sep$text), sep = .col_sep$text))  else return(nm)
+}
+
+attach.CB<- function(db)  #detta gör att alla gamla skipt kan köras som vanligt
+{
+  varTAB <- list_variables(db$path,dims=T) 
+  
+  vnames <- unique(varTAB$variable)
+  for(v in vnames) 
+  {
+    f <- function(){}
+    formals(f) <- alist(...=)
+    class(f) <- "cb.data.as.function"
+    assign(toupper(v), f,envir= .GlobalEnv) #MIDAS had upper case convention
   }
   
-  val <- Coldbir:::clear_branch(val)
-  if (length(val) == 0) val <- NULL
+  invisible(NULL)
   
-  return(val)
 }
 
-#' Subset nested list
-#' 
-#' Use a character vector to subset a named nested list
-#' 
-#' @param x list
-#' @param sel character vector (representing the nested names to subset on)
-subset_list <- function(x, sel) {
-  if (length(sel) > 1) subset_list(x[[sel[1]]], sel[-1]) else x[[sel]]
+deatach.CB <- function(db)
+{
+  varTAB <- list_variables(db$path,dims=T) 
+  vnames <- unique(varTAB$variable)
+  vnames <- toupper(vnames)       #MIDAS had upper case convention
+  rm(list = vnames, envir = .GlobalEnv) 
 }
 
-create_colname <- function(name, dims) {
-  sep <- if (length(dims) > 0) .col_sep$text else ""
-  paste(name, paste(dims, collapse = .col_sep$text), sep = sep)
-}
 
-list_to_query_repr <- function(x) {
-  
-  # Because of `unlist` we cannot use other than "." as column seperator
-  x <- names(cdb_unlist(x))
-  
-  x <- lapply(x, function(p) {
-    p <- strsplit(p, .col_sep$regexp)[[1]]
-    p <- p[nchar(p) > 0]
-    dims <- if (length(p[-1]) != 0) p[-1] else NULL
-    list(name = p[1], dims = dims)
-  })
-  return(x)
-}
-
-cdb_unlist <- function(L, nStr = "", del = .col_sep$text) {
-  if (is.null(L)) {
-    return(NULL)
-  } else if (!is.list(L)) {
-    x <- 1; names(x) <- nStr
-    return(x)
-  }
-  
-  res <- integer(0) 
-  actNstr <- names(L)
-  
-  for(i in 1:length(L)) {
-    if (nStr!="" ) actNstr[i] <- ifelse(actNstr[i] == ".", nStr, paste(nStr, actNstr[i], sep = del))
-    res <- c(res, cdb_unlist(L = L[[i]], nStr = actNstr[i]))
-  }
-  
-  return(res)
-}
