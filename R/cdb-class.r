@@ -16,106 +16,181 @@ cdb <- setRefClass(
   "cdb",
   fields = list(
     path         = "character",
+    instanceID   = "numeric",
     compress     = "integer",
     encoding     = "character",
     read_only    = "logical",
     db_version   = "numeric",
     n_row        = "integer",
-    variables    = "ANY"
+    status       = "integer",
+    currHashCode = "character",
+    variables    = "ANY",
+    ftabC        = "character", # longFileName to table of content
+    fconF        = "character"  # longFileName to config file
   ),
   methods = list(
     initialize = function(
       path      = tempfile(),
       compress  = 5L,
       encoding  = "UTF-8",
-      read_only = F
+      read_only = as.logical(NA)
     ) {
       
       # Set parameters
-      .self$path      <- path
-      .self$compress  <- compress
-      .self$encoding  <- encoding
-      .self$read_only <- read_only
+      .self$path        <- path
+      .self$instanceID  <- Sys.getpid() + as.double(Sys.time()) * runif(1) # unique ID
+      .self$compress    <- compress
+      .self$encoding    <- encoding
+      .self$read_only   <- read_only
+      .self$n_row       <- 0L
+      .self$variables   <- data.table()
+      .self$currHashCode<- digest(.self$variables,"xxhash64")
       
-      # Update file representation
-      .self$update_repr_from_file()
+      .self$ftabC <- file.path(.self$path, .tableOfContens_filename)
+      .self$fconF <- file.path(.self$path, .config_filename)
       
-      f <- file.path(path, .config_filename)
+      # Check and administrate config files
       
-      if (file.exists(f)) {
+      if(!file.exists(.self$fconF)){
+        doTheUpdate <- TRUE
+        if(is.na(.self$read_only)) .self$read_only <- FALSE #default for a new storage
+      } else {
         
+        readonlyArg <- .self$read_only
         get_config()
         
-      } else { # config.dat doesn't exist 
-        
-        if (length(.self$variables) > 0L) { #data exist bunt not the config file => create the file
-          
-          .self$db_version <- new_time_stamp()
-          .self$n_row      <- db_nrow()
+        if(!is.na(readonlyArg))
+        {  #forcing the new principle according current initialization
+          .self$read_only   <- readonlyArg
           put_config()
-          
-        } else { # no data = > postpone the creation of the config file until something is done in the directory
-          
-          .self$db_version <- NA_real_
-          .self$n_row      <- NA_integer_
-          
         }
+        
+        if(!file.exists(.self$ftabC)) {
+          doTheUpdate <- TRUE
+        } else {
+          get_tableOfContents()
+          hashOfToC <- digest(.self$variables,"xxhash64")
+          if(hashOfToC != .self$currHashCode) {
+            doTheUpdate <- TRUE  
+          } else {
+            # the configuration file and TableOfContent match => no more check (by default) 
+            doTheUpdate <- FALSE   
+            
+          }
+        }    
+      }
+      
+      if(doTheUpdate){  # updating table of contents without changing the database
+        rollback <- TRUE
+        
+        while(rollback) {
+          block_database()
+          if(get_blocking_instance() ==  .self$instanceID) {
+            update_tableOfContent_from_files()
+            put_tableOfContents()
+            
+            .self$currHashCode<- digest(.self$variables,"xxhash64")
+            if(get_blocking_instance() == .self$instanceID) {
+              put_config(status = .STATUS_EVAILABLE_FOR_EDITING)
+              rollback <- FALSE
+            }
+          } 
+        }     
+      }
+
+  
+    },
+ 
+    #' Get table of contents
+    #' 
+    get_tableOfContents = function() {
+      
+
+      
+      if(file.exists(.self$ftabC)){
+        .self$variables <- readRDS(.self$ftabC)
+        
+        if(nrow(.self$variables) == 0L) {
+          .self$n_row <- 0L
+          return(TRUE)
+        }
+        # check nr of observations
+        firstFile <- unlist(.self$variables[1,])
+        vName  <- firstFile[1]
+        vDims  <- unlist(firstFile[-1])
+
+        .self$n_row <-  length(.self$get_variable(name = vName, dims = vDims)) #TOO SLOW, RECODE!
+        return(TRUE)
+      } else {
+        update_tableOfContent_from_files()
       }
     },
-    
-    #' Get database variable length
-    #' - Currently it compares with the first variable in the database
-    db_nrow = function() {
+
+    #' put table of contents
+    #' 
+    put_tableOfContents = function() {
       
-      if (length(.self$variables) == 0) return(NA_integer_)
-      
-      # Get variable length
-      # - Could have a special function looking in the header instead for length
-      var <- list_to_query_repr(.self$variables)[[1]]
-      len <- length(.self$get_variable(name = var$name, dims = var$dims))
-      
-      return(len)
+      saveRDS(.self$variables, .self$ftabC)
+ 
     },
     
     #' Save configuration settings to disk
     #' 
     #' Note: The config file can be updated even if the database is read only,
     #' as it would otherwise be more difficult to actually change the same option.
-    put_config = function() {
+    put_config = function(status = .STATUS_EVAILABLE_FOR_EDITING) {
       if (.self$read_only) wrn(1)
       
       if (is.na(file.info(.self$path)$isdir)) {
         dir.create(.self$path, recursive = T)
       }
       
-      f <- file.path(.self$path, .config_filename)
+      if(status == .STATUS_EVAILABLE_FOR_EDITING) holder <- 0.0 else holder <- .self$instanceID 
       
+      .self$db_version <- new_time_stamp()
+      .self$currHashCode <- digest(.self$variables, algo = "xxhash64")
       dta <- list(
-        read_only = .self$read_only,
-        db_version = .self$db_version,
-        n_row = .self$n_row
+        read_only              = .self$read_only,
+        db_version             = .self$db_version,
+        db_tableOfContents     = .self$currHashCode,
+        n_row                  = .self$n_row,
+        status                 = status,
+        holder                 = holder
+        
       )
       
-      saveRDS(dta, file = f)
+      saveRDS(dta, file = .self$fconF)
     },
     
     #' Get configuration settings from disk
-    get_config = function(){
+    get_config = function(overwrite = TRUE){
       
-      f <- file.path(.self$path, .config_filename)
+      if (file.exists(.self$fconF)) {
+        
+        dta <- readRDS(file = .self$fconF)
+        
+        if(overwrite){
+          # Set field values
+          .self$read_only        <- dta$read_only
+          .self$db_version       <- dta$db_version
+          .self$currHashCode     <- dta$db_tableOfContents
+          .self$n_row            <- dta$n_row
+          }
+        return(list(status = dta$status, holder = dta$holder))
+        
+      } else { 
+        put_config() #initiate
+        return (NULL)
+      } 
+    },
+    
+    
+    update = function(){
+      # assert actuality of the table of contents
+      prevCode <- .self$currHashCode
+      .self$get_config()
+      if(.self$currHashCode != prevCode) get_tableOfContents()
       
-      if (file.exists(f)) {
-        
-        dta <- readRDS(file = f)
-        
-        # Set field values
-        .self$read_only <- dta$read_only
-        .self$db_version <- dta$db_version
-        .self$n_row <- dta$n_row
-        
-        return(T)
-        
-      } else return (NULL)
     },
     
     #' Put variable documentation to disk
@@ -177,30 +252,112 @@ cdb <- setRefClass(
       return(d)
     },
     
-    #' Add list representation
+    #' Add entries in the table of contents (variables)
+    #' 
+    #' @param new_entries
+    add_entries = function(new_entries = NULL){
+      
+      
+      ## ASSERTIONS
+      # Anything at all?
+      if(is.null(new_entries)) return(NULL)
+      # Proper formated and iis so any new entries?
+      if(!is.data.table(new_entries) || nrow(new_entries)==0L) return(NULL)
+      # Proper columnnames ?
+      # later ...
+      # Assert uniqueness
+      new_entries <- unique(new_entries)
+      new_entries <- as.data.table(lapply(new_entries, as.character))
+      
+      if(nrow(.self$variables)==0L) {
+          .self$variables <- new_entries
+      } else {
+      
+        nPrev <- nrow(.self$variables)
+        
+        l <- list(.self$variables, new_entries)
+        l <- unique(rbindlist(l, fill = TRUE))
+        
+        if(nrow(l) == nPrev) return(NULL)
+        
+        
+        .self$variables <- l # replace
+      }
+      
+      setkeyv(.self$variables, names(.self$variables))
+      return(NULL)
+      
+    },
+    
+    #' Match the data request with existing columns
     #' 
     #' @param name name
     #' @param dims dims
-    #' @param val endpoint value (add: 1, del: NULL)
-    update_repr = function(name, dims, ...) {
-      var <- recursive_list(x = c(name, dims), ...)
-      .self$variables <- sorted_modify_list(.self$variables, var)
-      .self$variables <- clear_branch(.self$variables)  # remove all 0's
+    data_selection = function(currRequest){
+      
+      if(is.null(currRequest) || (is.list(currRequest) && length(currRequest)== 0L) ){
+        return(data.table()) # trivial case
+      }
+      
+      update()
+      
+      if(nrow(.self$variables) == 0L) return(.self$variables)
+      
+      # do the selection on variables
+      if(isALL(currRequest$VAR[1])) {
+        dataSel <- .self$variables
+      } else {
+        currRequest$VAR <- unique(.self$variables$name[grep(glob2rx(currRequest$VAR),.self$variables$name)])
+        dataSel <- .self$variables[SJ(name=currRequest$VAR)]
+      }
+      
+      # do the selection on dimensions except missings
+      if(isALL(currRequest$DIMS)) {
+        return(dataSel)   
+      } else {
+        colNumbers     <- sapply(currRequest$DIMS,function(x) !all(is.na(x))) #filter non-NA:s
+        sel            <- currRequest$DIMS[,colNumbers,with=F]
+        sel            <- as.data.table(lapply(sel,as.character))
+        setkeyv(sel,names(sel)); setkeyv(dataSel,names(sel))
+        dataSel        <-  merge(sel,dataSel, all.x=F,all.y=F, by=names(sel)) # sel[dataSel]
+        setcolorder(dataSel,sort(names(dataSel)))
+        
+      }
+
+     return(dataSel)
+      
     },
     
-    add_repr = function(...) update_repr(..., val = list(. = 1)),
-    del_repr = function(...) update_repr(..., val = list(. = 0)),
+    #' Remove entries from table of content
+    #' 
+    #' @param Sel name
+    #' @param dims dims
+    del_entries = function(Sel = NULL ){
+      
+      if(is.null(Sel) || nrow(Sel) == nrow(.self$variables)) { 
+        .self$variables<- data.table()
+        .self$currHashCode<- digest(.self$variables,"xxhash64") 
+        .self$n_row      <- 0L  
+        return(NULL)           
+      }
+      
+      if(nrow(Sel) == 0L) return(NULL) # no instances to remove
+      
+      setkeyv(Sel,names(Sel))
+      .self$variables <- .self$variables[!Sel] # remove all instances of variable
+      .self$currHashCode<- digest(.self$variables,"xxhash64") 
+      
+      return(NULL)
+    },
     
-    #' Init list representation
+    #' Init table of contentens from file structure
     #' 
     #' Update list representation from file
     #' 
     #' @param dims tells if column with dimensions is required
-    update_repr_from_file = function() {
+    update_tableOfContent_from_files = function() {
       
-      # Need to be assigned as a list since it's an uninitialized field,
-      # or sorted_modify_list will throwan error
-      .self$variables <- list()
+      .self$variables <- data.table() # empty table as starting point
       
       files <- search_files(path = .self$path)
       
@@ -211,56 +368,173 @@ cdb <- setRefClass(
         # Extract dims
         var_dims <- str_extract_all(files, "\\[(\\w*)\\]")
         
-        # Remove square brackets
-        var_dims <- sapply(var_dims, function(x) {
+        # Remove square brackets and prepare lists
+        var_dims <- lapply(var_dims, function(x) {
           x <- gsub("\\[", "", x)
           x <- gsub("\\]", "", x)
-          
-          if (length(x) == 0) x <- NULL
+          if (length(x) == 0) x <- NA
+          x <- as.data.table(as.list(x))
+          setnames(x, paste("V",1:length(x),sep=""))
           return(x)
         })
         
-        # Add to list representation
-        for(i in 1:length(vars)) {
-          .self$add_repr(vars[[i]], var_dims[[i]])
-        }
-      } else .self$variables <- list()
+        #bulid the table of dimensions
+        var_dims <- rbindlist(var_dims,  use.names= TRUE, fill = TRUE)
+        
+        Tbl <- cbind(data.table(name=vars),var_dims)
+        
+        # empty the existing list of content
+        del_entries()
+        
+        # create a new one
+        add_entries(Tbl)
+        
+        
+      }
+      #register hash (even if data.table is empty)
+      
+      .self$currHashCode<- digest(.self$variables,"xxhash64")
+      
+      return(.self$currHashCode)
     },
     
-    #' Delete variable data
+    #' Block database when editing
+    #' 
+    block_database = function() {
+      
+      # Block while updating to avoid conflicts
+      # no strategies for deadlocks (at least yet) since they are considered unusual
+      # in targeted applications (most bulk loading of data for analysis)
+      
+      startT <-proc.time()[3]
+      lastT <- 0
+      repeat
+      {
+        bi <- get_blocking_instance()
+        if(bi == 0 || bi == .self$instanceID) { # attempt to bloock
+          
+          if(bi == 0) put_config(status = .STATUS_REQUESTED_FOR_EDITING)
+          
+          Sys.sleep(0.01) #wait in case any other precess interferes (find proper value of delay)
+          
+          if(get_blocking_instance() == .self$instanceID) break  # still blocked by me? => proceed 
+          
+            #otherwise failure, thus repat waiting until the interapter releases database
+        } else {
+          
+          waitT <- proc.time()[3] - startT  
+          if(waitT-lastT > 1.0) {cat(".");flush.console();
+                                 lastT <- waitT}
+          if(waitT  > 10L) {
+              # opportunistic, brutal approach:
+              # for current applications it is fair enough
+              # wait a while giving the other process time to finish the current task
+              # after seconds without result: steal and force the competitor to rollback
+              # issue: is wait time 10 seconds long/short enough?
+            put_config(status = .STATUS_REQUESTED_FOR_EDITING)
+              # issue for future release: queuing-principle
+            
+          }
+          
+        }
+      }
+      put_config(status = .STATUS_IN_EDITING )
+
+      return(TRUE)
+     },
+    
+    #' release database after editing
+    #' 
+    release_database = function() {
+      # see block_database (above)
+      put_tableOfContents()                                 # save representation
+      put_config(status = .STATUS_EVAILABLE_FOR_EDITING)   
+    },
+    
+    #' Get holder of a sucsessefull block, otherwise 0.0
+    #'    
+    get_blocking_instance = function () {
+      
+      cf <- get_config(overwrite = FALSE)
+      
+      if(is.null(cf)) return(0.0)
+      
+      if(  cf$status == .STATUS_REQUESTED_FOR_EDITING ||
+           cf$status == .STATUS_IN_EDITING
+           ) return(cf$holder) else return(0.0)
+        
+    },
+
+    #' Delete variable data, only one column at one call 
     #' 
     #' @param name variable name
     #' @param dims the specified observation in the space of dimensions
-    #' 
-    delete_variable = function(name, dims = NULL) {
+     #' 
+    delete_variable = function(i,j) {  
       
-      n_sel <- sum(unlist(.self$variable_match(name, dims)))
+      currRequest <- rephraseDataRequest(i,j)   # deal with all wildcards and 
       
-      # Return FALSE if variable doesn't exist
-      if (n_sel == 0) {
-        wrn(23, paste(name,"(",paste(dims,collapse=","),")",sep=""))
-        return(F)
+      if(length(currRequest)==0L) return(x)  #unclear what to do, thus do nothing and exit
+      
+      
+      if(isALL(currRequest$VAR)) return(clean())
+
+      
+      obs2del <- data_selection(currRequest)
+      
+      if(nrow(obs2del) == nrow(.self$variables)) rmALL <- TRUE
+ 
+
+      # Return NULL if variable doesn't exist
+      if (nrow(obs2del) == 0) {
+        # wrn(23, paste(names,"(",paste(obs2del$name,collapse=","),")",sep=""))
+        return(NULL)
       }
       
-      # Remove the whole directory if there is only one dimension
-      # including the documentation
-      if (n_sel == sum(unlist(.self$variable_match(name, .all)))) {
-        unlink(file.path(.self$path, name), recursive = T)
-      } else {
-        cdb <- file_path(name, .self$path, dims, ext = c("cdb.gz", "cdb"), create_dir = F)
-        
-        if(file.exists(cdb[1])){
-          unlink(file.path(cdb[1])) # compressed
-        } else {
-          unlink(file.path(cdb[2])) # uncompressed
-        }
-      }
+      rollback <- TRUE
       
-      .self$db_version <- new_time_stamp()
-      .self$put_config()
-      .self$del_repr(name, dims)
+      while(rollback) {
+        block_database()
+        if(get_blocking_instance() ==  .self$instanceID) {
+          
+          if(nrow(obs2del) == nrow(.self$variables)){
+            # Remove the whole directory if there is only one dimension
+            # including the documentation
+            unlink(file.path(.self$path, name), recursive = T)
+            
+          } else {
+            
+            for(i in 1:nrow(obs2del)){
+              name <- obs2del[i,name]
+              dim  <- obs2del[i,-1,with=F]
+              dim  <- unlist(dim)
+              if(!is.null(dim)){
+                dim  <- dim[!is.na(dim)];if(length(dim) == 0L) dim <- NULL
+              }
+              cdbF  <- file_path(name, .self$path, dim, ext = c("cdb.gz", "cdb"), create_dir = F)
+              
+              if(file.exists(cdbF[1])){
+                unlink(file.path(cdbF[1])) # compressed
+              } else {
+                unlink(file.path(cdbF[2])) # uncompressed
+              }
+              
+              if(length(list.files(file.path(.self$path,name,"data"))) == 0L) unlink(file.path(.self$path,name), recursive = TRUE)
+              
+            }
+            
+            del_entries(obs2del)
+            
+           }        
+          rollback <- FALSE      
+          } 
+      }
+
+      release_database()
     },
     
+
+
     # Get variable data
     #'    
     #' @param name variable name
@@ -269,17 +543,22 @@ cdb <- setRefClass(
     #'     
     get_variable = function(name, dims = NULL, na = NA) {
       
+      if(length(dims) == 0L || is.na(dims)) dims <- NULL
+      
+      if(!is.null(dims)){
+        dims <- dims[!is.na(dims)]; if(length(dims)==0L) dims <- NULL
+      }
       # Get file path
-      cdb <- file_path(name, .self$path, dims, ext = c("cdb.gz", "cdb"), create_dir = F)
+      cdbF <- file_path(name, .self$path, dims, ext = c("cdb.gz", "cdb"), create_dir = F)
       
       # Connect to compressed/uncompressed file
-      if (file.exists(cdb[1])) {
-        bin_file <- gzfile(cdb[1], "rb")
+      if (file.exists(cdbF[1])) {
+        bin_file <- gzfile(cdbF[1], "rb")
         
-      } else if (file.exists(cdb[2])) {
-        bin_file <- file(cdb[2], "rb")
+      } else if (file.exists(cdbF[2])) {
+        bin_file <- file(cdbF[2], "rb")
         
-      } else err(6, name)
+      } else err(6, paste(name,dims,collapse=","))
       
       header_len <- readBin(bin_file, integer(), n = 1, size = 8)
       header_str <- rawToChar(readBin(bin_file, raw(), n = header_len))
@@ -308,7 +587,7 @@ cdb <- setRefClass(
       } else if (header$type == "factor") {
         
         # Get lookup table, where values are to be used as levels
-        lt <- .self$get_lookup(name = name)
+        lt <- get_lookup(name = name)
         
         if (!is.null(lt)) {
           
@@ -376,39 +655,140 @@ cdb <- setRefClass(
       return(x)
     },
     
+    put_data_frame = function(x, name = NULL, dims = NULL){
+      
+      ### ASSERT
+      if (read_only) err(8) # ERROR
+      
+      if(!is.data.frame(x)) return(NULL) # ERROR ...
+      
+      if(nrow(x) != .self$n_row && nrow(.self$variables)>0L) return(NULL) # ERROR ...
+      
+      cnames <- colnames(x)
+      if (length(cnames) != length(unique(cnames)))  err(26) # ERROR
+      
+      # try do the task
+      
+      if(!is.data.table(x)) x <- as.data.table(x)
+      
+      rollback <- TRUE
+      while(rollback) {
+        block_database()
+        if(get_blocking_instance() ==  .self$instanceID) {
+          
+          # ___ to do
+         
+          ## PARS var-names and dimensions
+          lst <- str_split(cnames, .col_sep$regexp)  # first parse dimensions from names of coulumns
+          
+          if(is.null(name)){
+            VARS <- unlist(lapply(lst, FUN = head, n = 1))
+            lst <- lapply(lst, FUN = function(x) x[-1])
+          } else {
+            #var-names are explicit given. Use them instead for columnnames
+            # columnnames are interpreted as dimensions in this case
+            VARS <- rep(name, length.out=ncol(x))
+          }
+          
+          if(is.null(dims)){
+            # no explicit dimensions. Use columnnames
+            DIMS <- lapply(lst, 
+                           FUN = function(x) {if(length(x)==0L) NULL else x})
+          } else {
+            #explicit columnnames are provided
+            dims <- rep(dims, length.out = ncol(x)) #  compatibility of lengths
+            if(!is.list(dims)) dims <- as.list(dims) # list for uniform formating
+            
+            DIMS <- lapply(1:ncol(x), 
+                           FUN = function(i) {c(lst[[i]],dims[[i]])}) #concatenate parsed with provided dimensions
+          
+            DIMS <- lapply(DIMS, 
+                           FUN = function(x) { if(length(x) == 0) NULL else x}) #empty dim -> NULL
+          
+          }
+          
+          
+          for(i in 1:ncol(x)) {
+            put_variable_aux(
+              x = x[[i]],
+              name = VARS[i],
+              dims = DIMS[[i]]
+            )    
+          }
+          
+          if(.self$n_row == 0L){ 
+            .self$n_row <- nrow(x)
+          } else if(.self$n_row != nrow(x)) err(11, name)
+          
+          # ___
+          
+          #save table oof content to the file:
+          
+          
+
+          if(get_blocking_instance() == .self$instanceID) rollback <- FALSE # succes?
+        } 
+      } # roll back
+
+
+      release_database() 
+
+      return(T)
+      
+      
+    },
+
     #' Put variable data
     #' 
     #' @param x vector of values. Should be of the same length as all the other variables in the database.
     #' @param name variable name
     #' @param dims the specified observation in the space of dimensions 
-    #' @param attrib additional attributes to be saved  
     #' 
-    put_variable = function(x, name = NULL, dims = NULL, attrib = NULL) {
+    put_variable = function(x, name = NULL, dims = NULL) {
+      
+
+      rollback <- TRUE
+      while(rollback) {
+        block_database()
+        if(get_blocking_instance() ==  .self$instanceID) {
+          
+          put_variable_aux(x,name,dims)
+          
+          if(get_blocking_instance() == .self$instanceID) rollback <- FALSE # succes?
+        }
+      }
+      
+
+      release_database() 
+    },
+  
+
+    #' Put variable data
+    #' 
+    #' @param x vector of values. Should be of the same length as all the other variables in the database.
+    #' @param name variable name
+    #' @param dims the specified observation in the space of dimensions 
+    #' 
+    put_variable_aux = function(x, name = NULL, dims = NULL) {
+
+      
       if (read_only) err(8)
       
+      dimsV <- dims
+      if(is.list(dimsV) && !is.null(dimsV)) dimsV <- unlist(dimsV)
+      
       # If x is a data frame it will recursively run put_variable over all columns
-      if (is.data.frame(x)) {
+      # this is the only way of adding columns regardless dimension-coding of column names
+      # in other case the names are decoded using .col_sep - strings
+      if (is.data.frame(x)) return(put_data_frame(x, name , dims ))
         
-        # Check if all column names aren't unique
-        cnames <- colnames(x)
-        if (length(cnames) != length(unique(cnames))) err(26)
-        
-        sapply(names(x), function(i) {
-          put_variable(
-            x = x[[i]],
-            name = i,
-            dims = dims,
-            attrib = attrib
-          )
-        })
-        return(T)
-        
-      } else {
+      # else
+      {
         
         # Read object name if name argument is missing
         if (is.null(name)) name <- deparse(substitute(x))
         
-        # Dot's aren't allowed in column names
+        # Column seperators aren't allowed in column names
         # since it used as a seperator of name and dims
         if (length(grep(.col_sep$regexp, name)) == 0) {
           
@@ -418,7 +798,7 @@ cdb <- setRefClass(
             return(F)
           }
           
-          if(is.na(.self$n_row)){
+          if(.self$n_row == 0L || nrow(.self$variables)==0L){
             
             .self$n_row <- length(x)
             
@@ -475,10 +855,10 @@ cdb <- setRefClass(
             }
             
             # Get previous lookup table
-            lookup <- .self$get_lookup(name = name)
+            lookup <- get_lookup(name = name)
             
             # Get new levels (compared to lookup table)
-            lvl <- levels(x)[!levels(x) %in% lookup[[2]]]
+            lvl <- levels(x)[!(levels(x) %in% lookup[[2]])]
             
             # Add new levels (if there are any)
             if (length(lvl) > 0) {
@@ -494,7 +874,7 @@ cdb <- setRefClass(
               ))
               
               # Write lookup table
-              .self$put_lookup(name = name, table = lookup)
+              put_lookup(name = name, table = lookup)
             }
             
             # Convert variable (TODO: rewrite this part)
@@ -513,22 +893,22 @@ cdb <- setRefClass(
           ext <- if (.self$compress > 0) "cdb.gz" else "cdb"
           
           # Construct file path
-          cdb <- file_path(
+          cdbF <- file_path(
             name = name,
             path = .self$path,
-            dims = dims,
+            dims = dimsV,
             ext = ext,
             create_dir = T
           )
           
           # Check if we need a new entry in the in-memory representation
-          file.existed <- file.exists(cdb)
+          file.existed <- file.exists(cdbF)
           
           # File header
           header$db_ver <- as.integer(.cdb_file_version)
             
-          # Add attributes
-          header$attributes <- attrib
+          # Add attributes (reconsider)
+          # header$attributes <- attrib #, attrib = NULL) from formel arg-list
             
           header_raw <- charToRaw(RJSONIO::toJSON(header, digits = 50))
           header_len <- length(header_raw)
@@ -541,10 +921,12 @@ cdb <- setRefClass(
           }
           
           # Create temporary file
-          tmp <- create_temp_file(cdb)
+          tmp <- create_temp_file(cdbF)
           
           # Try to write file to disk
-          tryCatch({
+           tryCatch(
+           
+           {
             
             # future issue: no check for two vesions of the file. One compressed one not
             # Create file and add file extension
@@ -553,31 +935,38 @@ cdb <- setRefClass(
             } else {
               bin_file <- file(tmp, "wb")
             }
-            
+ 
+             
             # Write binary file
             writeBin(header_len, bin_file, size = 8)
             writeBin(header_raw, bin_file)
             writeBin(length(x),  bin_file, size = 8)
             writeBin(x, bin_file, size = header$bytes)  # write each vector element to bin_file
             close(bin_file)
-            
+       
             # Rename temporary variable to real name (overwrite)
-            file.copy(tmp, cdb, overwrite = T)
+            file.copy(tmp, cdbF, overwrite = T)
             
-            # Add to in-memory list representation
-            if(!file.existed) .self$add_repr(name, dims)
+             #browser()
+            # * Add to in-memory list representation & ...
             
-            # Update database version in config file
-            .self$db_version <- new_time_stamp()
-            .self$put_config()
+            if(is.null(dims)) dims <- data.table(V1=NA) else if (!is.data.table(dims)) names(dims) <-  paste("V", 1:length(dims), sep="")
+            new_entry <- cbind(data.table(name=name), as.data.table(as.list(dims)))
+            add_entries(new_entry )
+            # * Update database version in config file 
             
-          },
-          finally = file.remove(tmp),
-          error = function(e) {
-            err(14, name, e)
-          })
+            } ,
+           
+            finally = file.remove(tmp),
+          
+            error = function(e) { err(14, name, e)}
+          
+          )
           
           # Return TRUE if variable is successfully written
+          
+
+          
           return(T)
         } else wrn(25, name); return(F)
       }
@@ -648,28 +1037,46 @@ cdb <- setRefClass(
       }
     },
     
-    #' Get matching variables
-    variable_match = function(name, dims = NULL) {
-      lst <- do.call("c", lapply(name, function(x) {
-        recursive_list(c(x, dims), list(. = 1))
-      }))
-      list_match(.self$variables, lst)
+    attachCB = function(){
+      attach.CB(.self) 
     },
     
-    #' Check if variable exist
-    variable_exists = function(name, dims = NULL) {
-      !is.null(subset_list(.self$variables, c(name, dims)))
+    dettachCB = function(){
+      deatach.CB(.self) 
     },
+  
+    
+      
+    #' Check if variable exist
+    variable_exists = function(Nm) {
+      Nm <- grep(glob2rx(currRequest$VAR),.self$variables$name)
+      return(length(Nm)>0L)
+    },
+    
     
     #' Remove all content in database
     clean = function() {
+      
       if (read_only) err(8)
       
-      unlink(path, recursive = T)
-      .self$read_only  <- read_only
-      .self$db_version <- NA_real_
-      .self$n_row      <- NA_integer_
-      .self$variables <- list()
+      rollback <- TRUE
+      
+      while(rollback) {
+        block_database()
+        if(get_blocking_instance() ==  .self$instanceID) {
+          
+          # ___ to do
+          unlink(file.path(path,"*"), recursive = T)  # order to remove all
+          
+          del_entries()
+          # ___
+      
+          rollback <- FALSE # succes?
+        } 
+      } # roll back
+
+      release_database() 
+
     }
   )
 )
@@ -690,34 +1097,42 @@ cdb <- setRefClass(
 setMethod(
   f = "[",
   signature = "cdb",
-  definition = function(x, i, j, na = NA) {
+  definition = function(x, i, j, ... ) {   
+    # the first argument - named variables 
+    #       vector or list or missing (or value == .all)
+    #       list-notation . == list is allowed
+    #       result:  a vector of variable names or value == .all
+    #       look rephraseDataRequest() for details   
     
-    # Get database, e.g. a[], a[, ._] 
-    if (missing(i) || is.null(i)) {
-      i <- ._
-      if (missing(j)) j <- .all
-    # Get variable, e.g. a[._], a[.all]
-    } else {
-      if (any(.all %in% i)) i <- ._
-      if (missing(j)) j <- NULL
-    }
+    # deal with all wildcards and loop up in the data list
+    currRequest <- rephraseDataRequest(i,j,...)   # rephrasing
+    tableToRead <- x$data_selection(currRequest) #  applying on existent data
     
-    y <- list_to_query_repr(x$variable_match(name = i, dims = j))
-    
-    if (length(y) > 0) {
+    if (nrow(tableToRead ) > 0L) {
       
+      # Create data.table with first variable
+      
+      Nm   <- tableToRead[1,name]
+      Dms  <- unlist(tableToRead[1,-1,with=FALSE])
+      
+      v <- data.table(V1 = x$get_variable(name = Nm,dims = Dms))
+      
+      setnames(v, create_colname(Nm, Dms))
+      
+      # Add all other variables
       # Temporary function (since data.table otherwise think .self is
       # a column name, if that name is used)
       read_var <- function(...) x$get_variable(...)
+      #
       
-      # Create data.table with first variable
-      v <- data.table(V1 = x$get_variable(name = y[[1]]$name, dims = y[[1]]$dims, na = na))
-      setnames(v, create_colname(y[[1]]$name, y[[1]]$dims))
-      
-      # Add all other variables
-      if (length(y) > 1) {
-        for(i in 2:length(y)){
-          v[ , create_colname(y[[i]]$name, y[[i]]$dims) := read_var(y[[i]]$name, y[[i]]$dims, na = na), with = F]
+      if (nrow(tableToRead) > 1L) {
+        for(i in 2:nrow(tableToRead)){
+          
+          Nm   <- tableToRead[i, name]
+          Dms  <- unlist(tableToRead[i,-1, with=FALSE])
+                         
+          v[, create_colname(Nm, Dms) := read_var(Nm,Dms, na = NA), with = F]
+          
         }
       }
     } else v <- NULL
@@ -742,70 +1157,58 @@ setMethod(
 setMethod(
   f = "[<-",
   signature = "cdb",
-  definition = function(x, i, j, value){
+  definition = function(x, i, j, value){  # A["x",2001,2,4] <- NULL   ?????
+
     
     if (x$read_only) err(8)
     
-    if(missing(i) && missing(j)) {
-      
-      # Clean database, e.g. a[] <- NULL
-      if(is.null(value)) {
-        
-        x$clean(); return(x)
-      
-      # Add multiple variables, e.g. a[] <- mtcars
-      } else if (is(value, "data.frame")) {
-        
-        if (!missing(i)) wrn(24)
-        
-        cnames <- names(value)
-        lst <- str_split(cnames, .col_sep$regexp)
-        vars <- unlist(lapply(lst, FUN = head, n = 1))
-        dims <- lapply(lst, FUN = function(x) {
-          if (length(x) == 1) NA else x[-1]
-        })
-        
-        for(k in 1:length(vars)) {
-          
-          # If dim == NA, replace with NULL
-          if (is.na((d <- dims[[k]])[1])) d <- NULL
-          
-          # Prepare data vector
-          if (is(value, "data.table")) v <- value[, k, with = F][[1]] else v <- value[, k]
-          
-          # Add to database
-          x$put_variable(x = v, name = vars[k], dims = d)
-        }
-        
-        return(x)
-        
-      } else {
-        wrn(22, class(value)); return(x)
-      }
-    }
     
-    if (all(class(value) == "doc")) {
+    if( is.null(value)){ # clear variable if any
+      
+
+        x$delete_variable(i,j)
+
+      return(x)
+      
+    } # else !is.null(value), thus new addition to database
+    
+    # treat one coolumn data.table/data.frame as a vector
+    if(is(value, "data.frame") && ncol(value) == 1L) value <- value[[1]]
+    
+    if (is(value, "data.frame")) {
+
+       x$put_data_frame(x = value)
+      
+      return(x)
+      #______ data.frame/data.table is copied to trhe file representation
+      
+    } else if(is.vector(value)) {
+      
+      currRequest <- rephraseDataRequest(i,j)
+      if(isALL(currRequest$VAR))
+      {
+          wrn(24);return(x)
+      }
+      theName <- currRequest$VAR[1]     # skip all except the first variable
+      theDim  <- currRequest$DIMS[1]
+      if(isALL(theDim)){
+        x$put_variable(x = value, name = theName) 
+      } else {
+        x$put_variable(x = value, name = theName, dims = theDim)
+      }
+      
+      return(x)
+      
+    } else  if (all(class(value) == "doc")) {
       
       # Create readme.json
       x$put_doc(x = value$to_json(), name = i)
     
     # Delete variables
-    } else if (is.null(value)){
-      
-      if (missing(j)) j <- NULL
-      
-      # Delete all matching variables
-      y <- list_to_query_repr(x$variable_match(name = i, dims = j))
-      lapply(y, function(var) {
-        x$delete_variable(name = var$name, dims = var$dims)
-      })
-      
     } else {
-      
-      if (missing(j)) j <- NULL
-      x$put_variable(x = value, name = i, dims = j)
-      
+      wrn(22, class(value)); return(x)
     }
+    
     return(x)
   }
 )
